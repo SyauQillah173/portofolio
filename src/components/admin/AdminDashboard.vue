@@ -496,7 +496,7 @@
                     <input
                       ref="galleryInputRef"
                       type="file"
-                      accept="image/*,video/mp4,video/webm,video/*"
+                      accept="image/*,video/*"
                       multiple
                       class="hidden-file-input"
                       @change="handleGalleryFilesChange"
@@ -827,11 +827,13 @@ const checkIsVideo = (item) => getMediaType(item) === "video";
 const getYouTubeThumb = (item) => getYouTubeThumbnail(item);
 
 /**
- * Client-side Canvas Image Compression
- * Shrinks photos (e.g. 5MB-10MB phone camera shots) to clean ~80-150KB JPEGs
- * so they fit smoothly in browser localStorage without exceeding limits.
+/**
+ * Universal HD Image Processor & Compressor
+ * Supports Portrait, Landscape, Square, and Document Photos (A4, Flyers, Scans)
+ * Preserves high resolution (up to 1920px Full HD) with smooth bicubic scaling,
+ * ensuring text, stamps, and logos from phone camera uploads remain crystal clear.
  */
-const compressImage = (file, maxWidth = 1280, maxHeight = 800, quality = 0.82) => {
+const compressImage = (file, maxDimension = 1920, quality = 0.85) => {
   return new Promise((resolve, reject) => {
     if (!file || !file.type.startsWith("image/")) {
       return reject(new Error("File bukan gambar"));
@@ -841,25 +843,30 @@ const compressImage = (file, maxWidth = 1280, maxHeight = 800, quality = 0.82) =
       const img = new Image();
       img.onload = () => {
         let { width, height } = img;
-        if (width > maxWidth || height > maxHeight) {
-          if (width / height > maxWidth / maxHeight) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
+
+        // Symmetric scaling based on the longest edge (works equally well for portrait and landscape!)
+        if (Math.max(width, height) > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
           } else {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
           }
         }
+
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
 
         const dataUrl = canvas.toDataURL("image/jpeg", quality);
         const origKB = Math.round(file.size / 1024);
         const compKB = Math.round((dataUrl.length * 3) / 4 / 1024);
-        resolve({ dataUrl, origKB, compKB });
+        resolve({ dataUrl, origKB, compKB, width, height });
       };
       img.onerror = (err) => reject(err);
       img.src = e.target.result;
@@ -2161,6 +2168,34 @@ const showToast = (msg) => {
 }
 
 @media (max-width: 768px) {
+  .modal-backdrop {
+    padding: 6px;
+  }
+
+  .form-modal-card {
+    width: 100%;
+    max-width: 100%;
+    max-height: 96vh;
+    border-radius: var(--radius-lg);
+  }
+
+  .form-scrollable {
+    padding: var(--space-md);
+  }
+
+  .upload-mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .mode-pill {
+    padding: 8px 6px;
+    text-align: center;
+    font-size: 11px;
+  }
+
   .admin-header-container {
     padding: var(--space-sm) var(--space-md);
   }

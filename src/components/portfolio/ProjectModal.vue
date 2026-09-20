@@ -23,7 +23,48 @@
           <div class="modal-content">
             <!-- Left Side - Gallery & Video Player -->
             <div class="modal-gallery">
-              <!-- Main Media Area -->
+              <!-- Non-overlapping Top Bar (Dedicated header) -->
+              <div class="gallery-top-bar">
+                <span class="gallery-counter">
+                  <span v-if="currentMediaType === 'youtube'">🎬 YouTube</span>
+                  <span v-else-if="currentMediaType === 'video'">🎥 Video</span>
+                  <span v-else>📷 Foto</span>
+                  {{ currentImageIndex + 1 }} / {{ mediaItems.length }}
+                </span>
+                <div class="gallery-tools">
+                  <button
+                    v-if="currentMediaType === 'image'"
+                    type="button"
+                    class="tool-btn"
+                    @click="toggleZoomMode"
+                    :title="isZoomMode ? 'Kembali ke Tampilan Penuh (Fit)' : 'Zoom Detail (Scroll Bebas)'"
+                  >
+                    <span>{{ isZoomMode ? '🔍 Tampilan Penuh' : '🔍 Zoom Detail' }}</span>
+                  </button>
+                  <a
+                    v-if="currentMediaType === 'youtube'"
+                    :href="currentRawMedia"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="tool-btn"
+                    title="Buka di YouTube"
+                  >
+                    <span>▶ Buka di YouTube</span>
+                  </a>
+                  <a
+                    v-else
+                    :href="resolvedMediaUrl || currentRawMedia"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="tool-btn"
+                    :title="currentMediaType === 'video' ? 'Buka Video Resolusi Penuh' : 'Buka Gambar Resolusi Asli HD di Tab Baru'"
+                  >
+                    <span>{{ currentMediaType === 'video' ? '⛶ Buka Video' : '⛶ Buka HD' }}</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Main Media Stage -->
               <div
                 class="gallery-main"
                 :class="{
@@ -38,47 +79,6 @@
                   :style="{ backgroundImage: `url(${resolvedMediaUrl || currentRawMedia})` }"
                   aria-hidden="true"
                 ></div>
-
-                <!-- Floating Toolbar -->
-                <div class="gallery-top-bar">
-                  <span class="gallery-counter">
-                    <span v-if="currentMediaType === 'youtube'">🎬 YouTube</span>
-                    <span v-else-if="currentMediaType === 'video'">🎥 Video</span>
-                    <span v-else>📷 Foto</span>
-                    {{ currentImageIndex + 1 }} / {{ mediaItems.length }}
-                  </span>
-                  <div class="gallery-tools">
-                    <button
-                      v-if="currentMediaType === 'image'"
-                      type="button"
-                      class="tool-btn"
-                      @click="toggleZoomMode"
-                      :title="isZoomMode ? 'Kembali ke Tampilan Penuh (Fit)' : 'Zoom Detail (100%)'"
-                    >
-                      <span>{{ isZoomMode ? '🔍 Tampilan Penuh' : '🔍 Zoom Detail' }}</span>
-                    </button>
-                    <a
-                      v-if="currentMediaType === 'youtube'"
-                      :href="currentRawMedia"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="tool-btn"
-                      title="Buka di YouTube"
-                    >
-                      <span>▶ Buka di YouTube</span>
-                    </a>
-                    <a
-                      v-else
-                      :href="resolvedMediaUrl || currentRawMedia"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="tool-btn"
-                      :title="currentMediaType === 'video' ? 'Buka Video Resolusi Penuh' : 'Buka Gambar Resolusi Asli HD di Tab Baru'"
-                    >
-                      <span>{{ currentMediaType === 'video' ? '⛶ Buka Video' : '⛶ Buka HD' }}</span>
-                    </a>
-                  </div>
-                </div>
 
                 <!-- 1. YouTube Video Embed Player -->
                 <div v-if="currentMediaType === 'youtube'" class="media-youtube-wrap">
@@ -565,15 +565,15 @@ onUnmounted(() => {
 }
 
 .gallery-top-bar {
-  position: absolute;
-  top: var(--space-sm);
-  left: var(--space-sm);
-  right: var(--space-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 10px 16px;
+  background: #060919;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 5;
-  pointer-events: none;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .gallery-counter {
@@ -585,13 +585,11 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 4px 10px;
   border-radius: var(--radius-full);
-  pointer-events: auto;
 }
 
 .gallery-tools {
   display: flex;
   gap: 6px;
-  pointer-events: auto;
 }
 
 .tool-btn {
@@ -617,25 +615,47 @@ onUnmounted(() => {
   color: #ffffff;
 }
 
+.gallery-main {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #020510;
+  padding: 12px;
+}
+
 .main-image {
   position: relative;
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
-  object-fit: contain; /* CRITICAL: Never crop, displays full HD image at all resolutions! */
+  object-fit: contain; /* CRITICAL: Displays full HD portrait and landscape without any cropping! */
   border-radius: var(--radius-md);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
   z-index: 1;
   transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Zoom Mode: Allows scrolling vertical/portrait documents freely in full detail */
+.gallery-main.is-zoom-mode {
+  overflow-y: auto;
+  overflow-x: auto;
+  display: block;
+  text-align: center;
+  padding: var(--space-md);
+}
+
 .gallery-main.is-zoom-mode .main-image {
-  max-width: none;
+  max-width: 100%;
   max-height: none;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  cursor: zoom-out;
 }
 
 /* Video & Media Wrappers */
@@ -1034,10 +1054,28 @@ onUnmounted(() => {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
+  .modal-close {
+    top: 6px;
+    right: 6px;
+    width: 32px;
+    height: 32px;
+    z-index: 30;
+  }
+
+  .modal-close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .gallery-top-bar {
+    padding: 8px 46px 8px 10px;
+  }
+
   .gallery-main {
-    min-height: 250px;
-    max-height: 44vh;
-    padding: 10px;
+    min-height: 320px;
+    height: 52vh;
+    max-height: 58vh;
+    padding: 8px;
   }
 
   .modal-details {
@@ -1074,8 +1112,9 @@ onUnmounted(() => {
   }
 
   .gallery-main {
-    min-height: 340px;
-    max-height: 48vh;
+    min-height: 380px;
+    height: 54vh;
+    max-height: 58vh;
     padding: var(--space-md);
   }
 }
@@ -1095,6 +1134,7 @@ onUnmounted(() => {
 
   .gallery-main {
     min-height: 440px;
+    height: 100%;
   }
 }
 </style>
