@@ -224,7 +224,7 @@
                     rel="noopener noreferrer"
                     class="btn btn-secondary btn-lg btn-full btn-wa-quick"
                   >
-                    <span>💬 Hubungi Langsung via WhatsApp</span>
+                    <span>💬 Hubungi via WhatsApp</span>
                   </a>
 
                   <!-- Success Message -->
@@ -735,13 +735,12 @@ onUnmounted(() => {
 }
 
 .contact-card-val {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   color: #F1F5F9;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  word-break: break-all;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
 .contact-card-action {
@@ -944,6 +943,11 @@ onUnmounted(() => {
     padding: 10px 12px;
     font-size: 16px !important;
   }
+
+  .btn-wa-quick {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
 }
 
 /* Responsive - Mobile (375px-639px) */
@@ -981,6 +985,11 @@ onUnmounted(() => {
   .form-input,
   .form-textarea {
     font-size: 16px !important;
+    padding: 12px 14px;
+  }
+
+  .btn-wa-quick {
+    font-size: 14px;
     padding: 12px 14px;
   }
 }

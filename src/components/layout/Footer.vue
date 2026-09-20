@@ -53,17 +53,31 @@
           <h4 class="footer-heading">Kontak</h4>
           <ul class="contact-list">
             <li class="contact-item">
-              <span class="contact-icon">📧</span>
+              <span class="contact-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </span>
               <a :href="`mailto:${contactInfo.email}`" class="contact-link">
                 {{ contactInfo.email }}
               </a>
             </li>
             <li class="contact-item">
-              <span class="contact-icon">📍</span>
+              <span class="contact-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </span>
               <span class="contact-text">{{ contactInfo.location }}</span>
             </li>
             <li v-if="contactInfo.phone" class="contact-item">
-              <span class="contact-icon">📱</span>
+              <span class="contact-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </span>
               <a :href="contactInfo.whatsapp || `tel:${contactInfo.phone}`" target="_blank" rel="noopener noreferrer" class="contact-link">
                 {{ contactInfo.phone }}
               </a>
@@ -76,13 +90,11 @@
       <div class="footer-bottom">
         <p class="footer-copyright">
           &copy; {{ currentYear }} Portfolio By Abdullah Syauqillah
-          <span class="heart">❤️</span>
         </p>
         <div class="footer-bottom-links">
-          <span class="footer-tech">Built with Vue.js + Vite</span>
-          <span class="footer-dot">•</span>
           <a href="#admin" class="footer-admin-link">
-            <span>🔐 Portal Admin</span>
+            <span class="admin-lock-icon">🔒</span>
+            <span>Portal Admin</span>
           </a>
         </div>
       </div>
@@ -286,25 +298,59 @@ onUnmounted(() => {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .contact-item {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
+  gap: 12px;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+}
+
+.contact-icon-box {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-primary);
+  transition: all var(--transition-fast);
+}
+
+.contact-icon-box svg {
+  width: 17px;
+  height: 17px;
+}
+
+.contact-item:hover .contact-icon-box {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  transform: scale(1.05);
 }
 
 .contact-link {
   color: var(--color-text-muted);
   text-decoration: none;
   transition: color var(--transition-fast);
+  word-break: break-all;
 }
 
 .contact-link:hover {
   color: var(--color-primary);
+}
+
+.contact-text {
+  color: var(--color-text-muted);
+  line-height: 1.4;
 }
 
 /* Bottom */
@@ -312,53 +358,45 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: var(--space-md);
 }
 
 .footer-copyright {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   margin: 0;
-}
-
-.heart {
-  display: inline-block;
-  animation: heartbeat 1.5s ease-in-out infinite;
-}
-
-@keyframes heartbeat {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
+  letter-spacing: 0.2px;
 }
 
 .footer-bottom-links {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  flex-wrap: wrap;
-}
-
-.footer-dot {
-  color: var(--color-text-muted);
-  opacity: 0.5;
 }
 
 .footer-admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-text-muted);
   text-decoration: none;
   font-size: var(--font-size-xs);
+  font-weight: 500;
   transition: all var(--transition-fast);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .footer-admin-link:hover {
   color: var(--color-primary-light);
-  background: rgba(31, 159, 216, 0.1);
+  background: rgba(31, 159, 216, 0.12);
+  border-color: rgba(31, 159, 216, 0.3);
+  transform: translateY(-1px);
+}
+
+.admin-lock-icon {
+  font-size: 13px;
 }
 
 /* Back to Top */
@@ -404,13 +442,17 @@ onUnmounted(() => {
 
 /* Responsive - Mobile */
 @media (max-width: 639px) {
+  .footer {
+    padding-bottom: calc(var(--space-2xl) + 28px);
+  }
+
   .footer-wave-container {
     height: 50px;
   }
 
   .footer-content {
     grid-template-columns: 1fr;
-    gap: var(--space-lg);
+    gap: var(--space-xl);
     text-align: center;
   }
 
@@ -427,17 +469,47 @@ onUnmounted(() => {
     transform: translateX(-50%);
   }
 
+  .footer-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .contact-list {
+    width: 100%;
+    max-width: 320px;
+    align-items: flex-start;
+  }
+
+  .contact-item {
+    text-align: left;
+    width: 100%;
+  }
+
   .footer-bottom {
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-md);
     text-align: center;
   }
 
+  .footer-bottom-links {
+    justify-content: center;
+  }
+
   .back-to-top {
-    right: var(--space-md);
-    bottom: var(--space-md);
-    width: 44px;
-    height: 44px;
+    right: 14px;
+    bottom: 20px;
+    width: 40px;
+    height: 40px;
+    background: rgba(31, 159, 216, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  .back-to-top svg {
+    width: 20px;
+    height: 20px;
   }
 }
 
