@@ -23,6 +23,55 @@ const works = ref([]);
 const categories = ref(defaultWorksData.categories || []);
 const isAuthenticated = ref(false);
 const isInitialized = ref(false);
+const isNeonConnected = ref(false);
+const isSyncing = ref(false);
+
+/**
+ * Fetch latest works from Neon Serverless Postgres
+ */
+async function fetchFromNeonDatabase() {
+  try {
+    const res = await fetch('/api/works');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.connected) {
+      isNeonConnected.value = true;
+      if (Array.isArray(data.works) && data.works.length > 0) {
+        works.value = data.works;
+        saveWorksToStorage();
+        console.log(`✓ Synchronized ${data.works.length} works live from Neon Postgres!`);
+      } else if (Array.isArray(data.works) && data.works.length === 0) {
+        // Initial setup: auto-seed default works to Neon
+        syncAllToNeon();
+      }
+    }
+  } catch (err) {
+    // Graceful offline fallback
+    console.warn('Neon cloud sync not available, using local cache:', err.message);
+  }
+}
+
+/**
+ * Seed all current works to Neon Database
+ */
+async function syncAllToNeon() {
+  if (isSyncing.value || !works.value.length) return;
+  isSyncing.value = true;
+  try {
+    for (const work of works.value) {
+      await fetch('/api/works', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(work),
+      });
+    }
+    console.log('✓ All works successfully seeded to Neon Postgres!');
+  } catch (e) {
+    console.warn('Error seeding to Neon:', e);
+  } finally {
+    isSyncing.value = false;
+  }
+}
 
 /**
  * Initialize store from localStorage or default JSON files
@@ -91,6 +140,9 @@ function initStore() {
   }
 
   isInitialized.value = true;
+
+  // Asynchronously synchronize with Neon Postgres in background
+  fetchFromNeonDatabase();
 }
 
 /**
@@ -204,6 +256,14 @@ export function usePortfolioStore() {
     // Prepend so new items appear first
     works.value.unshift(newWork);
     saveWorksToStorage();
+
+    // Background sync to Neon Postgres
+    fetch('/api/works', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newWork),
+    }).catch(e => console.warn('Neon sync pending:', e.message));
+
     return newWork;
   };
 
@@ -229,6 +289,14 @@ export function usePortfolioStore() {
     };
 
     saveWorksToStorage();
+
+    // Background sync to Neon Postgres
+    fetch('/api/works', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(works.value[index]),
+    }).catch(e => console.warn('Neon update pending:', e.message));
+
     return works.value[index];
   };
 
@@ -240,6 +308,12 @@ export function usePortfolioStore() {
     if (index === -1) return false;
     works.value.splice(index, 1);
     saveWorksToStorage();
+
+    // Background sync to Neon Postgres
+    fetch(`/api/works?id=${id}`, {
+      method: 'DELETE',
+    }).catch(e => console.warn('Neon delete pending:', e.message));
+
     return true;
   };
 
@@ -283,10 +357,12 @@ export function usePortfolioStore() {
           categories.value = parsed.categories;
         }
         saveWorksToStorage();
+        syncAllToNeon();
         return { success: true, count: parsed.works.length };
       } else if (Array.isArray(parsed)) {
         works.value = parsed;
         saveWorksToStorage();
+        syncAllToNeon();
         return { success: true, count: parsed.length };
       } else {
         return { success: false, message: "Format file JSON tidak valid! Pastikan file berisi data karya." };
@@ -301,6 +377,7 @@ export function usePortfolioStore() {
     works,
     categories,
     isAuthenticated,
+    isNeonConnected,
     login,
     logout,
     changePassword,
@@ -310,5 +387,6 @@ export function usePortfolioStore() {
     resetToDefault,
     downloadBackup,
     importBackup,
+    syncAllToNeon,
   };
 }

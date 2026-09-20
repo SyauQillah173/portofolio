@@ -9,9 +9,9 @@
             <span class="logo-accent">.</span>
             <span class="admin-pill">Admin CMS</span>
           </a>
-          <span class="live-status">
-            <span class="status-pulse"></span>
-            Live Sync Aktif
+          <span class="live-status" :class="{ 'status-cloud': isNeonConnected }">
+            <span class="status-pulse" :class="{ 'pulse-cloud': isNeonConnected }"></span>
+            {{ isNeonConnected ? '☁️ Neon Cloud Terhubung' : '💾 Mode Lokal Aktif' }}
           </span>
         </div>
 
@@ -751,6 +751,8 @@ const {
   downloadBackup,
   importBackup,
   changePassword,
+  isNeonConnected,
+  syncAllToNeon,
 } = usePortfolioStore();
 
 // Search & Filter
