@@ -1,0 +1,37 @@
+{
+  "social": [
+    {
+      "id": 1,
+      "name": "LinkedIn",
+      "url": "https://www.linkedin.com/in/syauqillah-syauqillah-5595a51b3/",
+      "icon": "linkedin",
+      "color": "#0A66C2"
+    },
+    {
+      "id": 2,
+      "name": "GitHub",
+      "url": "https://github.com/SyauQillah173",
+      "icon": "github",
+      "color": "#FFFFFF"
+    },
+    {
+      "id": 3,
+      "name": "Instagram",
+      "url": "https://www.instagram.com/syauqillah_173/",
+      "icon": "instagram",
+      "color": "#E4405F"
+    },
+    {
+      "id": 4,
+      "name": "YouTube",
+      "url": "https://www.youtube.com/@abdullahsyauqillah403",
+      "icon": "youtube",
+      "color": "#FF0000"
+    }
+  ],
+  "contact": {
+    "email": "abdullahsyauqillah01@gmail.com",
+    "phone": "+62 815 5936 131",
+    "location": "Gresik, Jawa Timur, Indonesia"
+  }
+}

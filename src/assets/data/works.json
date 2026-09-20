@@ -1,0 +1,136 @@
+{
+  "works": [
+    {
+      "id": 1,
+      "title": "Sistem Informasi Pesantren Terintegrasi",
+      "category": "web",
+      "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop&q=80",
+      "description": "Platform enterprise terintegrasi yang dibangun mandiri dari konsep hingga production (ppqomaruddin.itqom.net).",
+      "fullDescription": "Merancang dan membangun Sistem Informasi Pesantren terintegrasi skala besar secara mandiri dari tahap perancangan alur proses bisnis hingga peluncuran live (production). Modul inti meliputi: Absensi Digital berbasis QR Code & Kartu Tanda Santri (KTS), Buku Induk/Master Data, Modul Keuangan multi-kas (arus kas Pondok & Madin), serta Sistem Penerimaan Santri Baru (PSB). Sistem ini aktif digunakan dan dimaintain secara berkala untuk efisiensi operasional pesantren.",
+      "technologies": ["Full-Stack Web", "Vue.js", "QR Code Scanner", "Relational Database", "Modul Keuangan", "Sistem PSB"],
+      "gallery": [
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&h=650&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1000&h=650&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1000&h=650&fit=crop&q=80"
+      ],
+      "year": "2024 – Sekarang",
+      "role": "Full-Stack Web Developer & System Analyst",
+      "client": "Pondok Pesantren Qomaruddin",
+      "productionHouse": "",
+      "externalLinks": [
+        { "label": "Kunjungi Sistem (Live)", "url": "https://ppqomaruddin.itqom.net/", "icon": "external" }
+      ],
+      "featured": true
+    },
+    {
+      "id": 2,
+      "title": "Commercial Aerial Shoot — Pertamina & Bulog",
+      "category": "drone",
+      "image": "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&h=500&fit=crop&q=80",
+      "description": "Pengambilan footage udara (aerial cinematography) 4K untuk video Company Profile BUMN skala nasional bersama tim Raff Studio.",
+      "fullDescription": "Dipercaya oleh tim produksi Raff Studio sebagai Pilot Drone Komersial untuk mengeksekusi aerial shoot pada proyek video Company Profile perusahaan BUMN nasional, termasuk PT Pertamina dan Perum BULOG. Bertanggung jawab atas pengoperasian drone DJI berstandar sinematik, kestabilan manuver udara, pemetaan visual tata ruang industri, serta kepatuhan pada regulasi keselamatan terbang.",
+      "technologies": ["DJI Drone 4K", "Aerial Cinematography", "Tata Ruang Industri", "Visual Composition"],
+      "gallery": [
+        "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1000&h=650&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1506947411487-a56738267384?w=1000&h=650&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=1000&h=650&fit=crop&q=80"
+      ],
+      "year": "2021 – Sekarang",
+      "role": "Drone Pilot & Aerial Operator",
+      "client": "PT Pertamina & Perum BULOG",
+      "productionHouse": "Raff Studio",
+      "externalLinks": [
+        { "label": "Buka Video Drone di Google Drive", "url": "https://drive.google.com/drive/folders/1c70iPsGZhf0u3xTs_qfv_41IINvlPYSW?usp=sharing", "icon": "drive" },
+        { "label": "Hubungi via WhatsApp", "url": "https://wa.me/628155936131?text=Halo%20Mas%20Syauqillah,%20saya%20tertarik%20melihat%20showreel%20drone%20Anda", "icon": "external" }
+      ],
+      "featured": true
+    },
+    {
+      "id": 3,
+      "title": "Infrastruktur Jaringan Fiber Optic & Maintenance IT",
+      "category": "network",
+      "image": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&h=500&fit=crop&q=80",
+      "description": "Instalasi jalur Fiber Optic, pengecekan redaman sinyal optik, infrastruktur LAN, dan mesin absensi fingerprint.",
+      "fullDescription": "Bertanggung jawab atas pemeliharaan dan instalasi infrastruktur teknologi informasi di lingkungan Pondok Pesantren Qomaruddin. Ruang lingkup kerja meliputi pengecekan redaman kabel Fiber Optic untuk memastikan konektivitas perangkat fingerprint dan server stabil, manajemen jaringan LAN di berbagai gedung fasilitas, perbaikan hardware komputer, serta penyediaan Tier 1 Technical Support harian.",
+      "technologies": ["Fiber Optic (FO)", "Pengecekan Redaman Optik", "LAN Switching & Cabling", "Hardware Troubleshooting", "Fingerprint System"],
+      "gallery": [
+        "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1000&h=650&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1000&h=650&fit=crop&q=80"
+      ],
+      "year": "2024 – Sekarang",
+      "role": "IT Maintenance & Network Support",
+      "client": "Pondok Pesantren Qomaruddin",
+      "productionHouse": "",
+      "externalLinks": [],
+      "featured": true
+    },
+    {
+      "id": 4,
+      "title": "Publikasi Informasi Publik & Social Media BPPKAD Gresik",
+      "category": "video",
+      "image": "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&h=500&fit=crop&q=80",
+      "description": "Manajemen media sosial resmi instansi pemerintah, pembuatan konten infografis, dan publikasi program kerja daerah.",
+      "fullDescription": "Mengelola dan mengoptimalkan kanal media sosial resmi Badan Pendapatan, Pengelolaan Keuangan dan Aset Daerah (BPPKAD) Kabupaten Gresik. Merancang kalender konten tematik, memproduksi materi desain visual informatif, serta mengemas program kerja pemerintah menjadi konten edukatif dan transparan yang mudah dipahami oleh masyarakat umum.",
+      "technologies": ["Social Media Strategy", "Infografis Digital", "Adobe Illustrator", "Copywriting Pemerintah", "Canva Pro"],
+      "gallery": [
+        "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=1000&h=650&fit=crop&q=80"
+      ],
+      "year": "2023",
+      "role": "Social Media Specialist (Magang)",
+      "client": "BPPKAD Kabupaten Gresik",
+      "productionHouse": "",
+      "externalLinks": [],
+      "featured": false
+    },
+    {
+      "id": 5,
+      "title": "Produksi Video Sinematik & Dokumentasi Foto Acara",
+      "category": "video",
+      "image": "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&h=500&fit=crop&q=80",
+      "description": "Videografi & fotografi acara akbar, liputan dokumenter, pengarsipan aset visual, dan video highlight.",
+      "fullDescription": "Bertindak sebagai fotografer dan videografer utama dalam berbagai agenda besar pesantren dan acara privat/komersial. Menangani perekaman video multi-angle, tata pencahayaan, pengarahan visual, proses pasca-produksi (editing di Adobe Premiere Pro, color grading DaVinci Resolve), hingga manajemen arsip visual digital untuk publikasi resmi.",
+      "technologies": ["Commercial Videography", "Adobe Premiere Pro", "DaVinci Resolve", "Event Photography", "Asset Archiving"],
+      "gallery": [
+        "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1000&h=650&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1533750516457-a7f992034fec?w=1000&h=650&fit=crop&q=80"
+      ],
+      "year": "2021 – Sekarang",
+      "role": "Lead Videographer & Fotografer",
+      "client": "Pondok Pesantren Qomaruddin & Klien Independen",
+      "productionHouse": "Tim Media & Independen",
+      "externalLinks": [
+        { "label": "Arsip Foto & Video di Google Drive", "url": "https://drive.google.com/drive/folders/1c70iPsGZhf0u3xTs_qfv_41IINvlPYSW?usp=sharing", "icon": "drive" },
+        { "label": "YouTube Profil", "url": "https://www.youtube.com/@abdullahsyauqillah403", "icon": "youtube" }
+      ],
+      "featured": false
+    },
+    {
+      "id": 6,
+      "title": "Koleksi Video AI Generatif & Creative Visual (BetaTech)",
+      "category": "video",
+      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=500&fit=crop&q=80",
+      "description": "Eksplorasi produksi video kreatif berbasis Generative AI dan pipeline video modern untuk BetaTech.",
+      "fullDescription": "Mengeksplorasi dan memproduksi konten video visual masa depan memanfaatkan pipeline Generative AI terdepan (BetaTech). Berfokus pada perancangan visual prompt tingkat lanjut, sintesis sinematik multimodal, styling motion dinamis, serta editing dan audio compositing untuk kebutuhan konten promosi digital yang atraktif.",
+      "technologies": ["Generative AI Video", "BetaTech Pipeline", "Prompt Engineering", "Digital Motion", "DaVinci Resolve"],
+      "gallery": [
+        "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1000&h=650&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=1000&h=650&fit=crop&q=80"
+      ],
+      "year": "2024 – Sekarang",
+      "role": "AI Video Creator & Prompt Specialist",
+      "client": "BetaTech & Project Mandiri",
+      "productionHouse": "BetaTech",
+      "externalLinks": [
+        { "label": "Buka Video AI di Google Drive", "url": "https://drive.google.com/drive/folders/1c70iPsGZhf0u3xTs_qfv_41IINvlPYSW?usp=sharing", "icon": "drive" }
+      ],
+      "featured": true
+    }
+  ],
+  "categories": [
+    { "id": "all", "name": "Semua Karya", "icon": "🎯" },
+    { "id": "web", "name": "Software & Web", "icon": "💻" },
+    { "id": "drone", "name": "Drone & Aerial", "icon": "🚁" },
+    { "id": "network", "name": "IT & Network", "icon": "🌐" },
+    { "id": "video", "name": "Video & Media", "icon": "🎬" }
+  ]
+}

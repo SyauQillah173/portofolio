@@ -1,0 +1,163 @@
+/**
+ * CSS Custom Properties (Design System Variables)
+ * ================================================
+ * Central design system for consistent styling across the portfolio.
+ * All colors, typography, spacing, and effects are defined here.
+ */
+
+:root {
+  /* =========================
+     COLOR PALETTE
+     ========================= */
+  
+  /* Primary Colors */
+  --color-primary: #1F9FD8;
+  --color-primary-dark: #1677a8;
+  --color-primary-light: #4FB8E8;
+  --color-primary-rgb: 31, 159, 216;
+  
+  /* Secondary & Accent */
+  --color-secondary: #0F172A;
+  --color-accent: #FFD700;
+  --color-accent-dark: #D4B000;
+  
+  /* Background Colors */
+  --color-bg-dark: #0A0E27;
+  --color-bg-darker: #060915;
+  --color-bg-card: rgba(15, 23, 42, 0.8);
+  --color-bg-card-hover: rgba(31, 159, 216, 0.1);
+  
+  /* Text Colors */
+  --color-text-light: #F5F5F5;
+  --color-text-muted: #A8A8A8;
+  --color-text-dark: #1F2937;
+  
+  /* Status Colors */
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+  
+  /* =========================
+     TYPOGRAPHY
+     ========================= */
+  
+  /* Font Family */
+  --font-family-base: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-mono: 'Fira Code', 'Consolas', monospace;
+  
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.5rem;     /* 24px */
+  --font-size-2xl: 2rem;      /* 32px */
+  --font-size-3xl: 3rem;      /* 48px */
+  --font-size-4xl: 4rem;      /* 64px */
+  
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* =========================
+     SPACING (8px base unit)
+     ========================= */
+  
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  --space-3xl: 4rem;     /* 64px */
+  --space-4xl: 6rem;     /* 96px */
+  
+  /* =========================
+     BORDER RADIUS
+     ========================= */
+  
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* =========================
+     SHADOWS
+     ========================= */
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 12px 32px rgba(31, 159, 216, 0.2);
+  --shadow-xl: 0 20px 48px rgba(31, 159, 216, 0.3);
+  --shadow-glow: 0 0 20px rgba(31, 159, 216, 0.4);
+  
+  /* =========================
+     TRANSITIONS (Ultra Smooth)
+     ========================= */
+  
+  /* Using cubic-bezier for butter-smooth animations */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-smooth-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-smooth-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-smooth-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  
+  --transition-fast: 250ms var(--ease-smooth);
+  --transition-normal: 400ms var(--ease-smooth);
+  --transition-slow: 600ms var(--ease-smooth-in-out);
+  --transition-bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* =========================
+     Z-INDEX
+     ========================= */
+  
+  --z-behind: -1;
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal: 400;
+  --z-tooltip: 500;
+  
+  /* =========================
+     LAYOUT
+     ========================= */
+  
+  --container-max-width: 1200px;
+  --container-padding: var(--space-md);
+  --header-height: 70px;
+  --section-padding: var(--space-4xl);
+  
+  /* =========================
+     BREAKPOINTS (for reference)
+     ========================= */
+  
+  /* Mobile: 320px - 640px */
+  /* Tablet: 641px - 1024px */
+  /* Desktop: 1025px+ */
+}
+
+/* Media Query Custom Properties Updates */
+@media (max-width: 768px) {
+  :root {
+    --font-size-3xl: 2.25rem;  /* 36px on mobile */
+    --font-size-4xl: 2.75rem;  /* 44px on mobile */
+    --section-padding: var(--space-2xl);
+    --container-padding: var(--space-md);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-2xl: 1.75rem;  /* 28px on small mobile */
+    --font-size-3xl: 2rem;     /* 32px on small mobile */
+    --section-padding: var(--space-xl);
+  }
+}

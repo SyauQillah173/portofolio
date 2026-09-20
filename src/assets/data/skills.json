@@ -1,0 +1,90 @@
+{
+  "skills": [
+    {
+      "id": 1,
+      "name": "Full-Stack Web Development",
+      "icon": "💻",
+      "category": "web",
+      "categoryName": "Software & Web",
+      "description": "Pengembangan web app responsif (Vue.js, RESTful API, integrasi QR Code & absensi digital)",
+      "level": "Advanced",
+      "color": "#1F9FD8"
+    },
+    {
+      "id": 2,
+      "name": "System Analysis & Database",
+      "icon": "🗄️",
+      "category": "web",
+      "categoryName": "Software & Web",
+      "description": "Perancangan proses bisnis, arsitektur database, modul keuangan, dan master data",
+      "level": "Advanced",
+      "color": "#38BDF8"
+    },
+    {
+      "id": 3,
+      "name": "Fiber Optic & LAN Infrastructure",
+      "icon": "🌐",
+      "category": "network",
+      "categoryName": "IT Infrastructure",
+      "description": "Instalasi kabel FO, pengecekan redaman optik, manajemen jaringan LAN, dan sistem fingerprint",
+      "level": "Advanced",
+      "color": "#10B981"
+    },
+    {
+      "id": 4,
+      "name": "Hardware Support & Troubleshooting",
+      "icon": "🛠️",
+      "category": "network",
+      "categoryName": "IT Infrastructure",
+      "description": "Pemeliharaan perangkat keras komputer, diagnostic error, dan penanganan Tier 1 Tech Support",
+      "level": "Advanced",
+      "color": "#34D399"
+    },
+    {
+      "id": 5,
+      "name": "Commercial Drone Piloting (DJI)",
+      "icon": "🚁",
+      "category": "multimedia",
+      "categoryName": "Multimedia & Drone",
+      "description": "Pengoperasian drone 4K DJI untuk video Company Profile BUMN, tata ruang, dan sinematik",
+      "level": "Advanced",
+      "color": "#F59E0B"
+    },
+    {
+      "id": 6,
+      "name": "Commercial Videography & Editing",
+      "icon": "🎬",
+      "category": "multimedia",
+      "categoryName": "Multimedia & Drone",
+      "description": "Produksi video komersial, Adobe Premiere Pro, DaVinci Resolve color grading, dan audio mixing",
+      "level": "Advanced",
+      "color": "#EF4444"
+    },
+    {
+      "id": 7,
+      "name": "Desain Grafis & UI/UX Logic",
+      "icon": "🎨",
+      "category": "multimedia",
+      "categoryName": "Multimedia & Drone",
+      "description": "Adobe Photoshop, Illustrator, Figma, perancangan antarmuka, dan media informasi publik",
+      "level": "Intermediate",
+      "color": "#A855F7"
+    },
+    {
+      "id": 8,
+      "name": "Social Media & Content Strategy",
+      "icon": "📱",
+      "category": "multimedia",
+      "categoryName": "Multimedia & Drone",
+      "description": "Pengelolaan media sosial instansi pemerintah, kalender konten, dan publikasi informasi publik",
+      "level": "Advanced",
+      "color": "#EC4899"
+    }
+  ],
+  "categories": [
+    { "id": "all", "name": "Semua Bidang" },
+    { "id": "web", "name": "Software & Web" },
+    { "id": "network", "name": "IT Infrastructure" },
+    { "id": "multimedia", "name": "Multimedia & Drone" }
+  ]
+}
