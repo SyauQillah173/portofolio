@@ -25,6 +25,15 @@
         <div class="avatar-uploader-box">
           <div class="avatar-preview-wrap">
             <img :src="form.avatar || defaultAvatar" alt="Foto Profil" class="avatar-preview-img" @error="handleAvatarError" />
+            <button
+              v-if="form.avatar"
+              type="button"
+              class="avatar-del-quick-btn"
+              @click="form.avatar = ''"
+              title="Hapus foto profil (✕)"
+            >
+              ✕
+            </button>
           </div>
           <div class="avatar-controls">
             <label class="form-label">Foto Profil (Avatar Hero)</label>
@@ -34,6 +43,9 @@
               </button>
               <button type="button" class="btn btn-ghost btn-sm" @click="resetToDefaultPhoto">
                 Kembalikan Foto Awal
+              </button>
+              <button v-if="form.avatar" type="button" class="btn btn-danger-ghost btn-sm" @click="form.avatar = ''">
+                ✕ Hapus Foto
               </button>
             </div>
             <input
@@ -370,6 +382,33 @@ const saveProfile = async () => {
   border: 3px solid var(--color-primary);
   flex-shrink: 0;
   box-shadow: 0 0 20px rgba(31, 159, 216, 0.3);
+  position: relative;
+}
+
+.avatar-del-quick-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  transition: transform 0.15s ease;
+}
+
+.avatar-del-quick-btn:hover {
+  background: #dc2626;
+  transform: scale(1.15);
 }
 
 .avatar-preview-img {

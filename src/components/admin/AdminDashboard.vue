@@ -447,6 +447,15 @@
                     <div v-else class="preview-card">
                       <div class="preview-img-wrapper">
                         <img :src="formData.image" alt="Thumbnail Preview" class="uploaded-preview-img" />
+                        <button
+                          type="button"
+                          class="preview-quick-del-btn"
+                          @click.stop="removeImage"
+                          title="Hapus Gambar Utama (✕)"
+                          aria-label="Hapus Gambar Utama"
+                        >
+                          ✕
+                        </button>
                       </div>
                       <div class="preview-info">
                         <div class="preview-meta">
@@ -457,8 +466,8 @@
                           <button type="button" class="btn btn-secondary btn-sm" @click="triggerFileInput">
                             🔄 Ganti Foto
                           </button>
-                          <button type="button" class="btn btn-danger-ghost btn-sm" @click="removeImage">
-                            🗑️ Hapus
+                          <button type="button" class="btn btn-danger btn-sm" @click="removeImage" title="Hapus Gambar Utama">
+                            🗑️ Hapus Gambar Utama
                           </button>
                         </div>
                       </div>
@@ -503,6 +512,15 @@
                     <div v-else class="video-preview-card">
                       <div class="video-player-box">
                         <video :src="videoPreviewUrl" controls playsinline class="admin-preview-video"></video>
+                        <button
+                          type="button"
+                          class="preview-quick-del-btn"
+                          @click.stop="removeVideo"
+                          title="Hapus Video Utama (✕)"
+                          aria-label="Hapus Video Utama"
+                        >
+                          ✕
+                        </button>
                       </div>
                       <div class="video-info-box">
                         <span class="preview-status">✓ Video MP4 Siap Ditampilkan</span>
@@ -515,8 +533,8 @@
                           <button type="button" class="btn btn-secondary btn-sm" @click="triggerVideoFileInput">
                             🔄 Ganti Video
                           </button>
-                          <button type="button" class="btn btn-danger-ghost btn-sm" @click="removeVideo">
-                            🗑️ Hapus Video
+                          <button type="button" class="btn btn-danger btn-sm" @click="removeVideo" title="Hapus Video Utama">
+                            🗑️ Hapus Video Utama
                           </button>
                         </div>
                       </div>
@@ -527,13 +545,24 @@
                   <div v-else-if="uploadMode === 'youtube'" class="youtube-mode-container">
                     <div class="form-group">
                       <label class="form-sublabel">Tautan Video YouTube (Video atau Shorts)</label>
-                      <input
-                        type="url"
-                        v-model="youtubeUrlInput"
-                        class="form-input"
-                        placeholder="Contoh: https://www.youtube.com/watch?v=... atau https://youtu.be/..."
-                        @input="handleYouTubeInput"
-                      />
+                      <div class="url-input-row">
+                        <input
+                          type="url"
+                          v-model="youtubeUrlInput"
+                          class="form-input"
+                          placeholder="Contoh: https://www.youtube.com/watch?v=... atau https://youtu.be/..."
+                          @input="handleYouTubeInput"
+                        />
+                        <button
+                          v-if="youtubeUrlInput"
+                          type="button"
+                          class="btn btn-danger btn-sm"
+                          @click="removeYouTube"
+                          title="Hapus Video YouTube"
+                        >
+                          ✕ Hapus
+                        </button>
+                      </div>
                     </div>
 
                     <!-- Live YouTube Preview Player -->
@@ -547,25 +576,59 @@
                           allowfullscreen
                           class="admin-yt-iframe"
                         ></iframe>
+                        <button
+                          type="button"
+                          class="preview-quick-del-btn"
+                          @click.stop="removeYouTube"
+                          title="Hapus Video YouTube (✕)"
+                          aria-label="Hapus Video YouTube"
+                        >
+                          ✕
+                        </button>
                       </div>
                       <div class="yt-preview-info">
                         <span class="preview-status">✓ Video YouTube Terhubung</span>
                         <span class="preview-stats">Cover thumbnail HD resmi YouTube otomatis disetel untuk kartu proyek.</span>
+                        <div class="preview-actions">
+                          <button type="button" class="btn btn-danger btn-sm" @click="removeYouTube" title="Hapus Video YouTube">
+                            🗑️ Hapus Video YouTube
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Mode 4: Input URL Media Online Manual -->
                   <div v-else class="url-input-container">
-                    <input
-                      type="url"
-                      v-model="formData.image"
-                      class="form-input"
-                      placeholder="https://... tautan gambar atau video .mp4 online"
-                      required
-                    />
+                    <div class="url-input-row">
+                      <input
+                        type="url"
+                        v-model="formData.image"
+                        class="form-input"
+                        placeholder="https://... tautan gambar atau video .mp4 online"
+                        required
+                      />
+                      <button
+                        v-if="formData.image"
+                        type="button"
+                        class="btn btn-danger btn-sm"
+                        @click="formData.image = ''"
+                        title="Kosongkan Tautan"
+                      >
+                        ✕ Hapus
+                      </button>
+                    </div>
                     <div v-if="formData.image" class="img-preview">
                       <img :src="formData.image" alt="Preview" @error="handleImgError" />
+                      <button
+                        type="button"
+                        class="preview-quick-del-btn"
+                        @click="formData.image = ''"
+                        title="Hapus Gambar (✕)"
+                        aria-label="Hapus Gambar"
+                      >
+                        ✕
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1079,6 +1142,14 @@ const removeVideo = () => {
   formData.image = "";
   uploadStats.value = "";
   if (videoFileInputRef.value) videoFileInputRef.value.value = "";
+  showToast("✓ Video utama berhasil dihapus.");
+};
+
+const removeYouTube = () => {
+  youtubeUrlInput.value = "";
+  youtubeEmbedPreview.value = "";
+  formData.image = "";
+  showToast("✓ Video YouTube berhasil dihapus.");
 };
 
 const handleFileDrop = async (e) => {
@@ -1108,6 +1179,7 @@ const removeImage = () => {
   formData.image = "";
   uploadStats.value = "";
   if (fileInputRef.value) fileInputRef.value.value = "";
+  showToast("✓ Gambar utama berhasil dihapus.");
 };
 
 const handleGalleryFilesChange = async (e) => {
@@ -1143,6 +1215,7 @@ const handleGalleryFilesChange = async (e) => {
 const removeGalleryPhoto = (idx) => {
   if (formData.gallery) {
     formData.gallery.splice(idx, 1);
+    showToast("✓ Media berhasil dihapus dari galeri.");
   }
 };
 
@@ -1216,10 +1289,8 @@ const openEditModal = async (work) => {
     uploadMode.value = "video_file";
     const idbKey = (work.gallery && work.gallery.find((g) => g.startsWith("idb://"))) || work.image;
     videoPreviewUrl.value = await resolveMediaUrl(idbKey);
-  } else if (work.image && work.image.startsWith("data:")) {
-    uploadMode.value = "image_file";
   } else if (work.image) {
-    uploadMode.value = "url";
+    uploadMode.value = "image_file";
   } else {
     uploadMode.value = "image_file";
   }
@@ -2045,26 +2116,67 @@ const showToast = (msg) => {
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-lg);
   padding: var(--space-md);
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+.preview-card:hover {
+  border-color: rgba(31, 159, 216, 0.4);
 }
 
 .preview-img-wrapper {
-  width: 140px;
-  height: 90px;
+  width: 150px;
+  height: 95px;
   border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   flex-shrink: 0;
   background: #000;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .uploaded-preview-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+/* Floating Quick-Delete (Silang) Button for Main Media */
+.preview-quick-del-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.preview-quick-del-btn:hover {
+  background: #dc2626;
+  transform: scale(1.15);
+}
+
+.preview-quick-del-btn:active {
+  transform: scale(0.95);
 }
 
 .preview-info {
@@ -2072,6 +2184,7 @@ const showToast = (msg) => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
 
 .preview-status {
@@ -2090,6 +2203,19 @@ const showToast = (msg) => {
 .preview-actions {
   display: flex;
   gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.url-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.url-input-row .form-input {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Gallery Section */
@@ -2170,6 +2296,7 @@ const showToast = (msg) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .admin-preview-video {
@@ -2224,6 +2351,7 @@ const showToast = (msg) => {
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #000;
+  position: relative;
 }
 
 .admin-yt-iframe {
@@ -2232,15 +2360,53 @@ const showToast = (msg) => {
   border: none;
 }
 
+/* Gallery Preview Grid & Responsive Cards */
+.gallery-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.gallery-preview-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md, 8px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #0b1120;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.gallery-preview-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(31, 159, 216, 0.6);
+}
+
+.gallery-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .gallery-item-badge {
   position: absolute;
-  bottom: 2px;
-  left: 2px;
+  bottom: 4px;
+  left: 4px;
   font-size: 9px;
   font-weight: 700;
-  padding: 1px 4px;
-  border-radius: 3px;
+  padding: 2px 5px;
+  border-radius: 4px;
   color: #fff;
+  z-index: 2;
 }
 
 .badge-yt {
@@ -2264,19 +2430,53 @@ const showToast = (msg) => {
 }
 
 .ph-icon {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
 }
 
 .ph-label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Floating Cross / Delete Button for Gallery Thumbnails */
+.gallery-item-del {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.gallery-item-del:hover {
+  background: #dc2626;
+  transform: scale(1.15);
+}
+
+.gallery-item-del:active {
+  transform: scale(0.95);
 }
 
 .gallery-empty-hint {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-text-muted);
   font-style: italic;
-  padding: 4px 0;
+  padding: 8px 0;
 }
 
 /* External Link Row */
@@ -2328,7 +2528,8 @@ const showToast = (msg) => {
   overflow: hidden;
   height: 120px;
   max-width: 200px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
 }
 
 .img-preview img {
@@ -2466,6 +2667,58 @@ const showToast = (msg) => {
 
   .dashboard-title {
     font-size: var(--font-size-2xl);
+  }
+
+  /* Responsive Preview Cards on Mobile */
+  .preview-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+  }
+
+  .preview-img-wrapper {
+    width: 100%;
+    height: 180px;
+  }
+
+  .preview-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .preview-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .gallery-section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .gallery-header-btns {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .gallery-header-btns .btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .gallery-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+    gap: 8px;
+  }
+
+  .gallery-item-del,
+  .preview-quick-del-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
   }
 }
 </style>
