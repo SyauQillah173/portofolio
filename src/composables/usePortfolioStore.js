@@ -63,6 +63,9 @@ function initStore() {
               externalLinks: defWork.externalLinks,
             };
           }
+          if (defWork.id === 6 && existing.category === "video") {
+            mergedWorks[existingIdx].category = "ai";
+          }
         }
       });
 

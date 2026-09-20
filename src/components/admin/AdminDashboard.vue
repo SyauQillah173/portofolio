@@ -231,6 +231,7 @@
                       <option value="drone">Drone & Aerial (🚁)</option>
                       <option value="network">IT & Network (🌐)</option>
                       <option value="video">Video & Media (🎬)</option>
+                      <option value="ai">AI & Creative (🤖)</option>
                     </select>
                   </div>
 
@@ -278,34 +279,50 @@
                   />
                 </div>
 
-                <!-- Image Upload Mode (File/Galeri vs URL) -->
+                <!-- Image / Video Media Upload Section -->
                 <div class="form-group image-upload-section">
                   <div class="image-section-header">
                     <label class="form-label">
-                      Foto Thumbnail Utama <span class="req">*</span>
+                      Media Utama & Thumbnail Cover <span class="req">*</span>
                     </label>
                     <div class="upload-mode-toggle">
                       <button
                         type="button"
                         class="mode-pill"
-                        :class="{ active: uploadMode === 'file' }"
-                        @click="uploadMode = 'file'"
+                        :class="{ active: uploadMode === 'image_file' }"
+                        @click="setUploadMode('image_file')"
                       >
-                        📁 File / Galeri HP
+                        📷 Foto
+                      </button>
+                      <button
+                        type="button"
+                        class="mode-pill"
+                        :class="{ active: uploadMode === 'video_file' }"
+                        @click="setUploadMode('video_file')"
+                      >
+                        🎬 Video MP4
+                      </button>
+                      <button
+                        type="button"
+                        class="mode-pill"
+                        :class="{ active: uploadMode === 'youtube' }"
+                        @click="setUploadMode('youtube')"
+                      >
+                        ▶️ YouTube
                       </button>
                       <button
                         type="button"
                         class="mode-pill"
                         :class="{ active: uploadMode === 'url' }"
-                        @click="uploadMode = 'url'"
+                        @click="setUploadMode('url')"
                       >
-                        🔗 Pakai URL
+                        🔗 URL
                       </button>
                     </div>
                   </div>
 
-                  <!-- Mode 1: Ambil dari File / Galeri -->
-                  <div v-if="uploadMode === 'file'" class="dropzone-container">
+                  <!-- Mode 1: Foto dari File / Galeri -->
+                  <div v-if="uploadMode === 'image_file'" class="dropzone-container">
                     <input
                       ref="fileInputRef"
                       type="file"
@@ -314,9 +331,9 @@
                       @change="handleFileInputChange"
                     />
 
-                    <!-- Dropzone ketika belum ada foto -->
+                    <!-- Dropzone foto -->
                     <div
-                      v-if="!formData.image"
+                      v-if="!formData.image || (uploadMode === 'image_file' && isVideoSource)"
                       class="file-dropzone"
                       @click="triggerFileInput"
                       @dragover.prevent
@@ -324,7 +341,7 @@
                     >
                       <div class="dropzone-icon">📷</div>
                       <div class="dropzone-title">
-                        Klik untuk pilih foto dari File / Galeri
+                        Klik untuk pilih foto dari Galeri / File
                       </div>
                       <div class="dropzone-subtitle">
                         atau seret & lepas gambar ke sini (JPG, PNG, WebP)
@@ -334,7 +351,7 @@
                       </div>
                     </div>
 
-                    <!-- Preview ketika foto sudah dipilih -->
+                    <!-- Preview foto -->
                     <div v-else class="preview-card">
                       <div class="preview-img-wrapper">
                         <img :src="formData.image" alt="Thumbnail Preview" class="uploaded-preview-img" />
@@ -356,13 +373,103 @@
                     </div>
                   </div>
 
-                  <!-- Mode 2: Input URL Manual -->
+                  <!-- Mode 2: Upload Video MP4 / WebM File -->
+                  <div v-else-if="uploadMode === 'video_file'" class="dropzone-container">
+                    <input
+                      ref="videoFileInputRef"
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime,video/*"
+                      class="hidden-file-input"
+                      @change="handleVideoFileInputChange"
+                    />
+
+                    <!-- Loading / Processing state -->
+                    <div v-if="isProcessingVideo" class="video-processing-box">
+                      <div class="processing-spinner">⏳</div>
+                      <p>Sedang memproses video & membuat snapshot cover otomatis...</p>
+                    </div>
+
+                    <!-- Dropzone video -->
+                    <div
+                      v-else-if="!videoPreviewUrl"
+                      class="file-dropzone video-dropzone"
+                      @click="triggerVideoFileInput"
+                    >
+                      <div class="dropzone-icon">🎬</div>
+                      <div class="dropzone-title">
+                        Klik untuk pilih video MP4 / WebM dari Galeri / File
+                      </div>
+                      <div class="dropzone-subtitle">
+                        Mendukung video resolusi 1080p / 4K (disimpan via IndexedDB lokal)
+                      </div>
+                      <div class="dropzone-badge badge-video-info">
+                        ✨ Cuplikan cover (snapshot) akan dibuat otomatis dari video
+                      </div>
+                    </div>
+
+                    <!-- Preview video player -->
+                    <div v-else class="video-preview-card">
+                      <div class="video-player-box">
+                        <video :src="videoPreviewUrl" controls playsinline class="admin-preview-video"></video>
+                      </div>
+                      <div class="video-info-box">
+                        <span class="preview-status">✓ Video MP4 Siap Ditampilkan</span>
+                        <span v-if="uploadStats" class="preview-stats">{{ uploadStats }}</span>
+                        <div v-if="formData.image" class="cover-mini-preview">
+                          <img :src="formData.image" alt="Auto Cover" />
+                          <span>Cover Otomatis</span>
+                        </div>
+                        <div class="preview-actions">
+                          <button type="button" class="btn btn-secondary btn-sm" @click="triggerVideoFileInput">
+                            🔄 Ganti Video
+                          </button>
+                          <button type="button" class="btn btn-danger-ghost btn-sm" @click="removeVideo">
+                            🗑️ Hapus Video
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mode 3: Link Video YouTube -->
+                  <div v-else-if="uploadMode === 'youtube'" class="youtube-mode-container">
+                    <div class="form-group">
+                      <label class="form-sublabel">Tautan Video YouTube (Video atau Shorts)</label>
+                      <input
+                        type="url"
+                        v-model="youtubeUrlInput"
+                        class="form-input"
+                        placeholder="Contoh: https://www.youtube.com/watch?v=... atau https://youtu.be/..."
+                        @input="handleYouTubeInput"
+                      />
+                    </div>
+
+                    <!-- Live YouTube Preview Player -->
+                    <div v-if="youtubeEmbedPreview" class="yt-preview-card">
+                      <div class="yt-embed-box">
+                        <iframe
+                          :src="youtubeEmbedPreview"
+                          title="YouTube Preview"
+                          frameborder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowfullscreen
+                          class="admin-yt-iframe"
+                        ></iframe>
+                      </div>
+                      <div class="yt-preview-info">
+                        <span class="preview-status">✓ Video YouTube Terhubung</span>
+                        <span class="preview-stats">Cover thumbnail HD resmi YouTube otomatis disetel untuk kartu proyek.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mode 4: Input URL Media Online Manual -->
                   <div v-else class="url-input-container">
                     <input
                       type="url"
                       v-model="formData.image"
                       class="form-input"
-                      placeholder="https://images.unsplash.com/... atau tautan gambar online"
+                      placeholder="https://... tautan gambar atau video .mp4 online"
                       required
                     />
                     <div v-if="formData.image" class="img-preview">
@@ -371,42 +478,81 @@
                   </div>
                 </div>
 
-                <!-- Multi-image Gallery Section (Opsional) -->
+                <!-- Multi-media Gallery Section (Foto & Video) -->
                 <div class="form-group gallery-section">
                   <div class="gallery-section-header">
                     <div>
-                      <label class="form-label">Galeri Foto Tambahan (Pop-up Modal)</label>
-                      <span class="form-hint">Pilih beberapa foto dari galeri untuk carousel detail karya</span>
+                      <label class="form-label">Galeri Karya Tambahan (Foto & Video Pop-up)</label>
+                      <span class="form-hint">Dapat memadukan beberapa foto, video MP4, dan link YouTube</span>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm" @click="triggerGalleryInput">
-                      + Tambah dari Galeri / File
-                    </button>
+                    <div class="gallery-header-btns">
+                      <button type="button" class="btn btn-secondary btn-sm" @click="triggerGalleryInput">
+                        + Tambah Foto / Video File
+                      </button>
+                      <button type="button" class="btn btn-ghost btn-sm" @click="showAddYouTubeInline = !showAddYouTubeInline">
+                        ▶️ + YouTube
+                      </button>
+                    </div>
                     <input
                       ref="galleryInputRef"
                       type="file"
-                      accept="image/*"
+                      accept="image/*,video/mp4,video/webm,video/*"
                       multiple
                       class="hidden-file-input"
                       @change="handleGalleryFilesChange"
                     />
                   </div>
 
+                  <!-- Inline YouTube Adder -->
+                  <div v-if="showAddYouTubeInline" class="add-yt-inline-box">
+                    <input
+                      type="url"
+                      v-model="newYouTubeLink"
+                      class="form-input form-input-sm"
+                      placeholder="Tempel link YouTube (https://www.youtube.com/watch?v=...)"
+                      @keyup.enter="addYouTubeToGallery"
+                    />
+                    <button type="button" class="btn btn-primary btn-sm" @click="addYouTubeToGallery">
+                      Tambahkan
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" @click="showAddYouTubeInline = false">
+                      Batal
+                    </button>
+                  </div>
+
                   <!-- Gallery Preview Grid -->
                   <div v-if="formData.gallery && formData.gallery.length > 0" class="gallery-preview-grid">
-                    <div v-for="(photo, pIdx) in formData.gallery" :key="pIdx" class="gallery-preview-item">
-                      <img :src="photo" alt="Gallery Photo" />
+                    <div v-for="(mediaItem, pIdx) in formData.gallery" :key="pIdx" class="gallery-preview-item">
+                      <!-- YouTube item -->
+                      <template v-if="checkIsYouTube(mediaItem)">
+                        <img :src="getYouTubeThumb(mediaItem)" alt="YouTube Thumbnail" />
+                        <span class="gallery-item-badge badge-yt">▶ YT</span>
+                      </template>
+                      <!-- Video File item -->
+                      <template v-else-if="checkIsVideo(mediaItem)">
+                        <div class="gallery-video-ph">
+                          <span class="ph-icon">🎬</span>
+                          <span class="ph-label">Video</span>
+                        </div>
+                        <span class="gallery-item-badge badge-vid">▶ MP4</span>
+                      </template>
+                      <!-- Photo item -->
+                      <template v-else>
+                        <img :src="mediaItem" alt="Gallery Photo" />
+                      </template>
+
                       <button
                         type="button"
                         class="gallery-item-del"
                         @click="removeGalleryPhoto(pIdx)"
-                        title="Hapus foto dari galeri"
+                        title="Hapus media dari galeri"
                       >
                         ✕
                       </button>
                     </div>
                   </div>
                   <div v-else class="gallery-empty-hint">
-                    💡 Opsional: Anda bisa menambahkan lebih dari 1 foto galeri dari perangkat Anda.
+                    💡 Opsional: Tambahkan beberapa foto atau video untuk pengalaman pop-up yang interaktif.
                   </div>
                 </div>
 
@@ -559,6 +705,15 @@
 <script setup>
 import { computed, reactive, ref } from "vue";
 import { usePortfolioStore } from "@/composables/usePortfolioStore";
+import {
+  captureVideoSnapshot,
+  getMediaType,
+  getYouTubeEmbedUrl,
+  getYouTubeThumbnail,
+  isYouTubeUrl,
+  resolveMediaUrl,
+  saveMediaToDB,
+} from "@/utils/mediaHelper";
 
 const emit = defineEmits(["view-public", "logout"]);
 const {
@@ -602,6 +757,7 @@ const getCategoryName = (catId) => {
     drone: "Drone & Aerial",
     network: "IT & Network",
     video: "Video & Media",
+    ai: "AI & Creative",
   };
   return map[catId] || catId;
 };
@@ -623,11 +779,26 @@ const showFormModal = ref(false);
 const isEditing = ref(false);
 const editingId = ref(null);
 
-const uploadMode = ref("file");
+const uploadMode = ref("image_file"); // 'image_file' | 'video_file' | 'youtube' | 'url'
 const fileInputRef = ref(null);
+const videoFileInputRef = ref(null);
 const galleryInputRef = ref(null);
 const uploadStats = ref("");
 const isCompressing = ref(false);
+const isProcessingVideo = ref(false);
+const videoPreviewUrl = ref("");
+const youtubeUrlInput = ref("");
+const youtubeEmbedPreview = ref("");
+const showAddYouTubeInline = ref(false);
+const newYouTubeLink = ref("");
+
+const isVideoSource = computed(() => {
+  return (
+    isYouTubeUrl(formData.image) ||
+    getMediaType(formData.image) === "video" ||
+    (formData.gallery && formData.gallery.some((g) => getMediaType(g) === "video" || isYouTubeUrl(g)))
+  );
+});
 
 const formData = reactive({
   title: "",
@@ -646,6 +817,14 @@ const formData = reactive({
 const techsInput = ref("");
 const externalLinkLabel = ref("Live Link");
 const externalLinkUrl = ref("");
+
+const setUploadMode = (mode) => {
+  uploadMode.value = mode;
+};
+
+const checkIsYouTube = (item) => isYouTubeUrl(item);
+const checkIsVideo = (item) => getMediaType(item) === "video";
+const getYouTubeThumb = (item) => getYouTubeThumbnail(item);
 
 /**
  * Client-side Canvas Image Compression
@@ -694,6 +873,10 @@ const triggerFileInput = () => {
   if (fileInputRef.value) fileInputRef.value.click();
 };
 
+const triggerVideoFileInput = () => {
+  if (videoFileInputRef.value) videoFileInputRef.value.click();
+};
+
 const triggerGalleryInput = () => {
   if (galleryInputRef.value) galleryInputRef.value.click();
 };
@@ -717,9 +900,83 @@ const handleFileInputChange = async (e) => {
   }
 };
 
+const handleVideoFileInputChange = async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    isProcessingVideo.value = true;
+    uploadStats.value = `Ukuran: ${Math.round(file.size / (1024 * 1024) * 10) / 10} MB`;
+
+    // 1. Generate snapshot cover automatically from video
+    const snap = await captureVideoSnapshot(file, 1);
+    formData.image = snap.thumbnail;
+
+    // 2. Save video blob in browser IndexedDB
+    const idbKey = await saveMediaToDB(file, "video");
+    videoPreviewUrl.value = URL.createObjectURL(file);
+
+    // 3. Add to gallery so modal can play it
+    if (!Array.isArray(formData.gallery)) formData.gallery = [];
+    formData.gallery = [idbKey, ...formData.gallery.filter((g) => g !== idbKey)];
+
+    uploadStats.value += ` | Durasi: ${Math.round(snap.duration)}s (Snapshot cover dibuat!)`;
+    showToast("✓ Video MP4 berhasil diproses & cover snapshot otomatis dibuat!");
+  } catch (err) {
+    console.error("Gagal proses video:", err);
+    showToast("⚠️ Gagal memproses video. Pastikan format MP4 atau WebM.");
+  } finally {
+    isProcessingVideo.value = false;
+    if (videoFileInputRef.value) videoFileInputRef.value.value = "";
+  }
+};
+
+const handleYouTubeInput = () => {
+  const url = (youtubeUrlInput.value || "").trim();
+  if (isYouTubeUrl(url)) {
+    formData.image = getYouTubeThumbnail(url);
+    youtubeEmbedPreview.value = getYouTubeEmbedUrl(url, 0);
+
+    if (!Array.isArray(formData.gallery)) formData.gallery = [];
+    if (!formData.gallery.includes(url)) {
+      formData.gallery = [url, ...formData.gallery.filter((g) => g !== url)];
+    }
+    showToast("✓ Video YouTube terdeteksi & cover HD otomatis disetel!");
+  } else {
+    youtubeEmbedPreview.value = "";
+  }
+};
+
+const addYouTubeToGallery = () => {
+  const url = (newYouTubeLink.value || "").trim();
+  if (!url || !isYouTubeUrl(url)) {
+    alert("Mohon masukkan tautan YouTube yang valid (contoh: https://www.youtube.com/watch?v=...)");
+    return;
+  }
+  if (!Array.isArray(formData.gallery)) formData.gallery = [];
+  formData.gallery.push(url);
+  if (!formData.image) {
+    formData.image = getYouTubeThumbnail(url);
+  }
+  newYouTubeLink.value = "";
+  showAddYouTubeInline.value = false;
+  showToast("✓ Video YouTube berhasil ditambahkan ke galeri!");
+};
+
+const removeVideo = () => {
+  videoPreviewUrl.value = "";
+  formData.image = "";
+  uploadStats.value = "";
+  if (videoFileInputRef.value) videoFileInputRef.value.value = "";
+};
+
 const handleFileDrop = async (e) => {
   const file = e.dataTransfer?.files?.[0];
   if (!file) return;
+  if (file.type.startsWith("video/")) {
+    setUploadMode("video_file");
+    const syntheticEvent = { target: { files: [file] } };
+    return handleVideoFileInputChange(syntheticEvent);
+  }
   try {
     isCompressing.value = true;
     const res = await compressImage(file);
@@ -751,14 +1008,20 @@ const handleGalleryFilesChange = async (e) => {
     isCompressing.value = true;
     let count = 0;
     for (const file of files) {
-      const res = await compressImage(file);
-      formData.gallery.push(res.dataUrl);
-      count++;
+      if (file.type.startsWith("video/")) {
+        const idbKey = await saveMediaToDB(file, "video");
+        formData.gallery.push(idbKey);
+        count++;
+      } else if (file.type.startsWith("image/")) {
+        const res = await compressImage(file);
+        formData.gallery.push(res.dataUrl);
+        count++;
+      }
     }
-    showToast(`✓ ${count} foto berhasil ditambahkan ke galeri!`);
+    showToast(`✓ ${count} media berhasil ditambahkan ke galeri!`);
   } catch (err) {
     console.error("Gagal upload galeri:", err);
-    showToast("⚠️ Gagal memproses beberapa foto galeri.");
+    showToast("⚠️ Gagal memproses beberapa file galeri.");
   } finally {
     isCompressing.value = false;
     if (galleryInputRef.value) galleryInputRef.value.value = "";
@@ -795,12 +1058,17 @@ const openCreateModal = () => {
   techsInput.value = "Vue.js, REST API";
   externalLinkLabel.value = "Live Demo";
   externalLinkUrl.value = "";
-  uploadMode.value = "file";
+  uploadMode.value = "image_file";
   uploadStats.value = "";
+  videoPreviewUrl.value = "";
+  youtubeUrlInput.value = "";
+  youtubeEmbedPreview.value = "";
+  showAddYouTubeInline.value = false;
+  newYouTubeLink.value = "";
   showFormModal.value = true;
 };
 
-const openEditModal = (work) => {
+const openEditModal = async (work) => {
   isEditing.value = true;
   editingId.value = work.id;
   formData.title = work.title || "";
@@ -815,8 +1083,34 @@ const openEditModal = (work) => {
   formData.fullDescription = work.fullDescription || work.description || "";
   formData.featured = Boolean(work.featured);
   techsInput.value = (work.technologies || []).join(", ");
-  uploadMode.value = (work.image && work.image.startsWith("data:")) ? "file" : (work.image ? "url" : "file");
   uploadStats.value = "";
+  videoPreviewUrl.value = "";
+  youtubeUrlInput.value = "";
+  youtubeEmbedPreview.value = "";
+  showAddYouTubeInline.value = false;
+
+  // Detect mode
+  if (isYouTubeUrl(work.image) || (work.gallery && work.gallery.some(isYouTubeUrl))) {
+    uploadMode.value = "youtube";
+    const ytLink = isYouTubeUrl(work.image)
+      ? work.image
+      : work.gallery.find(isYouTubeUrl);
+    youtubeUrlInput.value = ytLink || "";
+    youtubeEmbedPreview.value = getYouTubeEmbedUrl(ytLink, 0);
+  } else if (
+    (work.image && work.image.startsWith("idb://")) ||
+    (work.gallery && work.gallery.some((g) => g.startsWith("idb://")))
+  ) {
+    uploadMode.value = "video_file";
+    const idbKey = (work.gallery && work.gallery.find((g) => g.startsWith("idb://"))) || work.image;
+    videoPreviewUrl.value = await resolveMediaUrl(idbKey);
+  } else if (work.image && work.image.startsWith("data:")) {
+    uploadMode.value = "image_file";
+  } else if (work.image) {
+    uploadMode.value = "url";
+  } else {
+    uploadMode.value = "image_file";
+  }
 
   if (work.externalLinks && work.externalLinks.length > 0) {
     externalLinkLabel.value = work.externalLinks[0].label || "Live Link";
@@ -1547,63 +1841,176 @@ const showToast = (msg) => {
   padding: var(--space-md);
 }
 
-.gallery-section-header {
+.gallery-header-btns {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-  margin-bottom: var(--space-sm);
+  gap: var(--space-xs);
 }
 
-.form-hint {
-  display: block;
+.add-yt-inline-box {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+}
+
+.form-input-sm {
+  padding: 6px 10px;
+  font-size: var(--font-size-xs);
+}
+
+/* Video & YouTube Upload UI in Admin */
+.video-dropzone {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.badge-video-info {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+
+.video-processing-box {
+  padding: var(--space-xl);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+}
+
+.processing-spinner {
+  font-size: 2rem;
+  animation: spin 1.5s linear infinite;
+}
+
+.video-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+}
+
+.video-player-box {
+  width: 100%;
+  max-height: 240px;
+  background: #000;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-preview-video {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: var(--radius-md);
+  outline: none;
+}
+
+.video-info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cover-mini-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 11px;
   color: var(--color-text-muted);
 }
 
-.gallery-preview-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
+.cover-mini-preview img {
+  width: 48px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.gallery-preview-item {
-  position: relative;
-  width: 72px;
-  height: 72px;
+.youtube-mode-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.yt-preview-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.yt-embed-box {
+  width: 100%;
+  aspect-ratio: 16/9;
+  max-height: 220px;
   border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #000;
 }
 
-.gallery-preview-item img {
+.admin-yt-iframe {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  border: none;
 }
 
-.gallery-item-del {
+.gallery-item-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.85);
+  bottom: 2px;
+  left: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
   color: #fff;
-  border: none;
-  font-size: 10px;
+}
+
+.badge-yt {
+  background: #e62117;
+}
+
+.badge-vid {
+  background: #2563eb;
+}
+
+.gallery-video-ph {
+  width: 100%;
+  height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-fast);
+  background: #0d1527;
+  color: #60a5fa;
+  gap: 2px;
 }
 
-.gallery-item-del:hover {
-  background: #ef4444;
-  transform: scale(1.1);
+.ph-icon {
+  font-size: 1.2rem;
+}
+
+.ph-label {
+  font-size: 9px;
+  font-weight: 600;
 }
 
 .gallery-empty-hint {

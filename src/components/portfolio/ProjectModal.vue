@@ -21,24 +21,35 @@
 
           <!-- Modal Content -->
           <div class="modal-content">
-            <!-- Left Side - Gallery -->
+            <!-- Left Side - Gallery & Video Player -->
             <div class="modal-gallery">
-              <!-- Main Image Area -->
-              <div class="gallery-main" :class="{ 'is-zoom-mode': isZoomMode }">
-                <!-- Ambient Backdrop with blurred glow -->
+              <!-- Main Media Area -->
+              <div
+                class="gallery-main"
+                :class="{
+                  'is-zoom-mode': isZoomMode,
+                  'is-video-media': currentMediaType !== 'image',
+                }"
+              >
+                <!-- Ambient Backdrop with blurred glow (active for images) -->
                 <div
+                  v-if="currentMediaType === 'image'"
                   class="ambient-backdrop"
-                  :style="{ backgroundImage: `url(${currentImage})` }"
+                  :style="{ backgroundImage: `url(${resolvedMediaUrl || currentRawMedia})` }"
                   aria-hidden="true"
                 ></div>
 
-                <!-- Floating Toolbar: Fit Mode Toggle, HD Lightbox Button, Counter -->
+                <!-- Floating Toolbar -->
                 <div class="gallery-top-bar">
                   <span class="gallery-counter">
-                    📷 {{ currentImageIndex + 1 }} / {{ (project.gallery && project.gallery.length > 0 ? project.gallery : [project.image]).length }}
+                    <span v-if="currentMediaType === 'youtube'">🎬 YouTube</span>
+                    <span v-else-if="currentMediaType === 'video'">🎥 Video</span>
+                    <span v-else>📷 Foto</span>
+                    {{ currentImageIndex + 1 }} / {{ mediaItems.length }}
                   </span>
                   <div class="gallery-tools">
                     <button
+                      v-if="currentMediaType === 'image'"
                       type="button"
                       class="tool-btn"
                       @click="toggleZoomMode"
@@ -47,19 +58,55 @@
                       <span>{{ isZoomMode ? '🔍 Tampilan Penuh' : '🔍 Zoom Detail' }}</span>
                     </button>
                     <a
-                      :href="currentImage"
+                      v-if="currentMediaType === 'youtube'"
+                      :href="currentRawMedia"
                       target="_blank"
                       rel="noopener noreferrer"
                       class="tool-btn"
-                      title="Buka Gambar Resolusi Asli HD di Tab Baru"
+                      title="Buka di YouTube"
                     >
-                      <span>⛶ Buka HD</span>
+                      <span>▶ Buka di YouTube</span>
+                    </a>
+                    <a
+                      v-else
+                      :href="resolvedMediaUrl || currentRawMedia"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="tool-btn"
+                      :title="currentMediaType === 'video' ? 'Buka Video Resolusi Penuh' : 'Buka Gambar Resolusi Asli HD di Tab Baru'"
+                    >
+                      <span>{{ currentMediaType === 'video' ? '⛶ Buka Video' : '⛶ Buka HD' }}</span>
                     </a>
                   </div>
                 </div>
 
+                <!-- 1. YouTube Video Embed Player -->
+                <div v-if="currentMediaType === 'youtube'" class="media-youtube-wrap">
+                  <iframe
+                    :src="youtubeEmbedUrl"
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                    class="video-iframe"
+                  ></iframe>
+                </div>
+
+                <!-- 2. Direct Video Player (MP4 / WebM / Blob) -->
+                <div v-else-if="currentMediaType === 'video'" class="media-video-wrap">
+                  <video
+                    :src="resolvedMediaUrl || currentRawMedia"
+                    controls
+                    autoplay
+                    playsinline
+                    class="main-video"
+                  ></video>
+                </div>
+
+                <!-- 3. Standard Uncropped Image -->
                 <img
-                  :src="currentImage"
+                  v-else
+                  :src="resolvedMediaUrl || currentRawMedia"
                   :alt="project.title"
                   class="main-image"
                   @error="handleImgError"
@@ -67,10 +114,10 @@
 
                 <!-- Navigation Arrows -->
                 <button
-                  v-if="project.gallery && project.gallery.length > 1"
+                  v-if="mediaItems.length > 1"
                   class="gallery-nav gallery-prev"
                   @click="prevImage"
-                  aria-label="Previous image"
+                  aria-label="Previous media"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -82,10 +129,10 @@
                   </svg>
                 </button>
                 <button
-                  v-if="project.gallery && project.gallery.length > 1"
+                  v-if="mediaItems.length > 1"
                   class="gallery-nav gallery-next"
                   @click="nextImage"
-                  aria-label="Next image"
+                  aria-label="Next media"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -98,25 +145,28 @@
                 </button>
               </div>
 
-              <!-- Thumbnails -->
+              <!-- Thumbnails with Video Badges -->
               <div
-                v-if="project.gallery && project.gallery.length > 1"
+                v-if="mediaItems.length > 1"
                 class="gallery-thumbnails"
               >
                 <button
-                  v-for="(img, index) in project.gallery"
+                  v-for="(item, index) in mediaItems"
                   :key="index"
                   :class="[
                     'thumb',
                     { 'thumb-active': currentImageIndex === index },
+                    { 'thumb-video': getThumbType(item) !== 'image' }
                   ]"
-                  @click="currentImageIndex = index"
+                  @click="selectMedia(index)"
                 >
                   <img
-                    :src="img"
-                    :alt="`${project.title} - Image ${index + 1}`"
+                    :src="getThumbSrc(item)"
+                    :alt="`${project.title} - Media ${index + 1}`"
                     @error="handleImgError"
                   />
+                  <span v-if="getThumbType(item) === 'youtube'" class="thumb-badge badge-yt">▶ YT</span>
+                  <span v-else-if="getThumbType(item) === 'video'" class="thumb-badge badge-vid">▶ Video</span>
                 </button>
               </div>
             </div>
@@ -215,6 +265,12 @@
  */
 
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import {
+  getMediaType,
+  getYouTubeEmbedUrl,
+  getYouTubeThumbnail,
+  resolveMediaUrl,
+} from "@/utils/mediaHelper";
 
 const props = defineProps({
   isOpen: {
@@ -233,18 +289,76 @@ const emit = defineEmits(["close"]);
 const currentImageIndex = ref(0);
 const isZoomMode = ref(false);
 const modalRef = ref(null);
+const resolvedMediaUrl = ref("");
 
 const toggleZoomMode = () => {
   isZoomMode.value = !isZoomMode.value;
 };
 
-// Current image
-const currentImage = computed(() => {
+// Media items array (combining gallery or image)
+const mediaItems = computed(() => {
   if (props.project.gallery && props.project.gallery.length > 0) {
-    return props.project.gallery[currentImageIndex.value];
+    return props.project.gallery;
   }
-  return props.project.image;
+  if (props.project.image) {
+    return [props.project.image];
+  }
+  return [];
 });
+
+// Current active raw media
+const currentRawMedia = computed(() => {
+  if (mediaItems.value.length > 0) {
+    return mediaItems.value[currentImageIndex.value] || "";
+  }
+  return props.project.image || "";
+});
+
+// Current media type: 'youtube' | 'video' | 'image'
+const currentMediaType = computed(() => {
+  return getMediaType(currentRawMedia.value);
+});
+
+// YouTube embed link
+const youtubeEmbedUrl = computed(() => {
+  if (currentMediaType.value === "youtube") {
+    return getYouTubeEmbedUrl(currentRawMedia.value, 1);
+  }
+  return "";
+});
+
+// Watch & resolve media URL (especially for IndexedDB blob URLs)
+watch(
+  currentRawMedia,
+  async (newVal) => {
+    if (newVal && newVal.startsWith("idb://")) {
+      resolvedMediaUrl.value = await resolveMediaUrl(newVal);
+    } else {
+      resolvedMediaUrl.value = newVal || "";
+    }
+  },
+  { immediate: true }
+);
+
+// Thumbnail helper
+const getThumbType = (item) => getMediaType(item);
+
+const getThumbSrc = (item) => {
+  const type = getMediaType(item);
+  if (type === "youtube") {
+    return getYouTubeThumbnail(item);
+  }
+  if (type === "video") {
+    // If project has an image cover, use it for thumbnail, or fallback
+    return props.project.image || "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=400&fit=crop&q=80";
+  }
+  return item;
+};
+
+const selectMedia = (index) => {
+  currentImageIndex.value = index;
+  isZoomMode.value = false;
+};
 
 // Category label
 const categoryLabels = {
@@ -524,6 +638,73 @@ onUnmounted(() => {
   object-fit: cover;
 }
 
+/* Video & Media Wrappers */
+.media-youtube-wrap,
+.media-video-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  background: #02050f;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.video-iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 340px;
+  aspect-ratio: 16/9;
+  border: none;
+  border-radius: var(--radius-md);
+}
+
+.main-video {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-md);
+  outline: none;
+  background: #000;
+}
+
+.gallery-main.is-video-media {
+  background: #040816;
+}
+
+/* Thumbnail Video Badges */
+.thumb-video {
+  position: relative;
+}
+
+.thumb-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #fff;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.badge-yt {
+  background: #e62117;
+}
+
+.badge-vid {
+  background: #2563eb;
+}
+
 /* Gallery Navigation */
 .gallery-nav {
   position: absolute;
@@ -569,9 +750,10 @@ onUnmounted(() => {
 }
 
 .thumb {
+  position: relative;
   flex-shrink: 0;
-  width: 60px;
-  height: 45px;
+  width: 64px;
+  height: 48px;
   border: 2px solid transparent;
   border-radius: var(--radius-sm);
   overflow: hidden;

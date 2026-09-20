@@ -10,11 +10,17 @@
     <!-- Image Container -->
     <div class="work-image">
       <img
-        :src="imageSrc"
+        :src="displayImage"
         :alt="title"
         loading="lazy"
         @error="handleImageError"
       />
+
+      <!-- Video Indicator Badge -->
+      <div v-if="isVideoCard" class="card-video-pill">
+        <span class="play-triangle">▶</span>
+        <span class="video-text">{{ isYouTube ? 'YouTube' : 'Video' }}</span>
+      </div>
 
       <!-- Overlay with Info -->
       <div class="work-overlay">
@@ -70,7 +76,13 @@
  * technologies, and click to open detail modal.
  */
 
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import {
+  getMediaType,
+  getYouTubeThumbnail,
+  isYouTubeUrl,
+  resolveMediaUrl,
+} from "@/utils/mediaHelper";
 
 const props = defineProps({
   id: {
@@ -120,14 +132,54 @@ const categoryLabel = computed(
   () => categoryLabels[props.category] || props.category
 );
 
-// Image source with fallback
-const imageSrc = ref(props.image);
+// Video detection
+const isYouTube = computed(() => isYouTubeUrl(props.image));
+const isVideoCard = computed(() => {
+  return (
+    props.category === "video" ||
+    props.category === "drone" ||
+    props.category === "ai" ||
+    isYouTube.value ||
+    getMediaType(props.image) === "video"
+  );
+});
+
+// Image source with fallback & async resolution for IndexedDB / YouTube
+const resolvedSrc = ref("");
+
+watch(
+  () => props.image,
+  async (newVal) => {
+    if (!newVal) {
+      resolvedSrc.value = "";
+      return;
+    }
+    if (isYouTubeUrl(newVal)) {
+      resolvedSrc.value = getYouTubeThumbnail(newVal);
+      return;
+    }
+    if (newVal.startsWith("idb://")) {
+      resolvedSrc.value = await resolveMediaUrl(newVal);
+      return;
+    }
+    resolvedSrc.value = newVal;
+  },
+  { immediate: true }
+);
+
+const displayImage = computed(() => {
+  return (
+    resolvedSrc.value ||
+    props.image ||
+    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop&q=80"
+  );
+});
 
 /**
  * Handle image error - use placeholder
  */
 const handleImageError = () => {
-  imageSrc.value = `https://placehold.co/600x400/0A0E27/1F9FD8?text=${encodeURIComponent(
+  resolvedSrc.value = `https://placehold.co/600x400/0A0E27/1F9FD8?text=${encodeURIComponent(
     props.title
   )}`;
 };
@@ -161,17 +213,11 @@ const openProject = () => {
   outline-offset: 2px;
 }
 
-/* Featured card styling */
-.work-card-featured {
-  grid-column: span 1;
-  border-color: rgba(31, 159, 216, 0.2);
-}
-
-/* Image Container */
 .work-image {
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
+  background: var(--color-bg-darker);
 }
 
 .work-image img {
@@ -181,8 +227,53 @@ const openProject = () => {
   transition: transform var(--transition-slow);
 }
 
+/* Video Pill Indicator */
+.card-video-pill {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(10, 14, 39, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.work-card:hover .card-video-pill {
+  transform: scale(1.05);
+  background: rgba(31, 159, 216, 0.9);
+  border-color: rgba(31, 159, 216, 1);
+}
+
+.play-triangle {
+  font-size: 9px;
+  color: #38bdf8;
+  transition: color var(--transition-fast);
+}
+
+.work-card:hover .play-triangle {
+  color: #ffffff;
+}
+
+/* Featured card styling */
+.work-card-featured {
+  grid-column: span 1;
+  border-color: rgba(31, 159, 216, 0.2);
+}
+
 .work-card:hover .work-image img {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 /* Overlay */

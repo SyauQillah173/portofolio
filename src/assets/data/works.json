@@ -107,7 +107,7 @@
     {
       "id": 6,
       "title": "Koleksi Video AI Generatif & Creative Visual (BetaTech)",
-      "category": "video",
+      "category": "ai",
       "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=500&fit=crop&q=80",
       "description": "Eksplorasi produksi video kreatif berbasis Generative AI dan pipeline video modern untuk BetaTech.",
       "fullDescription": "Mengeksplorasi dan memproduksi konten video visual masa depan memanfaatkan pipeline Generative AI terdepan (BetaTech). Berfokus pada perancangan visual prompt tingkat lanjut, sintesis sinematik multimodal, styling motion dinamis, serta editing dan audio compositing untuk kebutuhan konten promosi digital yang atraktif.",
@@ -131,6 +131,7 @@
     { "id": "web", "name": "Software & Web", "icon": "💻" },
     { "id": "drone", "name": "Drone & Aerial", "icon": "🚁" },
     { "id": "network", "name": "IT & Network", "icon": "🌐" },
-    { "id": "video", "name": "Video & Media", "icon": "🎬" }
+    { "id": "video", "name": "Video & Media", "icon": "🎬" },
+    { "id": "ai", "name": "AI & Creative", "icon": "🤖" }
   ]
 }
