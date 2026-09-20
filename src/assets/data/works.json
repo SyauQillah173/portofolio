@@ -68,12 +68,12 @@
       "id": 4,
       "title": "Publikasi Informasi Publik & Social Media BPPKAD Gresik",
       "category": "video",
-      "image": "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=800&h=500&fit=crop&q=80",
-      "description": "Manajemen media sosial resmi instansi pemerintah, pembuatan konten infografis, dan publikasi program kerja daerah.",
-      "fullDescription": "Mengelola dan mengoptimalkan kanal media sosial resmi Badan Pendapatan, Pengelolaan Keuangan dan Aset Daerah (BPPKAD) Kabupaten Gresik. Merancang kalender konten tematik, memproduksi materi desain visual informatif, serta mengemas program kerja pemerintah menjadi konten edukatif dan transparan yang mudah dipahami oleh masyarakat umum.",
-      "technologies": ["Social Media Strategy", "Infografis Digital", "Adobe Illustrator", "Copywriting Pemerintah", "Canva Pro"],
+      "image": "/bppkad-infografis.jpg",
+      "description": "Manajemen media sosial resmi instansi pemerintah, pembuatan konten infografis Canva & AI, dan publikasi program kerja daerah.",
+      "fullDescription": "Mengelola dan mengoptimalkan kanal media sosial resmi Badan Pendapatan, Pengelolaan Keuangan dan Aset Daerah (BPPKAD) Kabupaten Gresik. Merancang kalender konten tematik, memproduksi materi desain visual informatif Canva & Adobe Illustrator, serta mengemas program kerja pemerintah menjadi konten edukatif dan transparan yang mudah dipahami oleh masyarakat umum.",
+      "technologies": ["Social Media Strategy", "Infografis Digital", "Canva Pro", "Adobe Illustrator", "Copywriting Pemerintah"],
       "gallery": [
-        "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=1000&h=650&fit=crop&q=80"
+        "/bppkad-infografis.jpg"
       ],
       "year": "2023",
       "role": "Social Media Specialist (Magang)",

@@ -103,12 +103,14 @@
                   ></video>
                 </div>
 
-                <!-- 3. Standard Uncropped Image -->
+                <!-- 3. Standard Uncropped Image with Click-to-Zoom -->
                 <img
                   v-else
                   :src="resolvedMediaUrl || currentRawMedia"
                   :alt="project.title"
                   class="main-image"
+                  @click="toggleZoomMode"
+                  :title="isZoomMode ? 'Klik gambar untuk Tampilan Penuh (Fit)' : 'Klik gambar untuk Zoom Detail (Scroll Bebas)'"
                   @error="handleImgError"
                 />
 
@@ -481,9 +483,10 @@ onUnmounted(() => {
 /* Modal Container */
 .modal-container {
   position: relative;
-  width: 100%;
-  max-width: 1200px;
-  max-height: 90vh;
+  width: 95%;
+  max-width: 1240px;
+  height: 88vh;
+  max-height: 88vh;
   background: var(--color-bg-dark);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-xl);
@@ -525,31 +528,23 @@ onUnmounted(() => {
 /* Modal Content */
 .modal-content {
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  max-height: 90vh;
+  grid-template-columns: 1.2fr 1fr;
+  height: 100%;
+  max-height: 100%;
   overflow: hidden;
 }
 
-/* Gallery Section */
+/* Gallery Section - Definite Height Grid prevents any image cropping */
 .modal-gallery {
-  background: #050814;
-  display: flex;
-  flex-direction: column;
+  background: #040714;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
   position: relative;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
-}
-
-.gallery-main {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: #040711;
-  min-height: 420px;
-  padding: var(--space-md);
 }
 
 .ambient-backdrop {
@@ -615,47 +610,55 @@ onUnmounted(() => {
   color: #ffffff;
 }
 
+/* Row 2 Main Stage with strictly constrained bounds */
 .gallery-main {
   position: relative;
-  flex: 1;
+  width: 100%;
+  height: 100%;
   min-height: 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   background: #020510;
-  padding: 12px;
+  padding: 14px;
+  box-sizing: border-box;
 }
 
+/* Image containment: aspect-ratio preserved with zero cutoff */
 .main-image {
   position: relative;
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
-  object-fit: contain; /* CRITICAL: Displays full HD portrait and landscape without any cropping! */
+  object-fit: contain; /* Full uncropped fit across 1:1, 4:5 Instagram, 9:16 story, and landscape */
   border-radius: var(--radius-md);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
   z-index: 1;
-  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: block;
+  cursor: zoom-in;
+  transition: transform 200ms ease;
 }
 
-/* Zoom Mode: Allows scrolling vertical/portrait documents freely in full detail */
+/* Zoom Mode: Free vertical scroll to read small text and details in Full HD */
 .gallery-main.is-zoom-mode {
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow-y: auto !important;
+  overflow-x: hidden;
   display: block;
   text-align: center;
-  padding: var(--space-md);
+  padding: 16px;
 }
 
 .gallery-main.is-zoom-mode .main-image {
   max-width: 100%;
-  max-height: none;
+  max-height: none !important;
   width: auto;
   height: auto;
   margin: 0 auto;
   cursor: zoom-out;
+  display: inline-block;
 }
 
 /* Video & Media Wrappers */
@@ -801,7 +804,9 @@ onUnmounted(() => {
 .modal-details {
   padding: var(--space-xl);
   overflow-y: auto;
-  max-height: 90vh;
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
 }
 
 /* Category */
@@ -966,26 +971,38 @@ onUnmounted(() => {
   }
 
   .modal-content {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
     max-height: 100vh;
     overflow-y: auto;
   }
 
   .modal-gallery {
-    max-height: none;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    flex-shrink: 0;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .gallery-main {
-    min-height: 220px;
-    max-height: 40vh;
+    min-height: 240px;
+    height: 48vh;
+    max-height: 52vh;
     padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
 
   .modal-details {
+    flex: 1;
     max-height: none;
     padding: var(--space-md);
+    overflow-y: visible;
   }
 
   .project-title {
@@ -1043,13 +1060,18 @@ onUnmounted(() => {
   }
 
   .modal-content {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
     max-height: 100vh;
     overflow-y: auto;
   }
 
   .modal-gallery {
-    max-height: none;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    flex-shrink: 0;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
@@ -1072,15 +1094,21 @@ onUnmounted(() => {
   }
 
   .gallery-main {
-    min-height: 320px;
-    height: 52vh;
-    max-height: 58vh;
-    padding: 8px;
+    min-height: 280px;
+    height: 50vh;
+    max-height: 55vh;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
 
   .modal-details {
+    flex: 1;
     max-height: none;
     padding: var(--space-lg);
+    overflow-y: visible;
   }
 
   .project-title {
@@ -1095,46 +1123,81 @@ onUnmounted(() => {
   }
 
   .modal-container {
-    max-height: 95vh;
+    height: 92vh;
+    max-height: 92vh;
     border-radius: var(--radius-lg);
   }
 
   .modal-content {
-    grid-template-columns: 1fr;
-    max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100%;
     overflow-y: auto;
   }
 
   .modal-gallery {
-    max-height: none;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    flex-shrink: 0;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .gallery-main {
     min-height: 380px;
-    height: 54vh;
-    max-height: 58vh;
+    height: 52vh;
+    max-height: 56vh;
     padding: var(--space-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .modal-details {
+    flex: 1;
+    padding: var(--space-xl);
+    overflow-y: visible;
   }
 }
 
 /* Responsive - Desktop (1024px+) */
 @media (min-width: 1024px) {
+  .modal-container {
+    height: 88vh;
+    max-height: 88vh;
+  }
+
   .modal-content {
-    grid-template-columns: 1.15fr 1fr;
-    max-height: 90vh;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    height: 100%;
+    max-height: 100%;
     overflow: hidden;
   }
 
   .modal-gallery {
-    max-height: none;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
     height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .gallery-main {
-    min-height: 440px;
     height: 100%;
+    min-height: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .modal-details {
+    height: 100%;
+    max-height: 100%;
+    overflow-y: auto;
   }
 }
 </style>

@@ -66,6 +66,16 @@ function initStore() {
           if (defWork.id === 6 && existing.category === "video") {
             mergedWorks[existingIdx].category = "ai";
           }
+          if (defWork.id === 4 && (!existing.image || existing.image.includes("unsplash.com") || existing.image.includes("photo-1611162617213"))) {
+            mergedWorks[existingIdx] = {
+              ...existing,
+              image: defWork.image,
+              gallery: defWork.gallery,
+              description: defWork.description,
+              fullDescription: defWork.fullDescription,
+              technologies: defWork.technologies,
+            };
+          }
         }
       });
 
