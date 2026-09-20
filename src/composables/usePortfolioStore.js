@@ -271,6 +271,32 @@ export function usePortfolioStore() {
     URL.revokeObjectURL(url);
   };
 
+  /**
+   * Import works from JSON file or object
+   */
+  const importBackup = (jsonData) => {
+    try {
+      const parsed = typeof jsonData === "string" ? JSON.parse(jsonData) : jsonData;
+      if (parsed && Array.isArray(parsed.works)) {
+        works.value = parsed.works;
+        if (Array.isArray(parsed.categories)) {
+          categories.value = parsed.categories;
+        }
+        saveWorksToStorage();
+        return { success: true, count: parsed.works.length };
+      } else if (Array.isArray(parsed)) {
+        works.value = parsed;
+        saveWorksToStorage();
+        return { success: true, count: parsed.length };
+      } else {
+        return { success: false, message: "Format file JSON tidak valid! Pastikan file berisi data karya." };
+      }
+    } catch (e) {
+      console.error("Import failed:", e);
+      return { success: false, message: "Gagal membaca file JSON: " + e.message };
+    }
+  };
+
   return {
     works,
     categories,
@@ -283,5 +309,6 @@ export function usePortfolioStore() {
     deleteWork,
     resetToDefault,
     downloadBackup,
+    importBackup,
   };
 }

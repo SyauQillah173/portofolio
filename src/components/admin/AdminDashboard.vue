@@ -35,12 +35,26 @@
             <span class="btn-label">Lihat Web Publik</span>
           </button>
 
-          <button class="btn btn-secondary btn-sm" @click="handleDownloadBackup" title="Unduh data works.json untuk backup">
+          <button class="btn btn-secondary btn-sm" @click="handleDownloadBackup" title="Unduh data works.json untuk backup atau kirim ke perangkat lain">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
             </svg>
-            <span class="btn-label">Backup works.json</span>
+            <span class="btn-label">Backup Data</span>
           </button>
+
+          <button class="btn btn-secondary btn-sm" @click="triggerImportFile" title="Impor data karya dari file JSON (Sinkronkan antar HP & Laptop)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+            </svg>
+            <span class="btn-label">Impor Data</span>
+          </button>
+          <input
+            ref="importFileInputRef"
+            type="file"
+            accept=".json,application/json"
+            style="display: none"
+            @change="handleImportFileChange"
+          />
 
           <button class="btn btn-secondary btn-sm" @click="showPasswordModal = true" title="Ganti Password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
@@ -80,6 +94,17 @@
             </svg>
             <span>+ Tambah Karya Baru</span>
           </button>
+        </div>
+
+        <!-- Sync & Multi-Device Persistence Info Banner -->
+        <div class="sync-info-banner">
+          <div class="sync-banner-icon">💡</div>
+          <div class="sync-banner-content">
+            <h4 class="sync-banner-title">Cara Agar Upload Tampil Permanen di HP & Semua Perangkat:</h4>
+            <p class="sync-banner-desc">
+              Karya baru otomatis aktif di perangkat ini. Untuk menyinkronkan antar Laptop & HP: klik <strong>"Backup Data"</strong> (file JSON terunduh), lalu klik <strong>"Impor Data"</strong> di HP Anda. File JSON tersebut juga bisa langsung di-commit ke GitHub agar tersimpan permanen di Vercel selamanya!
+            </p>
+          </div>
         </div>
 
         <!-- Quick Stats Cards -->
@@ -724,6 +749,7 @@ const {
   updateWork,
   deleteWork,
   downloadBackup,
+  importBackup,
   changePassword,
 } = usePortfolioStore();
 
@@ -1185,6 +1211,40 @@ const handleDownloadBackup = () => {
   showToast("✓ File backup works.json berhasil diunduh!");
 };
 
+const importFileInputRef = ref(null);
+
+const triggerImportFile = () => {
+  if (importFileInputRef.value) {
+    importFileInputRef.value.click();
+  }
+};
+
+const handleImportFileChange = (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const res = importBackup(event.target.result);
+      if (res.success) {
+        showToast(`✓ Berhasil mengimpor ${res.count} karya ke perangkat ini!`);
+      } else {
+        showToast(`⚠️ ${res.message}`);
+      }
+    } catch (err) {
+      showToast("⚠️ Gagal mengimpor file: " + err.message);
+    } finally {
+      if (importFileInputRef.value) importFileInputRef.value.value = "";
+    }
+  };
+  reader.onerror = () => {
+    showToast("⚠️ Gagal membaca file.");
+    if (importFileInputRef.value) importFileInputRef.value.value = "";
+  };
+  reader.readAsText(file);
+};
+
 const handleLogout = () => {
   logout();
   emit("logout");
@@ -1334,8 +1394,45 @@ const showToast = (msg) => {
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--space-xl);
-  margin-bottom: var(--space-2xl);
+  margin-bottom: var(--space-xl);
   flex-wrap: wrap;
+}
+
+/* Sync Info Banner */
+.sync-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(31, 159, 216, 0.08);
+  border: 1px solid rgba(31, 159, 216, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: var(--space-2xl);
+  box-sizing: border-box;
+}
+
+.sync-banner-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sync-banner-content {
+  flex: 1;
+}
+
+.sync-banner-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.sync-banner-desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin: 0;
 }
 
 .dashboard-title {

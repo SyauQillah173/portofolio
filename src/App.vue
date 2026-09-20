@@ -93,42 +93,77 @@
                 </p>
 
                 <div class="contact-items">
-                  <div class="contact-item">
-                    <div class="contact-icon">📧</div>
-                    <div class="contact-details">
-                      <span class="contact-label">Email</span>
-                      <a
-                        href="mailto:abdullahsyauqillah01@gmail.com"
-                        class="contact-value"
-                        >abdullahsyauqillah01@gmail.com</a
-                      >
+                  <!-- Email Card -->
+                  <a
+                    href="mailto:abdullahsyauqillah01@gmail.com"
+                    class="contact-card"
+                    title="Kirim Email ke Abdullah Syauqillah"
+                  >
+                    <div class="contact-card-icon icon-email">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                      </svg>
                     </div>
-                  </div>
+                    <div class="contact-card-body">
+                      <span class="contact-card-label">Email Resmi</span>
+                      <span class="contact-card-val">abdullahsyauqillah01@gmail.com</span>
+                    </div>
+                    <div class="contact-card-action">
+                      <span>Kirim</span>
+                      <span class="action-arrow">↗</span>
+                    </div>
+                  </a>
 
-                  <div class="contact-item">
-                    <div class="contact-icon">📍</div>
-                    <div class="contact-details">
-                      <span class="contact-label">Lokasi</span>
-                      <span class="contact-value"
-                        >Jl. Masjid Jami' Kyai Gede, Bungah, Gresik, Jawa Timur</span
-                      >
+                  <!-- WhatsApp Card -->
+                  <a
+                    href="https://wa.me/628155936131?text=Halo%20Mas%20Syauqillah,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20untuk%20berkolaborasi"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-card contact-card-wa"
+                    title="Chat via WhatsApp"
+                  >
+                    <div class="contact-card-icon icon-wa">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                      </svg>
                     </div>
-                  </div>
+                    <div class="contact-card-body">
+                      <div class="label-row">
+                        <span class="contact-card-label">WhatsApp</span>
+                        <span class="online-pill">🟢 Fast Response</span>
+                      </div>
+                      <span class="contact-card-val">+62 815 5936 131</span>
+                    </div>
+                    <div class="contact-card-action">
+                      <span>Chat</span>
+                      <span class="action-arrow">↗</span>
+                    </div>
+                  </a>
 
-                  <div class="contact-item">
-                    <div class="contact-icon">📱</div>
-                    <div class="contact-details">
-                      <span class="contact-label">WhatsApp</span>
-                      <a
-                        href="https://wa.me/628155936131?text=Halo%20Mas%20Syauqillah,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20untuk%20berkolaborasi"
-                        class="contact-value"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        +62 815 5936 131
-                      </a>
+                  <!-- Lokasi Card -->
+                  <a
+                    href="https://maps.google.com/?q=Bungah+Gresik+Jawa+Timur"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="contact-card"
+                    title="Lihat Lokasi di Google Maps"
+                  >
+                    <div class="contact-card-icon icon-loc">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                      </svg>
                     </div>
-                  </div>
+                    <div class="contact-card-body">
+                      <span class="contact-card-label">Lokasi / Domisili</span>
+                      <span class="contact-card-val">Bungah, Gresik, Jawa Timur</span>
+                    </div>
+                    <div class="contact-card-action">
+                      <span>Peta</span>
+                      <span class="action-arrow">↗</span>
+                    </div>
+                  </a>
                 </div>
               </div>
 
@@ -570,65 +605,160 @@ onUnmounted(() => {
 
 .contact-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-2xl);
-  max-width: 1000px;
+  grid-template-columns: 1.05fr 1fr;
+  gap: var(--space-xl);
+  max-width: 1040px;
   margin: 0 auto;
+  align-items: start;
 }
 
 .contact-info {
-  padding-right: var(--space-xl);
+  display: flex;
+  flex-direction: column;
 }
 
 .contact-heading {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-light);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 .contact-text {
   color: var(--color-text-muted);
   line-height: var(--line-height-relaxed);
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-base);
 }
 
 .contact-items {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 12px;
 }
 
-.contact-item {
+/* Contact Cards (Mobile-friendly touch cards) */
+.contact-card {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-md);
+  align-items: center;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  color: var(--color-text-light);
+  box-sizing: border-box;
+  width: 100%;
 }
 
-.contact-icon {
-  font-size: var(--font-size-xl);
-  line-height: 1;
+.contact-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(31, 159, 216, 0.4);
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(31, 159, 216, 0.12);
 }
 
-.contact-details {
+.contact-card-wa:hover {
+  border-color: rgba(37, 211, 102, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(37, 211, 102, 0.15);
+}
+
+.contact-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-primary);
+}
+
+.contact-card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-wa {
+  background: rgba(37, 211, 102, 0.15);
+  border-color: rgba(37, 211, 102, 0.3);
+  color: #25D366;
+}
+
+.icon-email {
+  background: rgba(31, 159, 216, 0.15);
+  border-color: rgba(31, 159, 216, 0.3);
+  color: #1F9FD8;
+}
+
+.icon-loc {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #F59E0B;
+}
+
+.contact-card-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: 2px;
 }
 
-.contact-label {
-  font-size: var(--font-size-sm);
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-card-label {
+  font-size: 11px;
+  font-weight: 500;
   color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.contact-value {
-  color: var(--color-text-light);
-  text-decoration: none;
-  transition: color var(--transition-fast);
+.online-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: #25D366;
+  background: rgba(37, 211, 102, 0.12);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
 }
 
-a.contact-value:hover {
+.contact-card-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: #F1F5F9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all;
+}
+
+.contact-card-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--color-primary);
+  flex-shrink: 0;
+  opacity: 0.8;
+  transition: transform var(--transition-fast);
+}
+
+.contact-card:hover .contact-card-action {
+  opacity: 1;
+  transform: translateX(3px);
 }
 
 /* Contact Form */
@@ -777,31 +907,42 @@ a.contact-value:hover {
   .contact-grid {
     grid-template-columns: 1fr;
     gap: var(--space-lg);
+    width: 100%;
+    max-width: 100%;
   }
 
   .contact-info {
     padding-right: 0;
-    text-align: center;
+    text-align: left;
   }
 
-  .contact-items {
-    align-items: center;
+  .contact-card {
+    padding: 10px 12px;
+    gap: 10px;
   }
 
-  .contact-item {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  .contact-card-icon {
+    width: 36px;
+    height: 36px;
   }
 
-  .contact-form {
-    padding: var(--space-md);
+  .contact-card-val {
+    font-size: 12px;
+  }
+
+  .contact-card-action {
+    display: none;
+  }
+
+  .contact-form-wrapper {
+    padding: 16px 12px;
+    border-radius: var(--radius-lg);
   }
 
   .form-input,
   .form-textarea {
-    padding: var(--space-sm);
-    font-size: var(--font-size-sm);
+    padding: 10px 12px;
+    font-size: 16px !important;
   }
 }
 
@@ -815,21 +956,32 @@ a.contact-value:hover {
   .contact-grid {
     grid-template-columns: 1fr;
     gap: var(--space-xl);
+    width: 100%;
+    max-width: 100%;
   }
 
   .contact-info {
     padding-right: 0;
-    text-align: center;
+    text-align: left;
   }
 
-  .contact-items {
-    align-items: center;
+  .contact-card {
+    padding: 12px 14px;
   }
 
-  .contact-item {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  .contact-card-action {
+    display: none;
+  }
+
+  .contact-form-wrapper {
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  .form-input,
+  .form-textarea {
+    font-size: 16px !important;
+    padding: 12px 14px;
   }
 }
 
