@@ -315,14 +315,38 @@ export function useFallingStars(options = {}) {
     }
   };
 
+  let visibilityObserver = null;
+
   // Lifecycle
   onMounted(() => {
     window.addEventListener("resize", handleResize);
-    setTimeout(start, 100);
+
+    // Auto-pause animation when hero is off-screen to free 100% GPU/CPU for scrolling
+    if (typeof IntersectionObserver !== "undefined" && canvasRef.value) {
+      visibilityObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              if (!isAnimating.value) start();
+            } else {
+              if (isAnimating.value) stop();
+            }
+          });
+        },
+        { threshold: 0 }
+      );
+      visibilityObserver.observe(canvasRef.value);
+    } else {
+      setTimeout(start, 100);
+    }
   });
 
   onUnmounted(() => {
     stop();
+    if (visibilityObserver) {
+      visibilityObserver.disconnect();
+      visibilityObserver = null;
+    }
     window.removeEventListener("resize", handleResize);
   });
 

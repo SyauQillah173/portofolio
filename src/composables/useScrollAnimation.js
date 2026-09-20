@@ -17,12 +17,12 @@ import { onMounted, onUnmounted, ref } from "vue";
  * @returns {Object} Observer ref and control methods
  */
 export function useScrollAnimation(options = {}) {
-  // Configuration with defaults
+  // Configuration with fast, proactive defaults
   const config = {
-    threshold: options.threshold ?? 0.2,
-    rootMargin: options.rootMargin ?? "0px 0px -50px 0px",
+    threshold: options.threshold ?? 0.01,
+    rootMargin: options.rootMargin ?? "0px 0px 250px 0px", // Trigger 250px before viewport to eliminate blank delays
     once: options.once ?? true,
-    staggerDelay: options.staggerDelay ?? 100,
+    staggerDelay: options.staggerDelay ?? 30, // Micro delay instead of slow 100ms
   };
 
   // Refs
@@ -37,18 +37,23 @@ export function useScrollAnimation(options = {}) {
    * Callback for intersection observer
    */
   const handleIntersection = (entries) => {
-    entries.forEach((entry, index) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const element = entry.target;
         const delay = element.dataset.stagger
-          ? parseInt(element.dataset.stagger, 10) * config.staggerDelay
+          ? Math.min(parseInt(element.dataset.stagger, 10) * config.staggerDelay, 120)
           : 0;
 
-        // Apply animation with optional delay
-        setTimeout(() => {
+        if (delay > 0) {
+          setTimeout(() => {
+            element.classList.add("is-visible");
+            element.classList.remove("is-hidden");
+          }, delay);
+        } else {
+          // Instant activation without waiting next tick
           element.classList.add("is-visible");
           element.classList.remove("is-hidden");
-        }, delay);
+        }
 
         // Unobserve if animating only once
         if (config.once && observer) {
@@ -92,6 +97,7 @@ export function useScrollAnimation(options = {}) {
    */
   const observe = (element, staggerIndex = null) => {
     if (!observer || !element) return;
+    if (element.classList.contains("is-visible")) return;
 
     // Set stagger data attribute if provided
     if (staggerIndex !== null) {

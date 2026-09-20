@@ -107,10 +107,13 @@ const emit = defineEmits(["open"]);
 
 // Category label mapping
 const categoryLabels = {
+  web: "Software & Web",
+  drone: "Drone & Aerial",
+  network: "IT & Network",
+  video: "Video & Media",
+  ai: "AI & Creative",
   frontend: "Frontend",
   design: "Desain",
-  video: "Video",
-  drone: "Drone",
 };
 
 const categoryLabel = computed(

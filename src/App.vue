@@ -717,20 +717,23 @@ a.contact-value:hover {
   font-size: var(--font-size-sm);
 }
 
-/* Scroll animation states */
+/* Scroll animation states - Fast & lightweight */
 .scroll-animate {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity var(--transition-slow), transform var(--transition-slow);
+  transform: translateY(14px);
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
 .scroll-animate.is-visible {
   opacity: 1;
   transform: translateY(0);
+  will-change: auto;
 }
 
 .delay-200 {
-  transition-delay: 200ms;
+  transition-delay: 60ms;
 }
 
 /* Fade transition */

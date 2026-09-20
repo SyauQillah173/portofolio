@@ -23,8 +23,41 @@
           <div class="modal-content">
             <!-- Left Side - Gallery -->
             <div class="modal-gallery">
-              <!-- Main Image -->
-              <div class="gallery-main">
+              <!-- Main Image Area -->
+              <div class="gallery-main" :class="{ 'is-zoom-mode': isZoomMode }">
+                <!-- Ambient Backdrop with blurred glow -->
+                <div
+                  class="ambient-backdrop"
+                  :style="{ backgroundImage: `url(${currentImage})` }"
+                  aria-hidden="true"
+                ></div>
+
+                <!-- Floating Toolbar: Fit Mode Toggle, HD Lightbox Button, Counter -->
+                <div class="gallery-top-bar">
+                  <span class="gallery-counter">
+                    📷 {{ currentImageIndex + 1 }} / {{ (project.gallery && project.gallery.length > 0 ? project.gallery : [project.image]).length }}
+                  </span>
+                  <div class="gallery-tools">
+                    <button
+                      type="button"
+                      class="tool-btn"
+                      @click="toggleZoomMode"
+                      :title="isZoomMode ? 'Kembali ke Tampilan Penuh (Fit)' : 'Zoom Detail (100%)'"
+                    >
+                      <span>{{ isZoomMode ? '🔍 Tampilan Penuh' : '🔍 Zoom Detail' }}</span>
+                    </button>
+                    <a
+                      :href="currentImage"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="tool-btn"
+                      title="Buka Gambar Resolusi Asli HD di Tab Baru"
+                    >
+                      <span>⛶ Buka HD</span>
+                    </a>
+                  </div>
+                </div>
+
                 <img
                   :src="currentImage"
                   :alt="project.title"
@@ -198,7 +231,12 @@ const emit = defineEmits(["close"]);
 
 // Gallery state
 const currentImageIndex = ref(0);
+const isZoomMode = ref(false);
 const modalRef = ref(null);
+
+const toggleZoomMode = () => {
+  isZoomMode.value = !isZoomMode.value;
+};
 
 // Current image
 const currentImage = computed(() => {
@@ -282,8 +320,12 @@ watch(
   () => props.project,
   () => {
     currentImageIndex.value = 0;
+    isZoomMode.value = false;
   }
 );
+watch(currentImageIndex, () => {
+  isZoomMode.value = false;
+});
 
 // Lock body scroll when modal is open
 watch(
@@ -326,13 +368,13 @@ onUnmounted(() => {
 .modal-container {
   position: relative;
   width: 100%;
-  max-width: 1100px;
+  max-width: 1200px;
   max-height: 90vh;
   background: var(--color-bg-dark);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(31, 159, 216, 0.1);
 }
 
 /* Close Button */
@@ -345,17 +387,19 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-full);
   color: var(--color-text-light);
   cursor: pointer;
   transition: all var(--transition-fast);
-  z-index: 10;
+  z-index: 20;
 }
 
 .modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(239, 68, 68, 0.85);
+  color: #fff;
   transform: rotate(90deg);
 }
 
@@ -367,16 +411,19 @@ onUnmounted(() => {
 /* Modal Content */
 .modal-content {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 1fr;
   max-height: 90vh;
   overflow: hidden;
 }
 
 /* Gallery Section */
 .modal-gallery {
-  background: rgba(0, 0, 0, 0.3);
+  background: #050814;
   display: flex;
   flex-direction: column;
+  position: relative;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
 }
 
 .gallery-main {
@@ -386,9 +433,92 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: #040711;
+  min-height: 420px;
+  padding: var(--space-md);
+}
+
+.ambient-backdrop {
+  position: absolute;
+  inset: -25px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(35px) brightness(0.25) saturate(1.3);
+  transform: scale(1.15);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.gallery-top-bar {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  right: var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.gallery-counter {
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  color: #E2E8F0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  pointer-events: auto;
+}
+
+.gallery-tools {
+  display: flex;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #E2E8F0;
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.tool-btn:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
 }
 
 .main-image {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* CRITICAL: Never crop, displays full HD image at all resolutions! */
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  z-index: 1;
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-main.is-zoom-mode .main-image {
+  max-width: none;
+  max-height: none;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -635,10 +765,20 @@ onUnmounted(() => {
 
   .modal-content {
     grid-template-columns: 1fr;
+    max-height: 100vh;
+    overflow-y: auto;
   }
 
   .modal-gallery {
-    max-height: 200px;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .gallery-main {
+    min-height: 220px;
+    max-height: 40vh;
+    padding: 8px;
   }
 
   .modal-details {
@@ -668,17 +808,17 @@ onUnmounted(() => {
   }
 
   .gallery-nav {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
   }
 
   .gallery-nav svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 
   .gallery-thumbnails {
-    padding: var(--space-sm);
+    padding: var(--space-xs);
     gap: var(--space-xs);
   }
 
@@ -702,10 +842,20 @@ onUnmounted(() => {
 
   .modal-content {
     grid-template-columns: 1fr;
+    max-height: 100vh;
+    overflow-y: auto;
   }
 
   .modal-gallery {
-    max-height: 250px;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .gallery-main {
+    min-height: 250px;
+    max-height: 44vh;
+    padding: 10px;
   }
 
   .modal-details {
@@ -724,28 +874,45 @@ onUnmounted(() => {
     padding: var(--space-md);
   }
 
-  .modal-content {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-gallery {
-    max-height: 350px;
-  }
-
   .modal-container {
     max-height: 95vh;
     border-radius: var(--radius-lg);
+  }
+
+  .modal-content {
+    grid-template-columns: 1fr;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+
+  .modal-gallery {
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .gallery-main {
+    min-height: 340px;
+    max-height: 48vh;
+    padding: var(--space-md);
   }
 }
 
 /* Responsive - Desktop (1024px+) */
 @media (min-width: 1024px) {
   .modal-content {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.15fr 1fr;
+    max-height: 90vh;
+    overflow: hidden;
   }
 
   .modal-gallery {
     max-height: none;
+    height: 100%;
+  }
+
+  .gallery-main {
+    min-height: 440px;
   }
 }
 </style>
