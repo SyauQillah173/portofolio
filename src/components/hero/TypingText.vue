@@ -49,6 +49,7 @@ const { displayText } = useTypingText(props.texts, {
 .typing-text {
   display: inline-flex;
   align-items: center;
+  min-height: 1.3em;
 }
 
 .typing-content {

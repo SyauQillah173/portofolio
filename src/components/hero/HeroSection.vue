@@ -105,7 +105,7 @@
             </a>
 
             <a
-              :href="profile.whatsappUrl"
+              :href="whatsappUrl"
               target="_blank"
               rel="noopener noreferrer"
               class="btn btn-secondary btn-lg btn-whatsapp"
@@ -178,30 +178,52 @@
  */
 
 import socialData from "@/assets/data/social.json";
+import userPhoto from "@/assets/IMG/Fotoku.jpg";
 import { PROFILE, SOCIAL_ICONS, TYPING_ROLES } from "@/utils/constants";
 import { scrollToElement } from "@/utils/helpers";
-import { ref } from "vue";
+import { usePortfolioStore } from "@/composables/usePortfolioStore";
+import { computed, ref } from "vue";
 import FallingStars from "./FallingStars.vue";
 import TypingText from "./TypingText.vue";
 
-// Data
-const profile = PROFILE;
-const roles = TYPING_ROLES;
-const socialLinks = socialData.social;
+// Reactive Store
+const { profile } = usePortfolioStore();
 
-// Full roles with prefix for flowing animation
-const fullRoles = roles.map((role) => `Saya adalah seorang ${role}`);
+// Dynamic roles for typing animation
+const roles = computed(() => {
+  return (profile.value && profile.value.typingRoles && profile.value.typingRoles.length > 0)
+    ? profile.value.typingRoles
+    : TYPING_ROLES;
+});
 
-// Profile image - using user's photo
-import userPhoto from "@/assets/IMG/Fotoku.jpg";
-const profileImage = ref(userPhoto);
+const fullRoles = computed(() => roles.value.map((role) => `Saya adalah seorang ${role}`));
+
+// Social links from reactive profile or fallback
+const socialLinks = computed(() => {
+  return (profile.value && profile.value.social && profile.value.social.length > 0)
+    ? profile.value.social
+    : socialData.social;
+});
+
+// Profile image with user's photo fallback
+const profileImage = computed(() => {
+  return (profile.value && profile.value.avatar) ? profile.value.avatar : userPhoto;
+});
+
+// WhatsApp link
+const whatsappUrl = computed(() => {
+  if (profile.value && profile.value.whatsapp) {
+    const cleanNum = profile.value.whatsapp.replace(/\D/g, '');
+    return `https://wa.me/${cleanNum}?text=Halo%20Mas%20Syauqillah,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20untuk%20berkolaborasi`;
+  }
+  return PROFILE.whatsappUrl;
+});
 
 /**
  * Handle profile image error - use placeholder
  */
-const handleImageError = () => {
-  profileImage.value =
-    "https://api.dicebear.com/7.x/avataaars/svg?seed=portfolio";
+const handleImageError = (e) => {
+  e.target.src = userPhoto;
 };
 
 /**
@@ -571,6 +593,13 @@ const scrollToSection = (sectionId) => {
   font-size: var(--font-size-xl);
   color: var(--color-text-muted);
   margin-bottom: var(--space-md);
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  line-height: 1.3;
 }
 
 .hero-bio {

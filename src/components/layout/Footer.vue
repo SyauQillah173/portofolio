@@ -125,12 +125,28 @@
 import socialData from "@/assets/data/social.json";
 import { CONTACT_INFO, NAV_LINKS, SOCIAL_ICONS } from "@/utils/constants";
 import { scrollToElement, throttle } from "@/utils/helpers";
-import { onMounted, onUnmounted, ref } from "vue";
+import { usePortfolioStore } from "@/composables/usePortfolioStore";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 
-// Data
-const socialLinks = socialData.social;
+// Reactive CMS Store
+const { profile } = usePortfolioStore();
+
+const contactInfo = computed(() => ({
+  email: (profile.value && profile.value.email) || CONTACT_INFO.email,
+  location: (profile.value && profile.value.location) || CONTACT_INFO.location,
+  phone: (profile.value && profile.value.phone) || CONTACT_INFO.phone,
+  whatsapp: (profile.value && profile.value.whatsapp)
+    ? `https://wa.me/${profile.value.whatsapp.replace(/\D/g, '')}`
+    : CONTACT_INFO.whatsapp,
+}));
+
+const socialLinks = computed(() => {
+  return (profile.value && profile.value.social && profile.value.social.length > 0)
+    ? profile.value.social
+    : socialData.social;
+});
+
 const navLinks = NAV_LINKS;
-const contactInfo = CONTACT_INFO;
 const currentYear = new Date().getFullYear();
 
 // Refs

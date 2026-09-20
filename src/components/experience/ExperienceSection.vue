@@ -124,85 +124,95 @@
  * tailored for Abdullah Syauqillah's hybrid technical and creative background.
  */
 
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useScrollAnimation } from "@/composables/useScrollAnimation";
+import { usePortfolioStore } from "@/composables/usePortfolioStore";
 
 const activeTab = ref("work");
+const { experiences } = usePortfolioStore();
 
-const workExperiences = [
-  {
-    id: 1,
-    company: "Pondok Pesantren Qomaruddin",
-    period: "2024 – Sekarang",
-    role: "Web Developer & IT Maintenance",
-    subtitle: "Full-Stack Development & Infrastruktur Jaringan",
-    points: [
-      "Merancang alur proses bisnis dan membangun Sistem Informasi Pesantren terintegrasi (ppqomaruddin.itqom.net) secara mandiri dari tahap konsep hingga live production.",
-      "Mengembangkan modul inti: Absensi Digital berbasis QR Code & Kartu Tanda Santri (KTS), Buku Induk/Master Data, Modul Keuangan (arus kas Pondok & Madin), serta Sistem Penerimaan Santri Baru (PSB).",
-      "Melakukan maintenance sistem, debugging, dan penyelesaian error web secara berkala dan real-time.",
-      "Bertanggung jawab atas instalasi hardware, pengecekan redaman Fiber Optic untuk sistem fingerprint, serta pemeliharaan jaringan LAN seluruh fasilitas."
-    ],
-    tags: ["Full-Stack Web", "Vue.js", "QR Code Scanner", "Fiber Optic", "LAN Switching", "Hardware Support"]
-  },
-  {
-    id: 2,
-    company: "Raff Studio & Independen",
-    period: "2021 – Sekarang",
-    role: "Freelance Commercial Drone Pilot & Videographer",
-    subtitle: "Produksi Visual Komersial & BUMN",
-    points: [
-      "Dipercaya oleh Raff Studio sebagai Pilot Drone Komersial untuk mengeksekusi pengambilan footage udara (aerial cinematography) pada proyek video Company Profile perusahaan BUMN nasional, termasuk PT Pertamina dan Perum BULOG.",
-      "Mengoperasikan drone DJI berstandar sinematik untuk pemetaan visual tata ruang, dokumentasi fasilitas industri, dan visual dinamis dengan resolusi 4K.",
-      "Bertindak sebagai fotografer dan videografer utama untuk berbagai acara komersial dan privat, memastikan kestabilan komposisi dan pencahayaan optimal."
-    ],
-    tags: ["DJI Drone 4K", "Aerial Cinematography", "Company Profile BUMN", "DaVinci Resolve", "Adobe Premiere"]
-  },
-  {
-    id: 3,
-    company: "BPPKAD Kabupaten Gresik",
-    period: "Durasi 3 Bulan",
-    role: "Social Media Specialist (Magang)",
-    subtitle: "Badan Pendapatan, Pengelolaan Keuangan dan Aset Daerah",
-    points: [
-      "Mengelola dan mengoptimalkan akun media sosial resmi instansi pemerintah untuk penyampaian informasi dan edukasi publik.",
-      "Merancang kalender konten terstruktur, membuat materi desain visual informatif, serta mempublikasikan program kerja badan daerah secara profesional."
-    ],
-    tags: ["Social Media Strategy", "Infografis Publik", "Content Creation", "Graphic Design"]
-  },
-  {
-    id: 4,
-    company: "Pondok Pesantren Qomaruddin",
-    period: "Durasi 3 Tahun",
-    role: "Tim Media & Dokumentasi",
-    subtitle: "Dokumentasi Visual & Manajemen Arsip",
-    points: [
-      "Bertanggung jawab penuh sebagai fotografer dan videografer utama dalam mendokumentasikan berbagai macam acara dan agenda akbar pesantren.",
-      "Mengelola pengarsipan aset visual digital dan mendistribusikan materi konten untuk publikasi resmi serta media sosial."
-    ],
-    tags: ["Event Videography", "Live Documentation", "Asset Archiving", "Lighting & Composition"]
-  }
-];
+const workExperiences = computed(() => {
+  return (experiences.value && Array.isArray(experiences.value.work) && experiences.value.work.length > 0)
+    ? experiences.value.work
+    : [
+        {
+          id: 1,
+          company: "Pondok Pesantren Qomaruddin",
+          period: "2024 – Sekarang",
+          role: "Web Developer & IT Maintenance",
+          subtitle: "Full-Stack Development & Infrastruktur Jaringan",
+          points: [
+            "Merancang alur proses bisnis dan membangun Sistem Informasi Pesantren terintegrasi (ppqomaruddin.itqom.net) secara mandiri dari tahap konsep hingga live production.",
+            "Mengembangkan modul inti: Absensi Digital berbasis QR Code & Kartu Tanda Santri (KTS), Buku Induk/Master Data, Modul Keuangan (arus kas Pondok & Madin), serta Sistem Penerimaan Santri Baru (PSB).",
+            "Melakukan maintenance sistem, debugging, dan penyelesaian error web secara berkala dan real-time.",
+            "Bertanggung jawab atas instalasi hardware, pengecekan redaman Fiber Optic untuk sistem fingerprint, serta pemeliharaan jaringan LAN seluruh fasilitas."
+          ],
+          tags: ["Full-Stack Web", "Vue.js", "QR Code Scanner", "Fiber Optic", "LAN Switching", "Hardware Support"]
+        },
+        {
+          id: 2,
+          company: "Raff Studio & Independen",
+          period: "2021 – Sekarang",
+          role: "Freelance Commercial Drone Pilot & Videographer",
+          subtitle: "Produksi Visual Komersial & BUMN",
+          points: [
+            "Dipercaya oleh Raff Studio sebagai Pilot Drone Komersial untuk mengeksekusi pengambilan footage udara (aerial cinematography) pada proyek video Company Profile perusahaan BUMN nasional, termasuk PT Pertamina dan Perum BULOG.",
+            "Mengoperasikan drone DJI berstandar sinematik untuk pemetaan visual tata ruang, dokumentasi fasilitas industri, dan visual dinamis dengan resolusi 4K.",
+            "Bertindak sebagai fotografer dan videografer utama untuk berbagai acara komersial dan privat, memastikan kestabilan komposisi dan pencahayaan optimal."
+          ],
+          tags: ["DJI Drone 4K", "Aerial Cinematography", "Company Profile BUMN", "DaVinci Resolve", "Adobe Premiere"]
+        },
+        {
+          id: 3,
+          company: "BPPKAD Kabupaten Gresik",
+          period: "Durasi 3 Bulan",
+          role: "Social Media Specialist (Magang)",
+          subtitle: "Badan Pendapatan, Pengelolaan Keuangan dan Aset Daerah",
+          points: [
+            "Mengelola dan mengoptimalkan akun media sosial resmi instansi pemerintah untuk penyampaian informasi dan edukasi publik.",
+            "Merancang kalender konten terstruktur, membuat materi desain visual informatif, serta mempublikasikan program kerja badan daerah secara profesional."
+          ],
+          tags: ["Social Media Strategy", "Infografis Publik", "Content Creation", "Graphic Design"]
+        },
+        {
+          id: 4,
+          company: "Pondok Pesantren Qomaruddin",
+          period: "Durasi 3 Tahun",
+          role: "Tim Media & Dokumentasi",
+          subtitle: "Dokumentasi Visual & Manajemen Arsip",
+          points: [
+            "Bertanggung jawab penuh sebagai fotografer dan videografer utama dalam mendokumentasikan berbagai macam acara dan agenda akbar pesantren.",
+            "Mengelola pengarsipan aset visual digital dan mendistribusikan materi konten untuk publikasi resmi serta media sosial."
+          ],
+          tags: ["Event Videography", "Live Documentation", "Asset Archiving", "Lighting & Composition"]
+        }
+      ];
+});
 
-const educations = [
-  {
-    id: 1,
-    institution: "Pendidikan Tinggi",
-    period: "Lulusan S1",
-    degree: "Sarjana Komputer (S.Kom) / Sarjana Teknik",
-    major: "S1 Teknik Informatika",
-    description: "Fokus keilmuan pada Rekayasa Perangkat Lunak (Software Engineering), Analisis Sistem Informasi, Basis Data Relasional, Arsitektur Jaringan Komputer, dan Pengembangan Aplikasi Web modern.",
-    skills: ["System Analysis", "Web Development", "Database Architecture", "Computer Networking"]
-  },
-  {
-    id: 2,
-    institution: "SMK Assa'adah",
-    period: "Pendidikan Menengah Kejuruan",
-    degree: "Sekolah Menengah Kejuruan",
-    major: "Jurusan Multimedia",
-    description: "Pondasi kuat di bidang produksi multimedia, teknik pengambilan gambar video & foto, tata pencahayaan, desain grafis komputer, dan pasca-produksi digital.",
-    skills: ["Multimedia Production", "Videography", "Photography", "Adobe Creative Suite"]
-  }
-];
+const educations = computed(() => {
+  return (experiences.value && Array.isArray(experiences.value.education) && experiences.value.education.length > 0)
+    ? experiences.value.education
+    : [
+        {
+          id: 1,
+          institution: "Pendidikan Tinggi",
+          period: "Lulusan S1",
+          degree: "Sarjana Komputer (S.Kom) / Sarjana Teknik",
+          major: "S1 Teknik Informatika",
+          description: "Fokus keilmuan pada Rekayasa Perangkat Lunak (Software Engineering), Analisis Sistem Informasi, Basis Data Relasional, Arsitektur Jaringan Komputer, dan Pengembangan Aplikasi Web modern.",
+          skills: ["System Analysis", "Web Development", "Database Architecture", "Computer Networking"]
+        },
+        {
+          id: 2,
+          institution: "SMK Assa'adah",
+          period: "Pendidikan Menengah Kejuruan",
+          degree: "Sekolah Menengah Kejuruan",
+          major: "Jurusan Multimedia",
+          description: "Pondasi kuat di bidang produksi multimedia, teknik pengambilan gambar video & foto, tata pencahayaan, desain grafis komputer, dan pasca-produksi digital.",
+          skills: ["Multimedia Production", "Videography", "Photography", "Adobe Creative Suite"]
+        }
+      ];
+});
 
 // Scroll animations
 const { observeAll } = useScrollAnimation({

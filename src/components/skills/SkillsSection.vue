@@ -68,12 +68,12 @@
  * Data is loaded from the skills.json file.
  */
 
-import skillsData from "@/assets/data/skills.json";
+import { usePortfolioStore } from "@/composables/usePortfolioStore";
 import { useScrollAnimation } from "@/composables/useScrollAnimation";
 import { onMounted } from "vue";
 
-// Skills data
-const skills = skillsData.skills;
+// Reactive Skills data from Full CMS Store
+const { skills } = usePortfolioStore();
 
 /**
  * Get level percentage for progress bar

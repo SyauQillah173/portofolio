@@ -36,11 +36,8 @@
               <h2 class="section-title">
                 Tentang <span class="section-accent">Saya</span>
               </h2>
-              <p class="about-paragraph">
-                Saya adalah lulusan <strong>S1 Teknik Informatika</strong> dengan kombinasi keahlian unik di bidang software development, infrastruktur jaringan, dan produksi multimedia sinematik.
-              </p>
-              <p class="about-paragraph">
-                Memiliki rekam jejak merancang dan mengembangkan <strong>Sistem Informasi Pesantren skala besar secara mandiri</strong> (Full-Stack), mengelola jaringan <strong>Fiber Optic & LAN</strong>, serta lebih dari 3 tahun berpengalaman sebagai <strong>Pilot Drone komersial dan Videografer</strong> untuk perusahaan nasional (termasuk proyek Pertamina dan Bulog via Raff Studio) hingga instansi pemerintah.
+              <p v-for="(para, pIdx) in aboutParagraphs" :key="pIdx" class="about-paragraph">
+                {{ para }}
               </p>
             </div>
 
@@ -94,10 +91,11 @@
 
                 <div class="contact-items">
                   <!-- Email Card -->
+                  <!-- Email Card -->
                   <a
-                    href="mailto:abdullahsyauqillah01@gmail.com"
+                    :href="`mailto:${profile.email || 'abdullahsyauqillah01@gmail.com'}`"
                     class="contact-card"
-                    title="Kirim Email ke Abdullah Syauqillah"
+                    :title="`Kirim Email ke ${profile.name || 'Abdullah Syauqillah'}`"
                   >
                     <div class="contact-card-icon icon-email">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -107,7 +105,7 @@
                     </div>
                     <div class="contact-card-body">
                       <span class="contact-card-label">Email Resmi</span>
-                      <span class="contact-card-val">abdullahsyauqillah01@gmail.com</span>
+                      <span class="contact-card-val">{{ profile.email || 'abdullahsyauqillah01@gmail.com' }}</span>
                     </div>
                     <div class="contact-card-action">
                       <span>Kirim</span>
@@ -117,7 +115,7 @@
 
                   <!-- WhatsApp Card -->
                   <a
-                    href="https://wa.me/628155936131?text=Halo%20Mas%20Syauqillah,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20untuk%20berkolaborasi"
+                    :href="whatsappUrl"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="contact-card contact-card-wa"
@@ -133,7 +131,7 @@
                         <span class="contact-card-label">WhatsApp</span>
                         <span class="online-pill">🟢 Fast Response</span>
                       </div>
-                      <span class="contact-card-val">+62 815 5936 131</span>
+                      <span class="contact-card-val">{{ profile.phone || '+62 815 5936 131' }}</span>
                     </div>
                     <div class="contact-card-action">
                       <span>Chat</span>
@@ -143,7 +141,7 @@
 
                   <!-- Lokasi Card -->
                   <a
-                    href="https://maps.google.com/?q=Bungah+Gresik+Jawa+Timur"
+                    :href="`https://maps.google.com/?q=${encodeURIComponent(profile.location || 'Bungah Gresik Jawa Timur')}`"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="contact-card"
@@ -157,7 +155,7 @@
                     </div>
                     <div class="contact-card-body">
                       <span class="contact-card-label">Lokasi / Domisili</span>
-                      <span class="contact-card-val">Bungah, Gresik, Jawa Timur</span>
+                      <span class="contact-card-val">{{ profile.location || 'Bungah, Gresik, Jawa Timur' }}</span>
                     </div>
                     <div class="contact-card-action">
                       <span>Peta</span>
@@ -255,7 +253,7 @@
  * Main application component that composes all sections.
  */
 
-import { onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import AdminDashboard from "./components/admin/AdminDashboard.vue";
 import AdminLogin from "./components/admin/AdminLogin.vue";
 import ExperienceSection from "./components/experience/ExperienceSection.vue";
@@ -268,8 +266,27 @@ import { usePortfolioStore } from "./composables/usePortfolioStore";
 import { useScrollAnimation } from "./composables/useScrollAnimation";
 
 // Portfolio store & view state
-const { isAuthenticated } = usePortfolioStore();
+const { isAuthenticated, profile } = usePortfolioStore();
 const currentView = ref("public"); // 'public' | 'admin'
+
+// Dynamic About Paragraphs from Full CMS Profile
+const aboutParagraphs = computed(() => {
+  return (profile.value && Array.isArray(profile.value.aboutParagraphs) && profile.value.aboutParagraphs.length > 0)
+    ? profile.value.aboutParagraphs
+    : [
+        "Saya adalah lulusan S1 Teknik Informatika dengan kombinasi keahlian unik di bidang software development, infrastruktur jaringan, dan produksi multimedia sinematik.",
+        "Memiliki rekam jejak merancang dan mengembangkan Sistem Informasi Pesantren skala besar secara mandiri (Full-Stack), mengelola jaringan Fiber Optic & LAN, serta lebih dari 3 tahun berpengalaman sebagai Pilot Drone komersial dan Videografer untuk perusahaan nasional (termasuk proyek Pertamina dan Bulog via Raff Studio) hingga instansi pemerintah."
+      ];
+});
+
+// Dynamic WhatsApp link from Full CMS Profile
+const whatsappUrl = computed(() => {
+  if (profile.value && profile.value.whatsapp) {
+    const cleanNum = profile.value.whatsapp.replace(/\D/g, '');
+    return `https://wa.me/${cleanNum}?text=Halo%20Mas%20Syauqillah,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20untuk%20berkolaborasi`;
+  }
+  return "https://wa.me/628155936131?text=Halo%20Mas%20Syauqillah,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20untuk%20berkolaborasi";
+});
 
 const checkHash = () => {
   if (window.location.hash === "#admin") {

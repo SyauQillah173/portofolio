@@ -77,11 +77,6 @@
             </span>
           </button>
         </form>
-
-        <!-- Default Credentials Hint -->
-        <div class="login-hint">
-          <span>💡 <strong>Petunjuk:</strong> Password bawaan adalah <code>admin123</code></span>
-        </div>
       </div>
     </div>
   </div>
@@ -106,13 +101,13 @@ const handleLogin = async () => {
   // Short delay for smooth UI feedback
   await new Promise((r) => setTimeout(r, 400));
 
-  const result = login(password.value);
+  const result = await login(password.value);
   isLoading.value = false;
 
   if (result.success) {
     emit("login-success");
   } else {
-    errorMessage.value = result.message;
+    errorMessage.value = result.message || "Password salah! Silakan coba lagi.";
   }
 };
 </script>

@@ -56,7 +56,7 @@
             @change="handleImportFileChange"
           />
 
-          <button class="btn btn-secondary btn-sm" @click="showPasswordModal = true" title="Ganti Password">
+          <button class="btn btn-secondary btn-sm" @click="activeCmsTab = 'security'" title="Ganti Password">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
               <path d="M7 11V7a5 5 0 0110 0v4" />
@@ -77,8 +77,61 @@
     <!-- Main Content -->
     <main class="admin-main">
       <div class="admin-container">
-        <!-- Dashboard Overview Header -->
-        <div class="dashboard-hero">
+        <!-- Global Full CMS Navigation Tabs -->
+        <nav class="cms-nav-bar">
+          <button
+            class="cms-tab-btn"
+            :class="{ active: activeCmsTab === 'works' }"
+            @click="activeCmsTab = 'works'"
+          >
+            <span class="tab-icon">📁</span>
+            <span>Karya Portofolio</span>
+            <span class="tab-badge">{{ works.length }}</span>
+          </button>
+
+          <button
+            class="cms-tab-btn"
+            :class="{ active: activeCmsTab === 'profile' }"
+            @click="activeCmsTab = 'profile'"
+          >
+            <span class="tab-icon">👤</span>
+            <span>Profil, Bio & Kontak</span>
+          </button>
+
+          <button
+            class="cms-tab-btn"
+            :class="{ active: activeCmsTab === 'skills' }"
+            @click="activeCmsTab = 'skills'"
+          >
+            <span class="tab-icon">⚡</span>
+            <span>Keahlian / Skills</span>
+            <span class="tab-badge">{{ skills.length }}</span>
+          </button>
+
+          <button
+            class="cms-tab-btn"
+            :class="{ active: activeCmsTab === 'experience' }"
+            @click="activeCmsTab = 'experience'"
+          >
+            <span class="tab-icon">💼</span>
+            <span>Pengalaman & Edukasi</span>
+            <span class="tab-badge">{{ (experiences.work || []).length }}</span>
+          </button>
+
+          <button
+            class="cms-tab-btn"
+            :class="{ active: activeCmsTab === 'security' }"
+            @click="activeCmsTab = 'security'"
+          >
+            <span class="tab-icon">🔐</span>
+            <span>Keamanan Sandi</span>
+          </button>
+        </nav>
+
+        <!-- TAB 1: WORKS -->
+        <div v-if="activeCmsTab === 'works'" class="tab-pane-works">
+          <!-- Dashboard Overview Header -->
+          <div class="dashboard-hero">
           <div class="dashboard-intro">
             <h1 class="dashboard-title">Manajemen Portofolio & Karya</h1>
             <p class="dashboard-subtitle">
@@ -218,6 +271,20 @@
             + Tambah Karya Pertama
           </button>
         </div>
+        </div>
+        <!-- END TAB 1: WORKS -->
+
+        <!-- TAB 2: PROFILE & BIO -->
+        <AdminProfileTab v-else-if="activeCmsTab === 'profile'" @toast="showToast" />
+
+        <!-- TAB 3: SKILLS -->
+        <AdminSkillsTab v-else-if="activeCmsTab === 'skills'" @toast="showToast" />
+
+        <!-- TAB 4: EXPERIENCE & EDUCATION -->
+        <AdminExperienceTab v-else-if="activeCmsTab === 'experience'" @toast="showToast" />
+
+        <!-- TAB 5: SECURITY & PASSWORD -->
+        <AdminSecurityTab v-else-if="activeCmsTab === 'security'" @toast="showToast" />
       </div>
     </main>
 
@@ -730,6 +797,10 @@
 <script setup>
 import { computed, reactive, ref } from "vue";
 import { usePortfolioStore } from "@/composables/usePortfolioStore";
+import AdminProfileTab from "./AdminProfileTab.vue";
+import AdminSkillsTab from "./AdminSkillsTab.vue";
+import AdminExperienceTab from "./AdminExperienceTab.vue";
+import AdminSecurityTab from "./AdminSecurityTab.vue";
 import {
   captureVideoSnapshot,
   getMediaType,
@@ -744,6 +815,9 @@ const emit = defineEmits(["view-public", "logout"]);
 const {
   works,
   categories,
+  profile,
+  skills,
+  experiences,
   logout,
   addWork,
   updateWork,
@@ -754,6 +828,9 @@ const {
   isNeonConnected,
   syncAllToNeon,
 } = usePortfolioStore();
+
+// CMS Active Tab
+const activeCmsTab = ref("works");
 
 // Search & Filter
 const searchQuery = ref("");
@@ -1389,6 +1466,82 @@ const showToast = (msg) => {
 .admin-container {
   max-width: 1400px;
   margin: 0 auto;
+}
+
+/* Full CMS Navigation Bar */
+.cms-nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl, 16px);
+  padding: 8px;
+  margin-bottom: var(--space-2xl, 32px);
+  overflow-x: auto;
+  backdrop-filter: blur(12px);
+  scrollbar-width: thin;
+}
+
+.cms-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: transparent;
+  color: var(--color-text-muted, #94a3b8);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg, 12px);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.cms-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cms-tab-btn.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(31, 159, 216, 0.25), rgba(16, 185, 129, 0.15));
+  border-color: rgba(31, 159, 216, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+}
+
+.tab-icon {
+  font-size: 16px;
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-light, #ffffff);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cms-tab-btn.active .tab-badge {
+  background: var(--color-primary, #1f9fd8);
+  color: #ffffff;
+}
+
+.tab-pane-works {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .dashboard-hero {
