@@ -5,16 +5,16 @@
       "title": "Sistem Informasi Pesantren Terintegrasi",
       "category": "web",
       "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop&q=80",
-      "description": "Platform enterprise terintegrasi yang dibangun mandiri dari konsep hingga production (ppqomaruddin.itqom.net).",
-      "fullDescription": "Merancang dan membangun Sistem Informasi Pesantren terintegrasi skala besar secara mandiri dari tahap perancangan alur proses bisnis hingga peluncuran live (production). Modul inti meliputi: Absensi Digital berbasis QR Code & Kartu Tanda Santri (KTS), Buku Induk/Master Data, Modul Keuangan multi-kas (arus kas Pondok & Madin), serta Sistem Penerimaan Santri Baru (PSB). Sistem ini aktif digunakan dan dimaintain secara berkala untuk efisiensi operasional pesantren.",
-      "technologies": ["Full-Stack Web", "Vue.js", "QR Code Scanner", "Relational Database", "Modul Keuangan", "Sistem PSB"],
+      "description": "Platform enterprise terintegrasi yang dirancang dari proses bisnis & desain Figma hingga live production (ppqomaruddin.itqom.net).",
+      "fullDescription": "Merancang alur proses bisnis operasional dan antarmuka UI/UX di Figma secara mandiri dari nol, kemudian merealisasikannya menjadi Sistem Informasi Pesantren terintegrasi skala besar (ppqomaruddin.itqom.net) menggunakan pendekatan modern AI-Assisted Development. Modul inti meliputi: Absensi Digital berbasis QR Code & Kartu Tanda Santri (KTS), Buku Induk/Master Data, Modul Keuangan multi-kas (arus kas Pondok & Madin), serta Sistem Penerimaan Santri Baru (PSB). Sistem ini aktif digunakan dan dimaintain secara berkala untuk efisiensi operasional pesantren.",
+      "technologies": ["System Analysis", "Figma UI/UX", "AI-Assisted Dev", "Vue.js", "QR Code Scanner", "Modul Keuangan", "Sistem PSB"],
       "gallery": [
         "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&h=650&fit=crop&q=80",
         "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1000&h=650&fit=crop&q=80",
         "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1000&h=650&fit=crop&q=80"
       ],
       "year": "2024 – Sekarang",
-      "role": "Full-Stack Web Developer & System Analyst",
+      "role": "Product Architect & UI/UX Web Builder",
       "client": "Pondok Pesantren Qomaruddin",
       "productionHouse": "",
       "externalLinks": [

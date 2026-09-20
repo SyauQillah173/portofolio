@@ -2,46 +2,56 @@
   "skills": [
     {
       "id": 1,
-      "name": "Full-Stack Web Development",
-      "icon": "💻",
+      "name": "Figma UI/UX & Product Design",
+      "icon": "🎨",
       "category": "web",
       "categoryName": "Software & Web",
-      "description": "Pengembangan web app responsif (Vue.js, RESTful API, integrasi QR Code & absensi digital)",
+      "description": "Perancangan desain antarmuka modern di Figma, user flow, wireframing, dan prototipe interaktif",
       "level": "Advanced",
       "color": "#1F9FD8"
     },
     {
       "id": 2,
-      "name": "System Analysis & Database",
+      "name": "System Analysis & Business Process",
       "icon": "🗄️",
       "category": "web",
       "categoryName": "Software & Web",
-      "description": "Perancangan proses bisnis, arsitektur database, modul keuangan, dan master data",
+      "description": "Pemodelan proses bisnis, alur modul operasional (absensi QR, kas keuangan), dan arsitektur data",
       "level": "Advanced",
       "color": "#38BDF8"
     },
     {
       "id": 3,
+      "name": "AI-Augmented Web Engineering",
+      "icon": "⚡",
+      "category": "web",
+      "categoryName": "Software & Web",
+      "description": "Eksekusi cepat pengembangan web terintegrasi (Vue.js, RESTful API) memanfaatkan akselerasi AI modern",
+      "level": "Advanced",
+      "color": "#10B981"
+    },
+    {
+      "id": 4,
       "name": "Fiber Optic & LAN Infrastructure",
       "icon": "🌐",
       "category": "network",
       "categoryName": "IT Infrastructure",
       "description": "Instalasi kabel FO, pengecekan redaman optik, manajemen jaringan LAN, dan sistem fingerprint",
       "level": "Advanced",
-      "color": "#10B981"
+      "color": "#34D399"
     },
     {
-      "id": 4,
+      "id": 5,
       "name": "Hardware Support & Troubleshooting",
       "icon": "🛠️",
       "category": "network",
       "categoryName": "IT Infrastructure",
       "description": "Pemeliharaan perangkat keras komputer, diagnostic error, dan penanganan Tier 1 Tech Support",
       "level": "Advanced",
-      "color": "#34D399"
+      "color": "#6EE7B7"
     },
     {
-      "id": 5,
+      "id": 6,
       "name": "Commercial Drone Piloting (DJI)",
       "icon": "🚁",
       "category": "multimedia",
@@ -51,7 +61,7 @@
       "color": "#F59E0B"
     },
     {
-      "id": 6,
+      "id": 7,
       "name": "Commercial Videography & Editing",
       "icon": "🎬",
       "category": "multimedia",
@@ -61,13 +71,13 @@
       "color": "#EF4444"
     },
     {
-      "id": 7,
-      "name": "Desain Grafis & UI/UX Logic",
-      "icon": "🎨",
+      "id": 8,
+      "name": "Graphic Design & Visual Branding",
+      "icon": "🖌️",
       "category": "multimedia",
       "categoryName": "Multimedia & Drone",
-      "description": "Adobe Photoshop, Illustrator, Figma, perancangan antarmuka, dan media informasi publik",
-      "level": "Intermediate",
+      "description": "Adobe Photoshop, Illustrator, perancangan identitas visual, poster, dan media informasi publik",
+      "level": "Advanced",
       "color": "#A855F7"
     },
     {

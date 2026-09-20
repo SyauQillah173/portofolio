@@ -10,10 +10,10 @@ import defaultWorksData from "@/assets/data/works.json";
 import { computed, ref, watch } from "vue";
 
 const STORAGE_KEYS = {
-  WORKS: "syauqillah_portfolio_works",
-  PROFILE: "syauqillah_portfolio_profile",
-  SKILLS: "syauqillah_portfolio_skills",
-  EXPERIENCE: "syauqillah_portfolio_experience",
+  WORKS: "syauqillah_portfolio_works_v3",
+  PROFILE: "syauqillah_portfolio_profile_v3",
+  SKILLS: "syauqillah_portfolio_skills_v3",
+  EXPERIENCE: "syauqillah_portfolio_experience_v3",
   AUTH: "syauqillah_admin_auth",
   PASSWORD: "syauqillah_admin_password",
 };
@@ -24,9 +24,9 @@ const DEFAULT_PASSWORD = "admin123";
 // Default Profile Data
 const DEFAULT_PROFILE = {
   name: "Abdullah Syauqillah",
-  title: "Web Developer | Network Support | Commercial Videographer",
+  title: "Product-Minded Web Builder | UI/UX Designer & System Analyst",
   greeting: "Halo, saya",
-  bio: "Lulusan S1 Teknik Informatika dengan keahlian hybrid di bidang Software Development, IT Infrastructure, dan Multimedia. Berpengalaman merancang Sistem Informasi Pesantren terintegrasi skala besar, mengelola jaringan Fiber Optic/LAN, serta memproduksi video komersial dan aerial drone untuk perusahaan nasional (Pertamina, Bulog) dan instansi pemerintah.",
+  bio: "Praktisi teknologi dengan pendekatan hybrid: memadukan perancangan proses bisnis (System Analysis), desain antarmuka modern (Figma UI/UX), serta akselerasi modern AI-Augmented Development untuk mewujudkan sistem web terintegrasi yang solutif, tepat guna, dan siap pakai bagi institusi maupun bisnis.",
   avatar: "/images/profile.jpg",
   resume: "/resume.pdf",
   whatsapp: "628155936131",
@@ -34,8 +34,8 @@ const DEFAULT_PROFILE = {
   location: "Jl. Masjid Jami' Kyai Gede, Bungah, Gresik, Jawa Timur",
   phone: "+62 815 5936 131",
   aboutParagraphs: [
-    "Saya adalah lulusan S1 Teknik Informatika dengan kombinasi keahlian unik di bidang software development, infrastruktur jaringan, dan produksi multimedia sinematik.",
-    "Memiliki rekam jejak merancang dan mengembangkan Sistem Informasi Pesantren skala besar secara mandiri (Full-Stack), mengelola jaringan Fiber Optic & LAN, serta lebih dari 3 tahun berpengalaman sebagai Pilot Drone komersial dan Videografer untuk perusahaan nasional (termasuk proyek Pertamina dan Bulog via Raff Studio) hingga instansi pemerintah."
+    "Saya berfokus pada pembangunan produk digital yang berorientasi pada solusi nyata. Kekuatan utama saya terletak pada kemampuan menerjemahkan kebutuhan operasional yang kompleks menjadi arsitektur proses bisnis yang rapi, merancangnya menjadi desain antarmuka intuitif di Figma, dan mengeksekusinya menjadi aplikasi web fungsional menggunakan metode modern AI-Assisted Engineering.",
+    "Salah satu implementasi nyata adalah Sistem Informasi Pesantren terintegrasi yang mencakup modul Absensi QR Code, tata kelola keuangan kas multi-lembaga, dan pendataan santri secara mandiri. Di samping pengembangan web, saya juga berpengalaman dalam pemeliharaan infrastruktur jaringan (Fiber Optic/LAN) serta produksi multimedia sinematik komersial."
   ],
   stats: [
     { label: "Tahun Pengalaman", targetValue: 3, icon: "⚡" },
@@ -44,10 +44,11 @@ const DEFAULT_PROFILE = {
     { label: "Kepuasan Klien", targetValue: 99, icon: "⭐" }
   ],
   typingRoles: [
-    "Full-Stack Web Developer",
+    "Product-Minded Web Builder",
+    "UI/UX & Figma Designer",
+    "AI-Augmented Developer",
     "Commercial Drone Pilot (DJI)",
-    "Network & IT Infrastructure Support",
-    "Commercial Videographer"
+    "Network & IT Infrastructure Support"
   ],
   social: [
     { id: "linkedin", name: "LinkedIn", url: "https://www.linkedin.com/in/abdullah-syauqillah-8a7199248/", icon: "linkedin" },
@@ -64,15 +65,15 @@ const DEFAULT_EXPERIENCE = {
       id: 1,
       company: "Pondok Pesantren Qomaruddin",
       period: "2024 – Sekarang",
-      role: "Web Developer & IT Maintenance",
-      subtitle: "Full-Stack Development & Infrastruktur Jaringan",
+      role: "Product Architect & UI/UX Web Builder",
+      subtitle: "System Analysis, Figma UI/UX & AI-Assisted Web Engineering",
       points: [
-        "Merancang alur proses bisnis dan membangun Sistem Informasi Pesantren terintegrasi (ppqomaruddin.itqom.net) secara mandiri dari tahap konsep hingga live production.",
-        "Mengembangkan modul inti: Absensi Digital berbasis QR Code & Kartu Tanda Santri (KTS), Buku Induk/Master Data, Modul Keuangan (arus kas Pondok & Madin), serta Sistem Penerimaan Santri Baru (PSB).",
-        "Melakukan maintenance sistem, debugging, dan penyelesaian error web secara berkala dan real-time.",
-        "Bertanggung jawab atas instalasi hardware, pengecekan redaman Fiber Optic untuk sistem fingerprint, serta pemeliharaan jaringan LAN seluruh fasilitas."
+        "Merancang alur proses bisnis operasional dan mendesain antarmuka UI/UX di Figma secara mandiri dari tahap konsep awal hingga implementasi Sistem Informasi Pesantren terintegrasi (ppqomaruddin.itqom.net).",
+        "Membangun modul inti: Absensi Digital berbasis QR Code & Kartu Tanda Santri (KTS), Buku Induk/Master Data, Modul Keuangan (arus kas Pondok & Madin), serta Sistem Penerimaan Santri Baru (PSB) dengan pendekatan rapid AI-assisted development.",
+        "Melakukan pemeliharaan sistem, monitoring database, dan penyelesaian issue teknis secara berkala untuk menjaga stabilitas operasional pesantren.",
+        "Mengelola infrastruktur IT: instalasi hardware, pengecekan redaman Fiber Optic untuk sistem fingerprint, serta pemeliharaan jaringan LAN seluruh fasilitas pondok."
       ],
-      tags: ["Full-Stack Web", "Vue.js", "QR Code Scanner", "Fiber Optic", "LAN Switching", "Hardware Support"]
+      tags: ["System Analysis", "Figma UI/UX", "AI-Assisted Dev", "Vue.js", "QR Code Scanner", "Fiber Optic", "LAN Infrastructure"]
     },
     {
       id: 2,
