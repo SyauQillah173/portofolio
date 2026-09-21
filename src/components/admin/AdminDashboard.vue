@@ -593,6 +593,35 @@
                             🗑️ Hapus Video Utama
                           </button>
                         </div>
+
+                        <!-- Solusi Ramah Video Besar (> 4MB seperti 70MB) -->
+                        <div v-if="largeVideoNotice.show" class="large-video-banner">
+                          <div class="large-video-header">
+                            <span class="large-video-badge">💡 Video Berukuran {{ largeVideoNotice.sizeMB }} MB</span>
+                            <span class="large-video-cover-tag">✓ Cover HD otomatis tersimpan</span>
+                          </div>
+                          <p class="large-video-text">
+                            Cover thumbnail HD telah otomatis dibuat dari video abang! ✨<br>
+                            Karena batasan request serverless database cloud adalah 4.5 MB, agar video <strong>{{ largeVideoNotice.sizeMB }} MB</strong> ini dapat diputar lancar dalam kualitas 1080p/4K di semua HP & Laptop, silakan tempel link videonya lewat <strong>Google Drive</strong> atau <strong>YouTube</strong>:
+                          </p>
+                          <div class="large-video-btns">
+                            <button type="button" class="btn btn-secondary btn-sm" @click="setUploadMode('gdrive')">
+                              📁 Tempel Link Google Drive
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" @click="setUploadMode('youtube')">
+                              ▶️ Tempel Link YouTube
+                            </button>
+                            <a 
+                              href="https://drive.google.com/drive/folders/1c70iPsGZhf0u3xTs_qfv_41IINvlPYSW?usp=sharing" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              class="btn btn-ghost btn-sm"
+                              style="color: var(--color-primary); text-decoration: underline;"
+                            >
+                              📂 Buka Folder Drive Portofolio ↗
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1097,6 +1126,7 @@ const uploadStats = ref("");
 const isCompressing = ref(false);
 const isProcessingVideo = ref(false);
 const videoPreviewUrl = ref("");
+const largeVideoNotice = reactive({ show: false, sizeMB: 0, name: "" });
 const youtubeUrlInput = ref("");
 const youtubeEmbedPreview = ref("");
 const showAddYouTubeInline = ref(false);
@@ -1257,8 +1287,9 @@ const handleVideoFileInputChange = async (e) => {
       }
     }
 
-    // 2. Base64 for <= 4MB vs Cloud advice for > 4MB
+    // 2. Base64 for <= 4MB vs Cloud advice for > 4MB (e.g. 70MB)
     if (file.size <= 4 * 1024 * 1024) {
+      largeVideoNotice.show = false;
       const base64Video = await fileToBase64(file);
       videoPreviewUrl.value = base64Video;
 
@@ -1268,9 +1299,12 @@ const handleVideoFileInputChange = async (e) => {
       uploadStats.value += ` | Durasi: ${snapDuration}s (Disimpan ke Cloud Neon)`;
       showToast("✓ Video MP4 berhasil diproses & tersimpan untuk semua perangkat!");
     } else {
+      largeVideoNotice.show = true;
+      largeVideoNotice.sizeMB = sizeMB;
+      largeVideoNotice.name = file.name;
       videoPreviewUrl.value = URL.createObjectURL(file);
-      uploadStats.value += ` (⚠️ ${sizeMB}MB: Melebihi batas cloud 4MB)`;
-      alert(`⚠️ Video berukuran ${sizeMB} MB.\n\nKarena batasan request Vercel (maks 4.5 MB), file video di atas 4 MB tidak dapat disimpan langsung ke database Postgres cloud.\n\nSaran Profesional: Masukkan tautan video Google Drive atau YouTube Anda pada tab "Google Drive" atau "YouTube". Video akan otomatis tersimpan permanen & dapat diputar di semua HP & Laptop!`);
+      uploadStats.value += ` (${sizeMB} MB: Cover HD otomatis diekstrak)`;
+      showToast(`✓ Cover HD berhasil dibuat dari video ${sizeMB} MB!`);
     }
   } catch (err) {
     console.error("Gagal proses video:", err);
@@ -1358,6 +1392,7 @@ const removeVideo = () => {
   videoPreviewUrl.value = "";
   formData.image = "";
   uploadStats.value = "";
+  largeVideoNotice.show = false;
   if (videoFileInputRef.value) videoFileInputRef.value.value = "";
   showToast("✓ Video utama berhasil dihapus.");
 };
@@ -1469,6 +1504,7 @@ const openCreateModal = () => {
   uploadMode.value = "image_file";
   uploadStats.value = "";
   videoPreviewUrl.value = "";
+  largeVideoNotice.show = false;
   youtubeUrlInput.value = "";
   youtubeEmbedPreview.value = "";
   showAddYouTubeInline.value = false;
@@ -1497,6 +1533,7 @@ const openEditModal = async (work) => {
   techsInput.value = (work.technologies || []).join(", ");
   uploadStats.value = "";
   videoPreviewUrl.value = "";
+  largeVideoNotice.show = false;
   youtubeUrlInput.value = "";
   youtubeEmbedPreview.value = "";
   showAddYouTubeInline.value = false;
@@ -2639,6 +2676,55 @@ const showToast = (msg) => {
   width: 100%;
   height: 100%;
   border: none;
+}
+
+/* Solusi Video Besar UI */
+.large-video-banner {
+  background: rgba(30, 58, 138, 0.25);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.large-video-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.large-video-badge {
+  background: rgba(59, 130, 246, 0.25);
+  color: #93c5fd;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.large-video-cover-tag {
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.large-video-text {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.large-video-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 4px;
 }
 
 /* Gallery Preview Grid & Responsive Cards */
