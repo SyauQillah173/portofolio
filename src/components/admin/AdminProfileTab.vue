@@ -7,13 +7,18 @@
           Perbarui identitas, ringkasan keahlian, paragraf Tentang Saya, dan info kontak. Setiap perubahan langsung tersimpan ke database Neon dan tampil live di website.
         </p>
       </div>
-      <button class="btn btn-primary btn-lg" @click="saveProfile" :disabled="isSaving">
-        <span v-if="!isSaving">💾 Simpan Perubahan Profil</span>
-        <span v-else class="btn-loading">
-          <span class="spinner spinner-sm"></span>
-          Menyimpan ke Cloud...
-        </span>
-      </button>
+      <div class="header-actions">
+        <button type="button" class="btn btn-secondary btn-lg" @click="loadJobTemplate" title="Muat rekomendasi teks siap kerja & BUMN/JIIPE">
+          💼 Teks Rekomendasi (JIIPE/BUMN)
+        </button>
+        <button class="btn btn-primary btn-lg" @click="saveProfile" :disabled="isSaving">
+          <span v-if="!isSaving">💾 Simpan Perubahan Profil</span>
+          <span v-else class="btn-loading">
+            <span class="spinner spinner-sm"></span>
+            Menyimpan ke Cloud...
+          </span>
+        </button>
+      </div>
     </div>
 
     <div class="profile-grid">
@@ -348,6 +353,23 @@ const removeRole = (idx) => {
   form.typingRoles.splice(idx, 1);
 };
 
+// Load professional job application template (JIIPE / BUMN focus)
+const loadJobTemplate = () => {
+  form.title = "IT Support, Web Builder & Commercial Drone Specialist";
+  form.bio = "Lulusan S1 Teknik Informatika (S.Kom) berdomisili di Gresik, Jawa Timur. Berpengalaman di bidang IT Infrastructure (Fiber Optic/LAN), perancangan sistem web terintegrasi, serta pilot drone komersial untuk BUMN (Pertamina & Bulog). Siap berkontribusi penuh (Full-Time / On-Site) di kawasan industri JIIPE, BUMN, maupun korporasi nasional.";
+  form.location = "Bungah, Gresik, Jawa Timur (Siap On-Site JIIPE & Surabaya)";
+  form.about1 = "Saya adalah Sarjana Komputer (S.Kom) lulusan S1 Teknik Informatika Universitas Qomaruddin Gresik dengan rekam jejak praktis di bidang teknologi informasi dan multimedia industri. Berdomisili di Bungah, Gresik — area strategis lingkar industri JIIPE Manyar.";
+  form.about2 = "Kompetensi utama saya mencakup pemeliharaan infrastruktur IT & jaringan (instalasi & uji redaman kabel Fiber Optic, LAN switching, access control fingerprint), rancang bangun sistem aplikasi web terintegrasi skala ribuan pengguna, serta pengoperasian drone komersial untuk pemetaan visual dan company profile BUMN nasional (PT Pertamina & Perum BULOG).";
+  form.typingRoles = [
+    "IT Support & Infrastructure Specialist",
+    "Web Builder & System Analyst",
+    "Commercial Drone Pilot (DJI 4K)",
+    "Network Support (Fiber Optic & LAN)",
+    "Creative Multimedia Specialist"
+  ];
+  emit("toast", "✓ Template teks siap kerja berhasil dimuat ke form! Klik 'Simpan Perubahan Profil' untuk menyimpan ke Neon Cloud.");
+};
+
 // Save to Store and Neon
 const saveProfile = async () => {
   isSaving.value = true;
@@ -393,6 +415,13 @@ const saveProfile = async () => {
   flex-wrap: wrap;
   padding-bottom: var(--space-md);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 .pane-title {
@@ -688,7 +717,13 @@ const saveProfile = async () => {
     gap: var(--space-md);
   }
 
-  .pane-header .btn {
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .pane-header .btn,
+  .header-actions .btn {
     width: 100%;
     justify-content: center;
   }

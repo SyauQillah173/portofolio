@@ -186,7 +186,15 @@ async function fetchFromNeonDatabase(force = false) {
       if (cmsData && cmsData.connected && cmsData.settings) {
         isNeonConnected.value = true;
         if (cmsData.settings.profile) {
-          profile.value = { ...DEFAULT_PROFILE, ...cmsData.settings.profile };
+          const remoteProfile = cmsData.settings.profile;
+          if (remoteProfile.bio && (remoteProfile.bio.includes("Praktisi teknologi dengan pendekatan hybrid") || (remoteProfile.title && remoteProfile.title.includes("Product-Minded Web Builder")))) {
+            remoteProfile.bio = DEFAULT_PROFILE.bio;
+            remoteProfile.title = DEFAULT_PROFILE.title;
+            remoteProfile.aboutParagraphs = DEFAULT_PROFILE.aboutParagraphs;
+            remoteProfile.typingRoles = DEFAULT_PROFILE.typingRoles;
+            remoteProfile.location = DEFAULT_PROFILE.location;
+          }
+          profile.value = { ...DEFAULT_PROFILE, ...remoteProfile };
           saveToStorage(STORAGE_KEYS.PROFILE, profile.value);
         }
         if (cmsData.settings.skills && Array.isArray(cmsData.settings.skills) && cmsData.settings.skills.length > 0) {
@@ -194,7 +202,11 @@ async function fetchFromNeonDatabase(force = false) {
           saveToStorage(STORAGE_KEYS.SKILLS, skills.value);
         }
         if (cmsData.settings.experiences) {
-          experiences.value = { ...DEFAULT_EXPERIENCE, ...cmsData.settings.experiences };
+          const remoteExp = cmsData.settings.experiences;
+          if (remoteExp.education && remoteExp.education[0] && remoteExp.education[0].institution === "Universitas / Perguruan Tinggi") {
+            remoteExp.education = DEFAULT_EXPERIENCE.education;
+          }
+          experiences.value = { ...DEFAULT_EXPERIENCE, ...remoteExp };
           saveToStorage(STORAGE_KEYS.EXPERIENCE, experiences.value);
         }
         if (cmsData.settings.clients && Array.isArray(cmsData.settings.clients) && cmsData.settings.clients.length > 0) {
@@ -285,7 +297,17 @@ function initStore() {
   try {
     const storedProfile = localStorage.getItem(STORAGE_KEYS.PROFILE);
     if (storedProfile) {
-      profile.value = { ...DEFAULT_PROFILE, ...JSON.parse(storedProfile) };
+      const parsed = JSON.parse(storedProfile);
+      // Auto-migrate stale cached profile from localStorage
+      if (parsed.bio && (parsed.bio.includes("Praktisi teknologi dengan pendekatan hybrid") || (parsed.title && parsed.title.includes("Product-Minded Web Builder")))) {
+        parsed.bio = DEFAULT_PROFILE.bio;
+        parsed.title = DEFAULT_PROFILE.title;
+        parsed.aboutParagraphs = DEFAULT_PROFILE.aboutParagraphs;
+        parsed.typingRoles = DEFAULT_PROFILE.typingRoles;
+        parsed.location = DEFAULT_PROFILE.location;
+      }
+      profile.value = { ...DEFAULT_PROFILE, ...parsed };
+      saveToStorage(STORAGE_KEYS.PROFILE, profile.value);
     } else {
       profile.value = JSON.parse(JSON.stringify(DEFAULT_PROFILE));
       saveToStorage(STORAGE_KEYS.PROFILE, profile.value);
@@ -311,7 +333,12 @@ function initStore() {
   try {
     const storedExp = localStorage.getItem(STORAGE_KEYS.EXPERIENCE);
     if (storedExp) {
-      experiences.value = JSON.parse(storedExp);
+      const parsedExp = JSON.parse(storedExp);
+      if (parsedExp.education && parsedExp.education[0] && parsedExp.education[0].institution === "Universitas / Perguruan Tinggi") {
+        parsedExp.education = DEFAULT_EXPERIENCE.education;
+      }
+      experiences.value = { ...DEFAULT_EXPERIENCE, ...parsedExp };
+      saveToStorage(STORAGE_KEYS.EXPERIENCE, experiences.value);
     } else {
       experiences.value = JSON.parse(JSON.stringify(DEFAULT_EXPERIENCE));
       saveToStorage(STORAGE_KEYS.EXPERIENCE, experiences.value);
