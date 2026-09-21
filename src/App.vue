@@ -79,18 +79,19 @@
               </p>
             </div>
 
-            <!-- Contact Direct Hub (Direct Recruiter & Client Communication) -->
-            <div class="contact-hub-wrapper scroll-animate">
+            <!-- Contact Direct Hub (Original Sleek Cards, Form Removed) -->
+            <div class="contact-direct-wrapper scroll-animate">
               <div class="contact-info">
                 <h3 class="contact-heading">Mari Berbincang</h3>
                 <p class="contact-text">
-                  Saya selalu terbuka untuk mendiskusikan peluang kerja full-time, kontrak, project baru, maupun kolaborasi profesional. Anda dapat menghubungi saya langsung melalui saluran resmi berikut:
+                  Saya selalu terbuka untuk diskusi tentang project baru, ide
+                  kreatif, atau kesempatan untuk menjadi bagian dari visi Anda.
                 </p>
 
                 <div class="contact-items">
                   <!-- Email Card -->
                   <a
-                    :href="`mailto:${profile.email || 'abdullahsyauqillah01@gmail.com'}?subject=Peluang%20Kerja%20/%20Kolaborasi%20Proyek`"
+                    :href="`mailto:${profile.email || 'abdullahsyauqillah01@gmail.com'}`"
                     class="contact-card"
                     :title="`Kirim Email ke ${profile.name || 'Abdullah Syauqillah'}`"
                   >
@@ -158,32 +159,6 @@
                       <span>Peta</span>
                       <span class="action-arrow">↗</span>
                     </div>
-                  </a>
-                </div>
-
-                <!-- Quick Direct Action Buttons -->
-                <div class="contact-quick-actions">
-                  <a
-                    :href="whatsappUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="btn btn-primary btn-lg quick-action-btn quick-action-wa"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="quick-btn-icon">
-                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                    </svg>
-                    <span>Hubungi via WhatsApp</span>
-                  </a>
-
-                  <a
-                    :href="`mailto:${profile.email || 'abdullahsyauqillah01@gmail.com'}?subject=Peluang%20Kerja%20/%20Kolaborasi%20Proyek`"
-                    class="btn btn-secondary btn-lg quick-action-btn quick-action-mail"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="quick-btn-icon">
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                      <polyline points="22,6 12,13 2,6"/>
-                    </svg>
-                    <span>Kirim Email Langsung</span>
                   </a>
                 </div>
               </div>
@@ -625,92 +600,164 @@ onUnmounted(() => {
   background: var(--color-bg-dark);
 }
 
-/* Contact Direct Hub */
-.contact-hub-wrapper {
-  max-width: 680px;
+/* Contact Direct Layout */
+.contact-direct-wrapper {
+  max-width: 580px;
   margin: 0 auto;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  width: 100%;
 }
 
 .contact-info {
   display: flex;
   flex-direction: column;
+  text-align: left;
 }
 
 .contact-heading {
-  font-size: 1.85rem;
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-light);
-  margin-bottom: 0.5rem;
-  text-align: center;
+  margin-bottom: var(--space-sm);
 }
 
 .contact-text {
   color: var(--color-text-muted);
-  line-height: 1.6;
-  margin-bottom: 1.75rem;
-  font-size: 0.95rem;
-  text-align: center;
-  max-width: 580px;
-  margin-left: auto;
-  margin-right: auto;
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-base);
 }
 
 .contact-items {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-}
-
-.contact-quick-actions {
-  display: flex;
   gap: 12px;
-  margin-top: 1.75rem;
-  flex-wrap: wrap;
 }
 
-.quick-action-btn {
-  flex: 1;
-  min-width: 240px;
+/* Contact Cards (Original Sleek Design) */
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  color: var(--color-text-light);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.contact-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(31, 159, 216, 0.4);
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(31, 159, 216, 0.12);
+}
+
+.contact-card-wa:hover {
+  border-color: rgba(37, 211, 102, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(37, 211, 102, 0.15);
+}
+
+.contact-card-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  max-width: 42px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  padding: 13px 20px;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  transition: all 0.25s ease;
-}
-
-.quick-btn-icon {
-  width: 18px;
-  height: 18px;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-primary);
 }
 
-.quick-action-wa {
-  background: #25D366;
-  border-color: #25D366;
-  color: #ffffff;
+/* Fix SVG size to 20px strictly so it NEVER stretches */
+.contact-card-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  display: block;
 }
 
-.quick-action-wa:hover {
-  background: #20BA5A;
-  border-color: #20BA5A;
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
-  transform: translateY(-2px);
+.icon-wa {
+  background: rgba(37, 211, 102, 0.15);
+  border-color: rgba(37, 211, 102, 0.3);
+  color: #25D366;
 }
 
-.quick-action-mail:hover {
-  transform: translateY(-2px);
+.icon-email {
+  background: rgba(31, 159, 216, 0.15);
+  border-color: rgba(31, 159, 216, 0.3);
+  color: #1F9FD8;
+}
+
+.icon-loc {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #F59E0B;
+}
+
+.contact-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-card-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.online-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: #25D366;
+  background: rgba(37, 211, 102, 0.12);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+}
+
+.contact-card-val {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #F1F5F9;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+.contact-card-action {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  opacity: 0.8;
+  transition: transform var(--transition-fast);
+}
+
+.contact-card:hover .contact-card-action {
+  opacity: 1;
+  transform: translateX(3px);
 }
 
 /* Scroll animation states - Always visible to guarantee NO blank text on fast scroll */
@@ -841,18 +888,18 @@ onUnmounted(() => {
     line-height: 1.3 !important;
   }
 
-  .contact-hub-wrapper {
-    padding: 20px 14px;
-    border-radius: var(--radius-lg);
-  }
-
-  .contact-quick-actions {
-    flex-direction: column;
-  }
-
-  .quick-action-btn {
+  .contact-direct-wrapper {
     width: 100%;
-    min-width: 0;
+    max-width: 100%;
+  }
+
+  .contact-info {
+    padding-right: 0;
+    text-align: left;
+  }
+
+  .contact-card {
+    padding: 12px 14px;
   }
 }
 
@@ -869,19 +916,13 @@ onUnmounted(() => {
     max-width: 200px;
   }
 
-  .contact-grid {
-    grid-template-columns: 1fr;
-    max-width: 600px;
+  .contact-direct-wrapper {
+    max-width: 580px;
     margin: 0 auto;
   }
 
   .contact-info {
-    text-align: center;
-    padding-right: 0;
-  }
-
-  .contact-items {
-    align-items: center;
+    text-align: left;
   }
 }
 
@@ -892,13 +933,13 @@ onUnmounted(() => {
     gap: var(--space-xl);
   }
 
-  .contact-grid {
-    grid-template-columns: 1fr 1fr;
+  .contact-direct-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
   }
 
   .contact-info {
     text-align: left;
-    padding-right: var(--space-xl);
   }
 }
 </style>
