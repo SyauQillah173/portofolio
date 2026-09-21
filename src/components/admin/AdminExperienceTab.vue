@@ -71,7 +71,10 @@
       <div v-for="edu in (experiences.education || [])" :key="edu.id" class="exp-admin-card">
         <div class="exp-card-header">
           <div>
-            <span class="exp-period-badge edu-badge">{{ edu.period }}</span>
+            <div class="role-badge-group">
+              <span class="exp-period-badge edu-badge">{{ edu.period }}</span>
+              <span v-if="edu.gpa" class="gpa-badge">⭐ IPK {{ edu.gpa }}</span>
+            </div>
             <h3 class="exp-role">{{ edu.degree }}</h3>
             <h4 class="exp-company">🎓 {{ edu.institution }}</h4>
             <p v-if="edu.major" class="exp-subtitle">{{ edu.major }}</p>
@@ -175,6 +178,10 @@
                     <label class="form-label">Jurusan / Fokus</label>
                     <input type="text" v-model="eduForm.major" class="form-input" placeholder="S1 Teknik Informatika" />
                   </div>
+                  <div class="form-group flex-1">
+                    <label class="form-label">IPK / GPA (Opsional)</label>
+                    <input type="text" v-model="eduForm.gpa" class="form-input" placeholder="3.50 / 4.00 (Sangat Memuaskan)" />
+                  </div>
                 </div>
 
                 <div class="form-group mt-3">
@@ -238,6 +245,7 @@ const eduForm = reactive({
   period: "",
   degree: "",
   major: "",
+  gpa: "",
   description: "",
   skillsText: "",
 });
@@ -257,6 +265,7 @@ const openCreateModal = () => {
     eduForm.period = "";
     eduForm.degree = "";
     eduForm.major = "";
+    eduForm.gpa = "";
     eduForm.description = "";
     eduForm.skillsText = "";
   }
@@ -278,6 +287,7 @@ const openEditModal = (item) => {
     eduForm.period = item.period || "";
     eduForm.degree = item.degree || "";
     eduForm.major = item.major || "";
+    eduForm.gpa = item.gpa || "";
     eduForm.description = item.description || "";
     eduForm.skillsText = (item.skills || []).join(", ");
   }
@@ -312,6 +322,7 @@ const handleSubmit = () => {
       period: eduForm.period,
       degree: eduForm.degree,
       major: eduForm.major,
+      gpa: eduForm.gpa,
       description: eduForm.description,
       skills: eduForm.skillsText.split(",").map(s => s.trim()).filter(Boolean),
     };
@@ -437,7 +448,26 @@ const confirmDelete = (id) => {
   border-radius: var(--radius-full);
   background: rgba(31, 159, 216, 0.15);
   color: var(--color-primary-light);
+}
+
+.role-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin-bottom: 6px;
+}
+
+.gpa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #FBBF24;
 }
 
 .edu-badge {

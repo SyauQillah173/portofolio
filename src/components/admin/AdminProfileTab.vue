@@ -358,7 +358,7 @@ const loadJobTemplate = () => {
   form.title = "IT Support, Web Builder & Commercial Drone Specialist";
   form.bio = "Lulusan S1 Teknik Informatika (S.Kom) berdomisili di Gresik, Jawa Timur. Berpengalaman di bidang IT Infrastructure (Fiber Optic/LAN), perancangan sistem web terintegrasi, serta pilot drone komersial untuk BUMN (Pertamina & Bulog). Siap berkontribusi penuh (Full-Time / On-Site) di kawasan industri JIIPE, BUMN, maupun korporasi nasional.";
   form.location = "Bungah, Gresik, Jawa Timur (Siap On-Site JIIPE & Surabaya)";
-  form.about1 = "Saya adalah Sarjana Komputer (S.Kom) lulusan S1 Teknik Informatika Universitas Qomaruddin Gresik dengan rekam jejak praktis di bidang teknologi informasi dan multimedia industri. Berdomisili di Bungah, Gresik — area strategis lingkar industri JIIPE Manyar.";
+  form.about1 = "Saya adalah Sarjana Komputer (S.Kom) lulusan S1 Teknik Informatika Universitas Qomaruddin Gresik dengan IPK 3.50 (Predikat Sangat Memuaskan), memiliki rekam jejak praktis di bidang teknologi informasi dan multimedia industri. Berdomisili di Bungah, Gresik — area strategis lingkar industri JIIPE Manyar.";
   form.about2 = "Kompetensi utama saya mencakup pemeliharaan infrastruktur IT & jaringan (instalasi & uji redaman kabel Fiber Optic, LAN switching, access control fingerprint), rancang bangun sistem aplikasi web terintegrasi skala ribuan pengguna, serta pengoperasian drone komersial untuk pemetaan visual dan company profile BUMN nasional (PT Pertamina & Perum BULOG).";
   form.typingRoles = [
     "IT Support & Infrastructure Specialist",

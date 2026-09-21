@@ -44,7 +44,7 @@ const DEFAULT_PROFILE = {
   location: "Bungah, Gresik, Jawa Timur (Siap On-Site JIIPE & Surabaya)",
   phone: "+62 815 5936 131",
   aboutParagraphs: [
-    "Saya adalah Sarjana Komputer (S.Kom) lulusan S1 Teknik Informatika Universitas Qomaruddin Gresik dengan rekam jejak praktis di bidang teknologi informasi dan multimedia industri. Berdomisili di Bungah, Gresik — area strategis lingkar industri JIIPE Manyar.",
+    "Saya adalah Sarjana Komputer (S.Kom) lulusan S1 Teknik Informatika Universitas Qomaruddin Gresik dengan IPK 3.50 (Predikat Sangat Memuaskan), memiliki rekam jejak praktis di bidang teknologi informasi dan multimedia industri. Berdomisili di Bungah, Gresik — area strategis lingkar industri JIIPE Manyar.",
     "Kompetensi utama saya mencakup pemeliharaan infrastruktur IT & jaringan (instalasi & uji redaman kabel Fiber Optic, LAN switching, access control fingerprint), rancang bangun sistem aplikasi web terintegrasi skala ribuan pengguna, serta pengoperasian drone komersial untuk pemetaan visual dan company profile BUMN nasional (PT Pertamina & Perum BULOG).",
     "Dengan integritas kerja tinggi, dedikasi penuh, dan kesiapan bekerja secara On-Site maupun sistem shift industri, saya siap memberikan kontribusi nyata bagi stabilitas teknologi dan kemajuan operasional perusahaan."
   ],
@@ -119,8 +119,9 @@ const DEFAULT_EXPERIENCE = {
       period: "2020 – 2024",
       degree: "Sarjana Komputer (S.Kom) — S1 Teknik Informatika",
       major: "Fokus: Software Engineering, Database Systems, & Network Architecture",
-      description: "Menyelesaikan studi dengan predikat memuaskan, fokus pada rekayasa perangkat lunak web terintegrasi dan optimasi infrastruktur jaringan kampus/pesantren.",
-      skills: ["Software Engineering", "Web Systems", "Database Design", "Network Security", "Algorithms"]
+      gpa: "3.50 / 4.00 (Sangat Memuaskan)",
+      description: "Menyelesaikan studi dengan IPK 3.50 (Predikat Sangat Memuaskan). Berfokus pada rekayasa perangkat lunak web terintegrasi, arsitektur basis data, serta pemeliharaan infrastruktur jaringan LAN dan Fiber Optic.",
+      skills: ["Software Engineering", "Web Systems", "Database Design", "Network Security", "Fiber Optic & LAN"]
     }
   ]
 };

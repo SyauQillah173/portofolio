@@ -96,6 +96,7 @@
                 <div class="role-badge-group">
                   <span class="company-badge edu-badge">{{ edu.institution }}</span>
                   <span class="period-badge">{{ edu.period }}</span>
+                  <span v-if="edu.gpa" class="gpa-badge">⭐ IPK {{ edu.gpa }}</span>
                 </div>
                 <h3 class="role-title">{{ edu.degree }}</h3>
                 <p class="role-subtitle">{{ edu.major }}</p>
@@ -431,6 +432,20 @@ onMounted(() => {
 .edu-badge {
   background: rgba(16, 185, 129, 0.15);
   color: #34D399;
+}
+
+.gpa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 12px;
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #FBBF24;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
 }
 
 .period-badge {

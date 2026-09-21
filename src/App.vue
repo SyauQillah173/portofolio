@@ -202,7 +202,7 @@ const aboutParagraphs = computed(() => {
   return (profile.value && Array.isArray(profile.value.aboutParagraphs) && profile.value.aboutParagraphs.length > 0)
     ? profile.value.aboutParagraphs
     : [
-        "Saya adalah Sarjana Komputer (S.Kom) lulusan S1 Teknik Informatika Universitas Qomaruddin Gresik dengan rekam jejak praktis di bidang teknologi informasi dan multimedia industri. Berdomisili di Bungah, Gresik — area strategis lingkar kawasan industri JIIPE Manyar.",
+        "Saya adalah Sarjana Komputer (S.Kom) lulusan S1 Teknik Informatika Universitas Qomaruddin Gresik dengan IPK 3.50 (Predikat Sangat Memuaskan), memiliki rekam jejak praktis di bidang teknologi informasi dan multimedia industri. Berdomisili di Bungah, Gresik — area strategis lingkar kawasan industri JIIPE Manyar.",
         "Kompetensi utama saya mencakup pemeliharaan infrastruktur IT & jaringan (instalasi & uji redaman kabel Fiber Optic, LAN switching, access control fingerprint), rancang bangun sistem aplikasi web terintegrasi skala ribuan pengguna, serta pengoperasian drone komersial untuk pemetaan visual dan company profile BUMN nasional (PT Pertamina & Perum BULOG).",
         "Dengan integritas kerja tinggi, dedikasi penuh, dan kesiapan bekerja secara On-Site maupun sistem shift industri, saya siap memberikan kontribusi nyata bagi stabilitas teknologi dan kemajuan operasional perusahaan."
       ];
