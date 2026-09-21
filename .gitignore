@@ -14,12 +14,13 @@ dist-ssr
 .env*
 *.env
 *.env.*
+*.example
+*example*env*
 .env.local
 .env.*.local
 .env.development.local
 .env.test.local
 .env.production.local
-!.env.example
 
 # Private Keys, Certificates, Tokens & Secrets
 *.pem
