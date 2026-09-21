@@ -256,14 +256,63 @@ export function captureVideoSnapshot(file, time = 1) {
 }
 
 /**
+ * Parse Google Drive Video URL to extract file ID
+ * Supports:
+ * - https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+ * - https://drive.google.com/file/d/FILE_ID/preview
+ * - https://drive.google.com/open?id=FILE_ID
+ */
+export function extractGoogleDriveId(url) {
+  if (!url || typeof url !== "string") return null;
+  const match =
+    url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+    url.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+    url.match(/drive\.google\.com\/.*\/d\/([a-zA-Z0-9_-]+)/);
+  return match && match[1] ? match[1] : null;
+}
+
+/**
+ * Check if a URL is a Google Drive file link
+ */
+export function isGoogleDriveUrl(url) {
+  return Boolean(extractGoogleDriveId(url));
+}
+
+/**
+ * Get Google Drive Preview Embed URL for video playback
+ */
+export function getGoogleDriveEmbedUrl(url) {
+  const fileId = extractGoogleDriveId(url);
+  if (!fileId) return url;
+  return `https://drive.google.com/file/d/${fileId}/preview`;
+}
+
+/**
+ * Convert a File object to Base64 data URL
+ */
+export function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) return reject(new Error("No file provided"));
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
  * Detect media type from URL or data
- * @returns {'youtube'|'video'|'image'}
+ * @returns {'youtube'|'gdrive'|'video'|'image'}
  */
 export function getMediaType(url) {
   if (!url || typeof url !== "string") return "image";
 
   if (isYouTubeUrl(url)) {
     return "youtube";
+  }
+
+  if (isGoogleDriveUrl(url)) {
+    return "gdrive";
   }
 
   const lower = url.toLowerCase();
@@ -278,11 +327,6 @@ export function getMediaType(url) {
     lower.startsWith("data:video/") ||
     url.startsWith("idb://")
   ) {
-    return "video";
-  }
-
-  // Google Drive preview video link
-  if (lower.includes("drive.google.com") && lower.includes("/preview")) {
     return "video";
   }
 

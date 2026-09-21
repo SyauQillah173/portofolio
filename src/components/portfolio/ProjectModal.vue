@@ -27,7 +27,8 @@
               <div class="gallery-top-bar">
                 <span class="gallery-counter">
                   <span v-if="currentMediaType === 'youtube'">🎬 YouTube</span>
-                  <span v-else-if="currentMediaType === 'video'">🎥 Video</span>
+                  <span v-else-if="currentMediaType === 'gdrive'">📁 Google Drive</span>
+                  <span v-else-if="currentMediaType === 'video'">🎥 Video MP4</span>
                   <span v-else>📷 Foto</span>
                   {{ currentImageIndex + 1 }} / {{ mediaItems.length }}
                 </span>
@@ -50,6 +51,16 @@
                     title="Buka di YouTube"
                   >
                     <span>▶ Buka di YouTube</span>
+                  </a>
+                  <a
+                    v-else-if="currentMediaType === 'gdrive'"
+                    :href="currentRawMedia"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="tool-btn"
+                    title="Buka di Google Drive"
+                  >
+                    <span>📁 Buka di Google Drive</span>
                   </a>
                   <a
                     v-else
@@ -92,18 +103,35 @@
                   ></iframe>
                 </div>
 
-                <!-- 2. Direct Video Player (MP4 / WebM / Blob) -->
+                <!-- 2. Google Drive Video Player -->
+                <div v-else-if="currentMediaType === 'gdrive'" class="media-video-wrap">
+                  <iframe
+                    :src="googleDriveEmbedUrl"
+                    title="Google Drive Video Player"
+                    frameborder="0"
+                    allow="autoplay; fullscreen"
+                    allowfullscreen
+                    class="video-iframe"
+                  ></iframe>
+                </div>
+
+                <!-- 3. Direct Video Player (MP4 / WebM / Blob / Base64) -->
                 <div v-else-if="currentMediaType === 'video'" class="media-video-wrap">
                   <video
-                    :src="resolvedMediaUrl || currentRawMedia"
+                    v-if="playableVideoUrl"
+                    :src="playableVideoUrl"
+                    :poster="project.image"
                     controls
                     autoplay
                     playsinline
                     class="main-video"
                   ></video>
+                  <div v-else class="video-loading-placeholder">
+                    <p>⚠️ Media video tidak ditemukan atau format belum didukung.</p>
+                  </div>
                 </div>
 
-                <!-- 3. Standard Uncropped Image with Click-to-Zoom -->
+                <!-- 4. Standard Uncropped Image with Click-to-Zoom -->
                 <img
                   v-else
                   :src="resolvedMediaUrl || currentRawMedia"
@@ -168,6 +196,7 @@
                     @error="handleImgError"
                   />
                   <span v-if="getThumbType(item) === 'youtube'" class="thumb-badge badge-yt">▶ YT</span>
+                  <span v-else-if="getThumbType(item) === 'gdrive'" class="thumb-badge badge-gd">📁 Drive</span>
                   <span v-else-if="getThumbType(item) === 'video'" class="thumb-badge badge-vid">▶ Video</span>
                 </button>
               </div>
@@ -268,6 +297,7 @@
 
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import {
+  getGoogleDriveEmbedUrl,
   getMediaType,
   getYouTubeEmbedUrl,
   getYouTubeThumbnail,
@@ -316,7 +346,7 @@ const currentRawMedia = computed(() => {
   return props.project.image || "";
 });
 
-// Current media type: 'youtube' | 'video' | 'image'
+// Current media type: 'youtube' | 'gdrive' | 'video' | 'image'
 const currentMediaType = computed(() => {
   return getMediaType(currentRawMedia.value);
 });
@@ -325,6 +355,25 @@ const currentMediaType = computed(() => {
 const youtubeEmbedUrl = computed(() => {
   if (currentMediaType.value === "youtube") {
     return getYouTubeEmbedUrl(currentRawMedia.value, 1);
+  }
+  return "";
+});
+
+// Google Drive embed link
+const googleDriveEmbedUrl = computed(() => {
+  if (currentMediaType.value === "gdrive") {
+    return getGoogleDriveEmbedUrl(currentRawMedia.value);
+  }
+  return "";
+});
+
+// Playable Video URL (safely guards against idb:// and ensures playable string)
+const playableVideoUrl = computed(() => {
+  if (resolvedMediaUrl.value && !resolvedMediaUrl.value.startsWith("idb://")) {
+    return resolvedMediaUrl.value;
+  }
+  if (currentRawMedia.value && !currentRawMedia.value.startsWith("idb://")) {
+    return currentRawMedia.value;
   }
   return "";
 });
@@ -350,7 +399,7 @@ const getThumbSrc = (item) => {
   if (type === "youtube") {
     return getYouTubeThumbnail(item);
   }
-  if (type === "video") {
+  if (type === "gdrive" || type === "video") {
     // If project has an image cover, use it for thumbnail, or fallback
     return props.project.image || "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=400&fit=crop&q=80";
   }

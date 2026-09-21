@@ -9,6 +9,9 @@ import { neon } from '@neondatabase/serverless';
 
 const DEFAULT_PASSWORD = 'admin123';
 
+const NEON_DEFAULT_URL = 'postgresql://neondb_owner:npg_TltLr4Znqb0M@ep-broad-voice-b3vj2hzu-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+const databaseUrl = process.env.DATABASE_URL || NEON_DEFAULT_URL;
+
 export default async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,9 +26,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const databaseUrl = process.env.DATABASE_URL;
-
-  // Fallback if DATABASE_URL is not set yet
+  // Fallback if databaseUrl is missing
   if (!databaseUrl) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
     if (body.action === 'verify') {

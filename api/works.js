@@ -7,6 +7,9 @@
 
 import { neon } from '@neondatabase/serverless';
 
+const NEON_DEFAULT_URL = 'postgresql://neondb_owner:npg_TltLr4Znqb0M@ep-broad-voice-b3vj2hzu-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+const databaseUrl = process.env.DATABASE_URL || NEON_DEFAULT_URL;
+
 export default async function handler(req, res) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,9 +20,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const databaseUrl = process.env.DATABASE_URL;
-
-  // Fallback if DATABASE_URL is not configured yet
+  // Fallback if DATABASE_URL is completely missing
   if (!databaseUrl) {
     return res.status(200).json({
       connected: false,

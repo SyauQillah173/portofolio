@@ -573,4 +573,85 @@ const confirmDelete = (id) => {
 .flex-2 { flex: 2; }
 .mt-3 { margin-top: 12px; }
 .mt-4 { margin-top: 16px; }
+
+@media (max-width: 768px) {
+  .pane-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+  }
+
+  .header-action-group {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: var(--space-sm);
+  }
+
+  .exp-subtabs {
+    display: flex;
+    width: 100%;
+  }
+
+  .subtab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .header-action-group .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pane-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .exp-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .exp-card-actions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .exp-card-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .modal-backdrop {
+    padding: 8px;
+  }
+
+  .modal-card {
+    padding: var(--space-md);
+    max-height: 94vh;
+    overflow-y: auto;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 </style>

@@ -261,4 +261,26 @@ const handleSubmit = async () => {
 
 .mt-3 { margin-top: 12px; }
 .mt-4 { margin-top: 16px; }
+
+@media (max-width: 768px) {
+  .pane-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pane-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .security-card-box {
+    padding: var(--space-md);
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .security-form .btn-lg {
+    width: 100%;
+    justify-content: center;
+  }
+}
 </style>

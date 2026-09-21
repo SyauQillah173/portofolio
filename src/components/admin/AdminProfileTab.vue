@@ -493,4 +493,41 @@ const saveProfile = async () => {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .pane-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+  }
+
+  .pane-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pane-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .card-panel {
+    padding: var(--space-md);
+  }
+
+  .avatar-uploader-box {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .avatar-btn-group {
+    justify-content: center;
+  }
+
+  .avatar-btn-group .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 </style>

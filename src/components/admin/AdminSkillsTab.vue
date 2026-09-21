@@ -399,4 +399,52 @@ const confirmDelete = (skill) => {
   color: var(--color-text-muted);
   font-family: var(--font-family-mono);
 }
+
+@media (max-width: 768px) {
+  .pane-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+  }
+
+  .pane-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pane-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .skills-admin-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .modal-backdrop {
+    padding: 8px;
+  }
+
+  .modal-card {
+    padding: var(--space-md);
+    max-height: 94vh;
+    overflow-y: auto;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 </style>

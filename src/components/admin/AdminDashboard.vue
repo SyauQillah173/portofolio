@@ -9,10 +9,16 @@
             <span class="logo-accent">.</span>
             <span class="admin-pill">Admin CMS</span>
           </a>
-          <span class="live-status" :class="{ 'status-cloud': isNeonConnected }">
+          <button
+            type="button"
+            class="live-status clickable"
+            :class="{ 'status-cloud': isNeonConnected }"
+            @click="handleManualCloudSync"
+            title="Klik untuk sinkronisasi paksa ke Neon Cloud Database"
+          >
             <span class="status-pulse" :class="{ 'pulse-cloud': isNeonConnected }"></span>
-            {{ isNeonConnected ? '☁️ Neon Cloud Terhubung' : '💾 Mode Lokal Aktif' }}
-          </span>
+            {{ isNeonConnected ? '☁️ Neon Cloud Terhubung' : '💾 Mode Lokal (Klik Sinkron)' }}
+          </button>
         </div>
 
         <div class="admin-actions">
@@ -397,6 +403,14 @@
                       <button
                         type="button"
                         class="mode-pill"
+                        :class="{ active: uploadMode === 'gdrive' }"
+                        @click="setUploadMode('gdrive')"
+                      >
+                        📁 Google Drive
+                      </button>
+                      <button
+                        type="button"
+                        class="mode-pill"
                         :class="{ active: uploadMode === 'youtube' }"
                         @click="setUploadMode('youtube')"
                       >
@@ -598,7 +612,62 @@
                     </div>
                   </div>
 
-                  <!-- Mode 4: Input URL Media Online Manual -->
+                  <!-- Mode 4: Google Drive Video -->
+                  <div v-else-if="uploadMode === 'gdrive'" class="youtube-input-container">
+                    <div class="youtube-input-row">
+                      <input
+                        type="url"
+                        v-model="gdriveUrlInput"
+                        class="form-input"
+                        placeholder="Tempel tautan Google Drive (contoh: https://drive.google.com/file/d/.../view)"
+                        @input="handleGDriveInput"
+                        @change="handleGDriveInput"
+                      />
+                      <button
+                        v-if="gdriveUrlInput"
+                        type="button"
+                        class="btn btn-danger btn-sm"
+                        @click="removeGDrive"
+                        title="Kosongkan Tautan"
+                      >
+                        ✕ Hapus
+                      </button>
+                    </div>
+
+                    <!-- Preview Google Drive -->
+                    <div v-if="gdriveEmbedPreview" class="yt-preview-card">
+                      <div class="yt-embed-box">
+                        <iframe
+                          :src="gdriveEmbedPreview"
+                          title="Google Drive Preview"
+                          frameborder="0"
+                          allow="autoplay; fullscreen"
+                          allowfullscreen
+                          class="admin-yt-iframe"
+                        ></iframe>
+                        <button
+                          type="button"
+                          class="preview-quick-del-btn"
+                          @click.stop="removeGDrive"
+                          title="Hapus Video Google Drive (✕)"
+                          aria-label="Hapus Video Google Drive"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div class="yt-preview-info">
+                        <span class="preview-status">✓ Video Google Drive Terhubung</span>
+                        <span class="preview-stats">Video dapat diputar di semua HP & Laptop dalam resolusi asli tanpa batasan kuota file!</span>
+                        <div class="preview-actions">
+                          <button type="button" class="btn btn-danger btn-sm" @click="removeGDrive" title="Hapus Video Google Drive">
+                            🗑️ Hapus Video Google Drive
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Mode 5: Input URL Media Online Manual -->
                   <div v-else class="url-input-container">
                     <div class="url-input-row">
                       <input
@@ -638,14 +707,17 @@
                   <div class="gallery-section-header">
                     <div>
                       <label class="form-label">Galeri Karya Tambahan (Foto & Video Pop-up)</label>
-                      <span class="form-hint">Dapat memadukan beberapa foto, video MP4, dan link YouTube</span>
+                      <span class="form-hint">Dapat memadukan beberapa foto, video MP4, dan link Google Drive / YouTube</span>
                     </div>
                     <div class="gallery-header-btns">
                       <button type="button" class="btn btn-secondary btn-sm" @click="triggerGalleryInput">
-                        + Tambah Foto / Video File
+                        + Tambah File
                       </button>
                       <button type="button" class="btn btn-ghost btn-sm" @click="showAddYouTubeInline = !showAddYouTubeInline">
                         ▶️ + YouTube
+                      </button>
+                      <button type="button" class="btn btn-ghost btn-sm" @click="showAddGDriveInline = !showAddGDriveInline">
+                        📁 + Google Drive
                       </button>
                     </div>
                     <input
@@ -656,6 +728,23 @@
                       class="hidden-file-input"
                       @change="handleGalleryFilesChange"
                     />
+                  </div>
+
+                  <!-- Inline Google Drive Adder -->
+                  <div v-if="showAddGDriveInline" class="add-yt-inline-box">
+                    <input
+                      type="url"
+                      v-model="newGDriveLink"
+                      class="form-input form-input-sm"
+                      placeholder="Tempel link Google Drive (https://drive.google.com/file/d/.../view)"
+                      @keyup.enter="addGDriveToGallery"
+                    />
+                    <button type="button" class="btn btn-primary btn-sm" @click="addGDriveToGallery">
+                      Tambahkan
+                    </button>
+                    <button type="button" class="btn btn-ghost btn-sm" @click="showAddGDriveInline = false">
+                      Batal
+                    </button>
                   </div>
 
                   <!-- Inline YouTube Adder -->
@@ -682,6 +771,14 @@
                       <template v-if="checkIsYouTube(mediaItem)">
                         <img :src="getYouTubeThumb(mediaItem)" alt="YouTube Thumbnail" />
                         <span class="gallery-item-badge badge-yt">▶ YT</span>
+                      </template>
+                      <!-- Google Drive item -->
+                      <template v-else-if="checkIsGDrive(mediaItem)">
+                        <div class="gallery-video-ph">
+                          <span class="ph-icon">📁</span>
+                          <span class="ph-label">Drive</span>
+                        </div>
+                        <span class="gallery-item-badge badge-gd">📁 GDrive</span>
                       </template>
                       <!-- Video File item -->
                       <template v-else-if="checkIsVideo(mediaItem)">
@@ -866,12 +963,14 @@ import AdminExperienceTab from "./AdminExperienceTab.vue";
 import AdminSecurityTab from "./AdminSecurityTab.vue";
 import {
   captureVideoSnapshot,
+  fileToBase64,
+  getGoogleDriveEmbedUrl,
   getMediaType,
   getYouTubeEmbedUrl,
   getYouTubeThumbnail,
+  isGoogleDriveUrl,
   isYouTubeUrl,
   resolveMediaUrl,
-  saveMediaToDB,
 } from "@/utils/mediaHelper";
 
 const emit = defineEmits(["view-public", "logout"]);
@@ -986,13 +1085,33 @@ const techsInput = ref("");
 const externalLinkLabel = ref("Live Link");
 const externalLinkUrl = ref("");
 
+// Google Drive state
+const gdriveUrlInput = ref("");
+const gdriveEmbedPreview = ref("");
+const showAddGDriveInline = ref(false);
+const newGDriveLink = ref("");
+
 const setUploadMode = (mode) => {
   uploadMode.value = mode;
 };
 
 const checkIsYouTube = (item) => isYouTubeUrl(item);
+const checkIsGDrive = (item) => isGoogleDriveUrl(item);
 const checkIsVideo = (item) => getMediaType(item) === "video";
 const getYouTubeThumb = (item) => getYouTubeThumbnail(item);
+
+/**
+ * Force manual synchronization to Neon Cloud Database
+ */
+const handleManualCloudSync = async () => {
+  showToast("🔄 Sedang menyinkronkan seluruh data ke Neon Cloud...");
+  try {
+    await syncAllToNeon();
+    showToast("✓ Sinkronisasi ke Neon Cloud sukses! Data aktif di semua HP & Laptop.");
+  } catch (err) {
+    showToast("⚠️ Gagal sinkronisasi: " + (err.message || "Periksa koneksi internet"));
+  }
+};
 
 /**
 /**
@@ -1080,22 +1199,37 @@ const handleVideoFileInputChange = async (e) => {
   if (!file) return;
   try {
     isProcessingVideo.value = true;
-    uploadStats.value = `Ukuran: ${Math.round(file.size / (1024 * 1024) * 10) / 10} MB`;
+    const sizeMB = Math.round((file.size / (1024 * 1024)) * 10) / 10;
+    uploadStats.value = `Ukuran: ${sizeMB} MB`;
 
     // 1. Generate snapshot cover automatically from video
-    const snap = await captureVideoSnapshot(file, 1);
-    formData.image = snap.thumbnail;
+    let snapDuration = 0;
+    try {
+      const snap = await captureVideoSnapshot(file, 1);
+      formData.image = snap.thumbnail;
+      snapDuration = Math.round(snap.duration);
+    } catch (snapErr) {
+      console.warn("Snapshot notice:", snapErr.message);
+      if (!formData.image) {
+        formData.image = "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&h=500&fit=crop&q=80";
+      }
+    }
 
-    // 2. Save video blob in browser IndexedDB
-    const idbKey = await saveMediaToDB(file, "video");
-    videoPreviewUrl.value = URL.createObjectURL(file);
+    // 2. Base64 for <= 4MB vs Cloud advice for > 4MB
+    if (file.size <= 4 * 1024 * 1024) {
+      const base64Video = await fileToBase64(file);
+      videoPreviewUrl.value = base64Video;
 
-    // 3. Add to gallery so modal can play it
-    if (!Array.isArray(formData.gallery)) formData.gallery = [];
-    formData.gallery = [idbKey, ...formData.gallery.filter((g) => g !== idbKey)];
+      if (!Array.isArray(formData.gallery)) formData.gallery = [];
+      formData.gallery = [base64Video, ...formData.gallery.filter((g) => typeof g === 'string' && !g.startsWith("data:video/") && !g.startsWith("idb://"))];
 
-    uploadStats.value += ` | Durasi: ${Math.round(snap.duration)}s (Snapshot cover dibuat!)`;
-    showToast("✓ Video MP4 berhasil diproses & cover snapshot otomatis dibuat!");
+      uploadStats.value += ` | Durasi: ${snapDuration}s (Disimpan ke Cloud Neon)`;
+      showToast("✓ Video MP4 berhasil diproses & tersimpan untuk semua perangkat!");
+    } else {
+      videoPreviewUrl.value = URL.createObjectURL(file);
+      uploadStats.value += ` (⚠️ ${sizeMB}MB: Melebihi batas cloud 4MB)`;
+      alert(`⚠️ Video berukuran ${sizeMB} MB.\n\nKarena batasan request Vercel (maks 4.5 MB), file video di atas 4 MB tidak dapat disimpan langsung ke database Postgres cloud.\n\nSaran Profesional: Masukkan tautan video Google Drive atau YouTube Anda pada tab "Google Drive" atau "YouTube". Video akan otomatis tersimpan permanen & dapat diputar di semua HP & Laptop!`);
+    }
   } catch (err) {
     console.error("Gagal proses video:", err);
     showToast("⚠️ Gagal memproses video. Pastikan format MP4 atau WebM.");
@@ -1135,6 +1269,47 @@ const addYouTubeToGallery = () => {
   newYouTubeLink.value = "";
   showAddYouTubeInline.value = false;
   showToast("✓ Video YouTube berhasil ditambahkan ke galeri!");
+};
+
+const handleGDriveInput = () => {
+  const url = (gdriveUrlInput.value || "").trim();
+  if (isGoogleDriveUrl(url)) {
+    gdriveEmbedPreview.value = getGoogleDriveEmbedUrl(url);
+
+    if (!Array.isArray(formData.gallery)) formData.gallery = [];
+    if (!formData.gallery.includes(url)) {
+      formData.gallery = [url, ...formData.gallery.filter((g) => g !== url)];
+    }
+    if (!formData.image) {
+      formData.image = "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&h=500&fit=crop&q=80";
+    }
+    showToast("✓ Video Google Drive terdeteksi & terhubung!");
+  } else {
+    gdriveEmbedPreview.value = "";
+  }
+};
+
+const addGDriveToGallery = () => {
+  const url = (newGDriveLink.value || "").trim();
+  if (!url || !isGoogleDriveUrl(url)) {
+    alert("Mohon masukkan tautan Google Drive yang valid (contoh: https://drive.google.com/file/d/.../view)");
+    return;
+  }
+  if (!Array.isArray(formData.gallery)) formData.gallery = [];
+  formData.gallery.push(url);
+  if (!formData.image) {
+    formData.image = "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&h=500&fit=crop&q=80";
+  }
+  newGDriveLink.value = "";
+  showAddGDriveInline.value = false;
+  showToast("✓ Video Google Drive berhasil ditambahkan ke galeri!");
+};
+
+const removeGDrive = () => {
+  gdriveUrlInput.value = "";
+  gdriveEmbedPreview.value = "";
+  formData.image = "";
+  showToast("✓ Video Google Drive berhasil dihapus.");
 };
 
 const removeVideo = () => {
@@ -1193,16 +1368,22 @@ const handleGalleryFilesChange = async (e) => {
     let count = 0;
     for (const file of files) {
       if (file.type.startsWith("video/")) {
-        const idbKey = await saveMediaToDB(file, "video");
-        formData.gallery.push(idbKey);
-        count++;
+        if (file.size <= 4 * 1024 * 1024) {
+          const b64 = await fileToBase64(file);
+          formData.gallery.push(b64);
+          count++;
+        } else {
+          alert(`File video "${file.name}" (${Math.round(file.size / (1024 * 1024))}MB) melebihi batas cloud 4MB.\nDisarankan menambahkan via tab "+ Google Drive" atau "+ YouTube" agar dapat diputar di semua HP & Laptop.`);
+        }
       } else if (file.type.startsWith("image/")) {
         const res = await compressImage(file);
         formData.gallery.push(res.dataUrl);
         count++;
       }
     }
-    showToast(`✓ ${count} media berhasil ditambahkan ke galeri!`);
+    if (count > 0) {
+      showToast(`✓ ${count} media berhasil ditambahkan ke galeri!`);
+    }
   } catch (err) {
     console.error("Gagal upload galeri:", err);
     showToast("⚠️ Gagal memproses beberapa file galeri.");
@@ -1250,6 +1431,10 @@ const openCreateModal = () => {
   youtubeEmbedPreview.value = "";
   showAddYouTubeInline.value = false;
   newYouTubeLink.value = "";
+  gdriveUrlInput.value = "";
+  gdriveEmbedPreview.value = "";
+  showAddGDriveInline.value = false;
+  newGDriveLink.value = "";
   showFormModal.value = true;
 };
 
@@ -1274,6 +1459,11 @@ const openEditModal = async (work) => {
   youtubeEmbedPreview.value = "";
   showAddYouTubeInline.value = false;
 
+  gdriveUrlInput.value = "";
+  gdriveEmbedPreview.value = "";
+  showAddGDriveInline.value = false;
+  newGDriveLink.value = "";
+
   // Detect mode
   if (isYouTubeUrl(work.image) || (work.gallery && work.gallery.some(isYouTubeUrl))) {
     uploadMode.value = "youtube";
@@ -1282,15 +1472,20 @@ const openEditModal = async (work) => {
       : work.gallery.find(isYouTubeUrl);
     youtubeUrlInput.value = ytLink || "";
     youtubeEmbedPreview.value = getYouTubeEmbedUrl(ytLink, 0);
+  } else if (isGoogleDriveUrl(work.image) || (work.gallery && work.gallery.some(isGoogleDriveUrl))) {
+    uploadMode.value = "gdrive";
+    const gdLink = isGoogleDriveUrl(work.image)
+      ? work.image
+      : work.gallery.find(isGoogleDriveUrl);
+    gdriveUrlInput.value = gdLink || "";
+    gdriveEmbedPreview.value = getGoogleDriveEmbedUrl(gdLink);
   } else if (
-    (work.image && work.image.startsWith("idb://")) ||
-    (work.gallery && work.gallery.some((g) => g.startsWith("idb://")))
+    (work.image && (work.image.startsWith("data:video/") || work.image.startsWith("idb://"))) ||
+    (work.gallery && work.gallery.some((g) => typeof g === 'string' && (g.startsWith("data:video/") || g.startsWith("idb://"))))
   ) {
     uploadMode.value = "video_file";
-    const idbKey = (work.gallery && work.gallery.find((g) => g.startsWith("idb://"))) || work.image;
-    videoPreviewUrl.value = await resolveMediaUrl(idbKey);
-  } else if (work.image) {
-    uploadMode.value = "image_file";
+    const vidKey = (work.gallery && work.gallery.find((g) => typeof g === 'string' && (g.startsWith("data:video/") || g.startsWith("idb://")))) || work.image;
+    videoPreviewUrl.value = await resolveMediaUrl(vidKey);
   } else {
     uploadMode.value = "image_file";
   }
@@ -2620,6 +2815,25 @@ const showToast = (msg) => {
   font-weight: bold;
 }
 
+/* Clickable Neon Live Status */
+.live-status.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  font-family: inherit;
+}
+
+.live-status.clickable:hover {
+  transform: scale(1.03);
+  border-color: rgba(31, 159, 216, 0.5);
+}
+
+.badge-gd {
+  background: #3B82F6 !important;
+  color: #ffffff !important;
+}
+
 @media (max-width: 768px) {
   .modal-backdrop {
     padding: 6px;
@@ -2638,27 +2852,106 @@ const showToast = (msg) => {
 
   .upload-mode-toggle {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 4px;
     padding: 4px;
   }
 
   .mode-pill {
-    padding: 8px 6px;
+    padding: 8px 4px;
     text-align: center;
     font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .admin-header-container {
-    padding: var(--space-sm) var(--space-md);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .admin-brand {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .admin-actions {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 4px 0;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .admin-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-actions .btn {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .admin-actions .btn-label {
+    display: inline !important;
+    font-size: 11px;
+  }
+
+  .cms-nav-bar {
+    padding: 6px;
+    gap: 6px;
+    margin-bottom: var(--space-lg);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cms-tab-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .dashboard-hero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+  }
+
+  .dashboard-hero .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .card-footer {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .card-footer .btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 80px;
   }
 
   .admin-main {
-    padding: var(--space-lg) var(--space-md);
-  }
-
-  .btn-label {
-    display: none;
+    padding: var(--space-md) var(--space-sm);
   }
 
   .form-row {
@@ -2666,7 +2959,7 @@ const showToast = (msg) => {
   }
 
   .dashboard-title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
   }
 
   /* Responsive Preview Cards on Mobile */
@@ -2700,17 +2993,20 @@ const showToast = (msg) => {
   .gallery-header-btns {
     width: 100%;
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    overflow-x: auto;
   }
 
   .gallery-header-btns .btn {
     flex: 1;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
+    white-space: nowrap;
+    padding: 6px 8px;
   }
 
   .gallery-preview-grid {
-    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 8px;
   }
 

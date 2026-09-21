@@ -171,23 +171,27 @@ async function fetchFromNeonDatabase() {
   }
 }
 
-/**
- * Seed all current works to Neon Database
- */
 async function syncAllToNeon() {
-  if (isSyncing.value || !works.value.length) return;
+  if (isSyncing.value) return;
   isSyncing.value = true;
   try {
-    for (const work of works.value) {
-      await fetch('/api/works', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(work),
-      });
+    if (works.value.length > 0) {
+      for (const work of works.value) {
+        await fetch('/api/works', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(work),
+        });
+      }
     }
-    console.log('✓ Works synchronized with Neon Postgres!');
+    await syncCmsSectionToNeon('profile', profile.value);
+    await syncCmsSectionToNeon('skills', skills.value);
+    await syncCmsSectionToNeon('experiences', experiences.value);
+    isNeonConnected.value = true;
+    console.log('✓ All portfolio works & CMS synchronized with Neon Postgres!');
   } catch (e) {
     console.warn('Error syncing works to Neon:', e);
+    throw e;
   } finally {
     isSyncing.value = false;
   }
