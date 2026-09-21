@@ -196,21 +196,22 @@ const educations = computed(() => {
     : [
         {
           id: 1,
-          institution: "Pendidikan Tinggi",
-          period: "Lulusan S1",
-          degree: "Sarjana Komputer (S.Kom) / Sarjana Teknik",
-          major: "S1 Teknik Informatika",
-          description: "Fokus keilmuan pada Rekayasa Perangkat Lunak (Software Engineering), Analisis Sistem Informasi, Basis Data Relasional, Arsitektur Jaringan Komputer, dan Pengembangan Aplikasi Web modern.",
-          skills: ["System Analysis", "Web Development", "Database Architecture", "Computer Networking"]
+          institution: "Universitas Qomaruddin Gresik",
+          period: "2020 – 2024",
+          degree: "Sarjana Komputer (S.Kom) — S1 Teknik Informatika",
+          major: "Fokus: Software Engineering, Database Systems, & Network Architecture",
+          gpa: "3.50 / 4.00 (Sangat Memuaskan)",
+          description: "Menyelesaikan studi dengan IPK 3.50 (Predikat Sangat Memuaskan). Berfokus pada rekayasa perangkat lunak web terintegrasi, arsitektur basis data, serta pemeliharaan infrastruktur jaringan LAN dan Fiber Optic.",
+          skills: ["Software Engineering", "Web Systems", "Database Design", "Network Security", "Fiber Optic & LAN"]
         },
         {
           id: 2,
-          institution: "SMK Assa'adah",
-          period: "Pendidikan Menengah Kejuruan",
-          degree: "Sekolah Menengah Kejuruan",
-          major: "Jurusan Multimedia",
-          description: "Pondasi kuat di bidang produksi multimedia, teknik pengambilan gambar video & foto, tata pencahayaan, desain grafis komputer, dan pasca-produksi digital.",
-          skills: ["Multimedia Production", "Videography", "Photography", "Adobe Creative Suite"]
+          institution: "SMK Assa'adah Bungah Gresik",
+          period: "2017 – 2020",
+          degree: "Sekolah Menengah Kejuruan (SMK)",
+          major: "Kompetensi Keahlian Multimedia",
+          description: "Membangun fondasi kuat dalam bidang desain komunikasi visual, perancangan grafis komputer, dan tata letak digital. Terbiasa mengoperasikan software CorelDRAW, Adobe Photoshop, dan Adobe Illustrator untuk berbagai kebutuhan materi visual.",
+          skills: ["Adobe Photoshop", "Adobe Illustrator", "CorelDRAW", "Graphic Design", "Visual Branding"]
         }
       ];
 });

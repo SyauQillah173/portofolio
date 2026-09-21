@@ -122,6 +122,15 @@ const DEFAULT_EXPERIENCE = {
       gpa: "3.50 / 4.00 (Sangat Memuaskan)",
       description: "Menyelesaikan studi dengan IPK 3.50 (Predikat Sangat Memuaskan). Berfokus pada rekayasa perangkat lunak web terintegrasi, arsitektur basis data, serta pemeliharaan infrastruktur jaringan LAN dan Fiber Optic.",
       skills: ["Software Engineering", "Web Systems", "Database Design", "Network Security", "Fiber Optic & LAN"]
+    },
+    {
+      id: 2,
+      institution: "SMK Assa'adah Bungah Gresik",
+      period: "2017 – 2020",
+      degree: "Sekolah Menengah Kejuruan (SMK)",
+      major: "Kompetensi Keahlian Multimedia",
+      description: "Membangun fondasi kuat dalam bidang desain komunikasi visual, perancangan grafis komputer, dan tata letak digital. Terbiasa mengoperasikan software CorelDRAW, Adobe Photoshop, dan Adobe Illustrator untuk berbagai kebutuhan materi visual.",
+      skills: ["Adobe Photoshop", "Adobe Illustrator", "CorelDRAW", "Graphic Design", "Visual Branding"]
     }
   ]
 };
@@ -206,6 +215,9 @@ async function fetchFromNeonDatabase(force = false) {
           const remoteExp = cmsData.settings.experiences;
           if (remoteExp.education && remoteExp.education[0] && remoteExp.education[0].institution === "Universitas / Perguruan Tinggi") {
             remoteExp.education = DEFAULT_EXPERIENCE.education;
+          }
+          if (remoteExp.education && remoteExp.education.length === 1 && !remoteExp.education.some(e => e.institution && e.institution.includes("Assa'adah"))) {
+            remoteExp.education.push(DEFAULT_EXPERIENCE.education[1]);
           }
           experiences.value = { ...DEFAULT_EXPERIENCE, ...remoteExp };
           saveToStorage(STORAGE_KEYS.EXPERIENCE, experiences.value);
@@ -337,6 +349,9 @@ function initStore() {
       const parsedExp = JSON.parse(storedExp);
       if (parsedExp.education && parsedExp.education[0] && parsedExp.education[0].institution === "Universitas / Perguruan Tinggi") {
         parsedExp.education = DEFAULT_EXPERIENCE.education;
+      }
+      if (parsedExp.education && parsedExp.education.length === 1 && !parsedExp.education.some(e => e.institution && e.institution.includes("Assa'adah"))) {
+        parsedExp.education.push(DEFAULT_EXPERIENCE.education[1]);
       }
       experiences.value = { ...DEFAULT_EXPERIENCE, ...parsedExp };
       saveToStorage(STORAGE_KEYS.EXPERIENCE, experiences.value);
