@@ -308,26 +308,54 @@ const goToAdmin = () => {
   window.location.hash = "#admin";
 };
 
-// Dynamic Stats Target Values computed in real-time from works, skills, and experiences
+// Helper to calculate career experience years dynamically from work items
+const calculateExperienceYears = (workList) => {
+  if (!Array.isArray(workList) || workList.length === 0) return 3;
+
+  const currentYear = new Date().getFullYear();
+  const startYears = [];
+
+  workList.forEach((item) => {
+    if (!item || !item.period) return;
+    const matches = String(item.period).match(/\b(19\d\d|20\d\d)\b/g);
+    if (matches && matches.length > 0) {
+      const validYears = matches.map(Number).filter((y) => y <= currentYear && y >= 1990);
+      if (validYears.length > 0) {
+        startYears.push(Math.min(...validYears));
+      }
+    }
+  });
+
+  if (startYears.length === 0) return 3;
+  const earliestYear = Math.min(...startYears);
+  const diff = currentYear - earliestYear;
+  return diff > 0 ? diff : 1;
+};
+
+// Dynamic Stats Target Values computed 100% in real-time from works, skills, and experiences
 const dynamicStatsData = computed(() => {
-  // Real-time project count from works in store
-  const projectsCount = Math.max(works.value?.length || 0, 10);
+  // 1. Exact real-time project count (e.g. 8, if user adds 1 -> 9)
+  const projectsCount = (works.value && Array.isArray(works.value)) ? works.value.length : 0;
 
-  // Real-time skills count from skills in store
-  const skillsCount = Math.max(skills.value?.length || 0, 12);
+  // 2. Exact real-time skills count (e.g. 8, if user adds 1 -> 9)
+  const skillsCount = (skills.value && Array.isArray(skills.value)) ? skills.value.length : 0;
 
-  // Real-time unique clients & partners from works + experience
+  // 3. Exact real-time unique clients & partners from works + experience
   const clientsSet = new Set();
   (works.value || []).forEach((w) => {
-    if (w.client && w.client.trim()) clientsSet.add(w.client.trim());
+    if (w.client && String(w.client).trim()) {
+      clientsSet.add(String(w.client).trim().toLowerCase());
+    }
   });
   ((experiences.value && experiences.value.work) || []).forEach((e) => {
-    if (e.company && e.company.trim()) clientsSet.add(e.company.trim());
+    if (e.company && String(e.company).trim()) {
+      clientsSet.add(String(e.company).trim().toLowerCase());
+    }
   });
-  const clientsCount = Math.max(clientsSet.size, 6);
+  const clientsCount = clientsSet.size;
 
-  // Years of experience
-  const yearsExp = 3;
+  // 4. Exact real-time years of experience from earliest start year in work experience
+  const yearsExp = calculateExperienceYears(experiences.value?.work);
 
   return [
     { icon: "💻", targetValue: projectsCount, label: "Proyek IT & Visual" },
@@ -339,10 +367,10 @@ const dynamicStatsData = computed(() => {
 
 // Stats data with animated values
 const stats = reactive([
-  { icon: "💻", value: 10, currentValue: 0, label: "Proyek IT & Visual" },
-  { icon: "⚡", value: 12, currentValue: 0, label: "Keahlian & Tools" },
-  { icon: "🏢", value: 6, currentValue: 0, label: "Mitra & Klien" },
-  { icon: "⏳", value: 3, currentValue: 0, label: "Tahun Pengalaman" },
+  { icon: "💻", value: 0, currentValue: 0, label: "Proyek IT & Visual" },
+  { icon: "⚡", value: 0, currentValue: 0, label: "Keahlian & Tools" },
+  { icon: "🏢", value: 0, currentValue: 0, label: "Mitra & Klien" },
+  { icon: "⏳", value: 0, currentValue: 0, label: "Tahun Pengalaman" },
 ]);
 
 // Ref for stats element
@@ -351,15 +379,17 @@ let hasAnimatedStats = false;
 let isAnimatingStats = false;
 
 /**
- * Animate counting for stats smoothly from 0 to target values
+ * Animate counting for stats smoothly from startVal to target values
  */
-const animateStats = () => {
+const animateStats = (initial = true) => {
   if (isAnimatingStats) return;
   isAnimatingStats = true;
   hasAnimatedStats = true;
 
-  // Sync targets with latest real-time data
-  dynamicStatsData.value.forEach((d, idx) => {
+  const targets = dynamicStatsData.value;
+  const startValues = stats.map((s) => (initial ? 0 : s.currentValue));
+
+  targets.forEach((d, idx) => {
     if (stats[idx]) {
       stats[idx].value = d.targetValue;
       stats[idx].icon = d.icon;
@@ -367,17 +397,18 @@ const animateStats = () => {
     }
   });
 
-  const duration = 1800; // 1.8s smooth count up
+  const duration = initial ? 1800 : 800; // 1.8s initial, 0.8s on live update
   const startTime = performance.now();
 
   const step = (now) => {
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    // Smooth easeOutCubic
     const easeProgress = 1 - Math.pow(1 - progress, 3);
 
-    stats.forEach((stat) => {
-      stat.currentValue = Math.round(easeProgress * stat.value);
+    stats.forEach((stat, idx) => {
+      const from = startValues[idx] || 0;
+      const to = stat.value;
+      stat.currentValue = Math.round(from + (to - from) * easeProgress);
     });
 
     if (progress < 1) {
@@ -393,19 +424,24 @@ const animateStats = () => {
   requestAnimationFrame(step);
 };
 
-// Re-sync stats whenever dynamic store data updates
-watch(dynamicStatsData, (newStats) => {
-  newStats.forEach((d, idx) => {
-    if (stats[idx]) {
-      stats[idx].value = d.targetValue;
-      stats[idx].icon = d.icon;
-      stats[idx].label = d.label;
-      if (hasAnimatedStats && !isAnimatingStats) {
-        stats[idx].currentValue = d.targetValue;
-      }
+// Re-sync stats dynamically whenever user adds/edits skills, works, or experiences in Admin CMS
+watch(
+  dynamicStatsData,
+  (newStats) => {
+    if (hasAnimatedStats && !isAnimatingStats) {
+      animateStats(false);
+    } else if (!hasAnimatedStats) {
+      newStats.forEach((d, idx) => {
+        if (stats[idx]) {
+          stats[idx].value = d.targetValue;
+          stats[idx].icon = d.icon;
+          stats[idx].label = d.label;
+        }
+      });
     }
-  });
-}, { deep: true });
+  },
+  { deep: true }
+);
 
 // Form data
 const formData = ref({
