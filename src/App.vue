@@ -79,21 +79,18 @@
               </p>
             </div>
 
-            <!-- Contact Grid -->
-            <div class="contact-grid">
-              <!-- Contact Info -->
-              <div class="contact-info scroll-animate">
+            <!-- Contact Direct Hub (Direct Recruiter & Client Communication) -->
+            <div class="contact-hub-wrapper scroll-animate">
+              <div class="contact-info">
                 <h3 class="contact-heading">Mari Berbincang</h3>
                 <p class="contact-text">
-                  Saya selalu terbuka untuk diskusi tentang project baru, ide
-                  kreatif, atau kesempatan untuk menjadi bagian dari visi Anda.
+                  Saya selalu terbuka untuk mendiskusikan peluang kerja full-time, kontrak, project baru, maupun kolaborasi profesional. Anda dapat menghubungi saya langsung melalui saluran resmi berikut:
                 </p>
 
                 <div class="contact-items">
                   <!-- Email Card -->
-                  <!-- Email Card -->
                   <a
-                    :href="`mailto:${profile.email || 'abdullahsyauqillah01@gmail.com'}`"
+                    :href="`mailto:${profile.email || 'abdullahsyauqillah01@gmail.com'}?subject=Peluang%20Kerja%20/%20Kolaborasi%20Proyek`"
                     class="contact-card"
                     :title="`Kirim Email ke ${profile.name || 'Abdullah Syauqillah'}`"
                   >
@@ -163,76 +160,32 @@
                     </div>
                   </a>
                 </div>
-              </div>
 
-              <!-- Contact Form -->
-              <div class="contact-form-wrapper scroll-animate delay-200">
-                <form class="contact-form" @submit.prevent="handleSubmit">
-                  <div class="form-group">
-                    <label for="name" class="form-label">Nama Lengkap</label>
-                    <input
-                      type="text"
-                      id="name"
-                      v-model="formData.name"
-                      class="form-input"
-                      placeholder="Masukkan nama Anda"
-                      required
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      v-model="formData.email"
-                      class="form-input"
-                      placeholder="Masukkan email Anda"
-                      required
-                    />
-                  </div>
-
-                  <div class="form-group">
-                    <label for="message" class="form-label">Pesan</label>
-                    <textarea
-                      id="message"
-                      v-model="formData.message"
-                      class="form-textarea"
-                      placeholder="Ceritakan tentang project Anda..."
-                      rows="5"
-                      required
-                    ></textarea>
-                  </div>
-
-                  <button
-                    type="submit"
-                    class="btn btn-primary btn-lg btn-full"
-                    :disabled="isSubmitting"
-                  >
-                    <span v-if="!isSubmitting">Kirim Pesan</span>
-                    <span v-else class="btn-loading-text">
-                      <span class="spinner spinner-sm"></span>
-                      Mengirim...
-                    </span>
-                  </button>
-
+                <!-- Quick Direct Action Buttons -->
+                <div class="contact-quick-actions">
                   <a
-                    href="https://wa.me/628155936131?text=Halo%20Mas%20Syauqillah,%20saya%20melihat%20portofolio%20Anda%20dan%20tertarik%20untuk%20berkolaborasi"
+                    :href="whatsappUrl"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="btn btn-secondary btn-lg btn-full btn-wa-quick"
+                    class="btn btn-primary btn-lg quick-action-btn quick-action-wa"
                   >
-                    <span>💬 Hubungi via WhatsApp</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="quick-btn-icon">
+                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                    </svg>
+                    <span>Hubungi via WhatsApp</span>
                   </a>
 
-                  <!-- Success Message -->
-                  <Transition name="fade">
-                    <div v-if="showSuccess" class="form-success">
-                      ✓ Pesan berhasil dikirim! Saya akan segera menghubungi
-                      Anda.
-                    </div>
-                  </Transition>
-                </form>
+                  <a
+                    :href="`mailto:${profile.email || 'abdullahsyauqillah01@gmail.com'}?subject=Peluang%20Kerja%20/%20Kolaborasi%20Proyek`"
+                    class="btn btn-secondary btn-lg quick-action-btn quick-action-mail"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="quick-btn-icon">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    <span>Kirim Email Langsung</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -364,16 +317,18 @@ const stats = reactive([
 
 // Ref for stats element
 const statsRef = ref(null);
-let hasAnimatedStats = false;
 let isAnimatingStats = false;
+let statsAnimFrame = null;
 
 /**
  * Animate counting for stats smoothly from startVal to target values
  */
 const animateStats = (initial = true) => {
-  if (isAnimatingStats) return;
+  if (statsAnimFrame) {
+    cancelAnimationFrame(statsAnimFrame);
+    statsAnimFrame = null;
+  }
   isAnimatingStats = true;
-  hasAnimatedStats = true;
 
   const targets = dynamicStatsData.value;
   const startValues = stats.map((s) => (initial ? 0 : s.currentValue));
@@ -383,10 +338,13 @@ const animateStats = (initial = true) => {
       stats[idx].value = d.targetValue;
       stats[idx].icon = d.icon;
       stats[idx].label = d.label;
+      if (initial) {
+        stats[idx].currentValue = 0;
+      }
     }
   });
 
-  const duration = initial ? 1800 : 800; // 1.8s initial, 0.8s on live update
+  const duration = initial ? 1400 : 700; // 1.4s smooth energetic count up
   const startTime = performance.now();
 
   const step = (now) => {
@@ -401,73 +359,29 @@ const animateStats = (initial = true) => {
     });
 
     if (progress < 1) {
-      requestAnimationFrame(step);
+      statsAnimFrame = requestAnimationFrame(step);
     } else {
       stats.forEach((stat) => {
         stat.currentValue = stat.value;
       });
       isAnimatingStats = false;
+      statsAnimFrame = null;
     }
   };
 
-  requestAnimationFrame(step);
+  statsAnimFrame = requestAnimationFrame(step);
 };
 
 // Re-sync stats dynamically whenever user adds/edits skills, works, or experiences in Admin CMS
 watch(
   dynamicStatsData,
   (newStats) => {
-    if (hasAnimatedStats && !isAnimatingStats) {
+    if (!isAnimatingStats) {
       animateStats(false);
-    } else if (!hasAnimatedStats) {
-      newStats.forEach((d, idx) => {
-        if (stats[idx]) {
-          stats[idx].value = d.targetValue;
-          stats[idx].icon = d.icon;
-          stats[idx].label = d.label;
-        }
-      });
     }
   },
   { deep: true }
 );
-
-// Form data
-const formData = ref({
-  name: "",
-  email: "",
-  message: "",
-});
-
-// Form state
-const isSubmitting = ref(false);
-const showSuccess = ref(false);
-
-/**
- * Handle form submission
- */
-const handleSubmit = async () => {
-  isSubmitting.value = true;
-
-  // Simulate form submission (replace with actual API call)
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  // Show success message
-  showSuccess.value = true;
-  isSubmitting.value = false;
-
-  // Reset form
-  formData.value = {
-    name: "",
-    email: "",
-    message: "",
-  };
-
-  // Hide success message after 5 seconds
-  setTimeout(() => {
-    showSuccess.value = false;
-  }, 5000);
-};
 
 // Setup scroll animations
 const { observeAll } = useScrollAnimation({
@@ -486,18 +400,32 @@ onMounted(() => {
     observeAll(elements);
   }, 100);
 
-  // Setup intersection observer for stats animation
+  // Setup intersection observer for stats animation to trigger on EVERY scroll into view
   if (typeof IntersectionObserver !== "undefined") {
+    let isCurrentlyVisible = false;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAnimatedStats) {
-            animateStats();
-            observer.disconnect();
+          if (entry.isIntersecting) {
+            if (!isCurrentlyVisible) {
+              isCurrentlyVisible = true;
+              animateStats(true);
+            }
+          } else {
+            // When user scrolls away from stats, reset so next time it scrolls into view it animates again!
+            isCurrentlyVisible = false;
+            if (statsAnimFrame) {
+              cancelAnimationFrame(statsAnimFrame);
+              statsAnimFrame = null;
+            }
+            isAnimatingStats = false;
+            stats.forEach((s) => {
+              s.currentValue = 0;
+            });
           }
         });
       },
-      { threshold: 0.05, rootMargin: "0px 0px 200px 0px" }
+      { threshold: 0.15 }
     );
 
     setTimeout(() => {
@@ -505,15 +433,8 @@ onMounted(() => {
       if (statsElement) {
         observer.observe(statsElement);
       }
-    }, 80);
+    }, 100);
   }
-
-  // Safety fallback: if not triggered yet after 800ms, start count-up automatically
-  setTimeout(() => {
-    if (!hasAnimatedStats) {
-      animateStats();
-    }
-  }, 800);
 });
 
 onUnmounted(() => {
@@ -704,13 +625,17 @@ onUnmounted(() => {
   background: var(--color-bg-dark);
 }
 
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  gap: var(--space-xl);
-  max-width: 1040px;
+/* Contact Direct Hub */
+.contact-hub-wrapper {
+  max-width: 680px;
   margin: 0 auto;
-  align-items: start;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .contact-info {
@@ -719,232 +644,73 @@ onUnmounted(() => {
 }
 
 .contact-heading {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 1.85rem;
+  font-weight: 700;
   color: var(--color-text-light);
-  margin-bottom: var(--space-sm);
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
 .contact-text {
   color: var(--color-text-muted);
-  line-height: var(--line-height-relaxed);
-  margin-bottom: var(--space-lg);
-  font-size: var(--font-size-base);
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .contact-items {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-/* Contact Cards (Mobile-friendly touch cards) */
-.contact-card {
-  display: flex;
-  align-items: center;
   gap: 14px;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  text-decoration: none;
-  transition: all var(--transition-fast);
-  color: var(--color-text-light);
-  box-sizing: border-box;
-  width: 100%;
 }
 
-.contact-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(31, 159, 216, 0.4);
-  background: rgba(15, 23, 42, 0.95);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(31, 159, 216, 0.12);
-}
-
-.contact-card-wa:hover {
-  border-color: rgba(37, 211, 102, 0.5);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(37, 211, 102, 0.15);
-}
-
-.contact-card-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-md);
+.contact-quick-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--color-primary);
+  gap: 12px;
+  margin-top: 1.75rem;
+  flex-wrap: wrap;
 }
 
-.contact-card-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.icon-wa {
-  background: rgba(37, 211, 102, 0.15);
-  border-color: rgba(37, 211, 102, 0.3);
-  color: #25D366;
-}
-
-.icon-email {
-  background: rgba(31, 159, 216, 0.15);
-  border-color: rgba(31, 159, 216, 0.3);
-  color: #1F9FD8;
-}
-
-.icon-loc {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.3);
-  color: #F59E0B;
-}
-
-.contact-card-body {
+.quick-action-btn {
   flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.label-row {
+  min-width: 240px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-}
-
-.contact-card-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.online-pill {
-  font-size: 10px;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #25D366;
-  background: rgba(37, 211, 102, 0.12);
-  padding: 1px 6px;
-  border-radius: var(--radius-full);
-}
-
-.contact-card-val {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #F1F5F9;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  line-height: 1.4;
-}
-
-.contact-card-action {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-primary);
-  flex-shrink: 0;
-  opacity: 0.8;
-  transition: transform var(--transition-fast);
-}
-
-.contact-card:hover .contact-card-action {
-  opacity: 1;
-  transform: translateX(3px);
-}
-
-/* Contact Form */
-.contact-form-wrapper {
-  background: var(--color-bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-}
-
-.form-group {
-  margin-bottom: var(--space-lg);
-}
-
-.form-label {
-  display: block;
-  margin-bottom: var(--space-sm);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-light);
-}
-
-.form-input,
-.form-textarea {
-  width: 100%;
-  padding: var(--space-md);
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  color: var(--color-text-light);
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 13px 20px;
   border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
-  outline: none;
-}
-
-.form-input:focus,
-.form-textarea:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(31, 159, 216, 0.2);
-}
-
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: var(--color-text-muted);
-}
-
-.form-textarea {
-  min-height: 120px;
-  resize: vertical;
-}
-
-.btn-loading-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-}
-
-.btn-wa-quick {
-  margin-top: var(--space-md);
-  background: rgba(37, 211, 102, 0.15);
-  color: #25D366;
-  border: 1px solid rgba(37, 211, 102, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   text-decoration: none;
+  transition: all 0.25s ease;
 }
 
-.btn-wa-quick:hover {
+.quick-btn-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.quick-action-wa {
   background: #25D366;
-  color: #ffffff;
   border-color: #25D366;
-  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+  color: #ffffff;
 }
 
-.form-success {
-  margin-top: var(--space-md);
-  padding: var(--space-md);
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: var(--radius-md);
-  color: var(--color-success);
-  text-align: center;
-  font-size: var(--font-size-sm);
+.quick-action-wa:hover {
+  background: #20BA5A;
+  border-color: #20BA5A;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  transform: translateY(-2px);
+}
+
+.quick-action-mail:hover {
+  transform: translateY(-2px);
 }
 
 /* Scroll animation states - Always visible to guarantee NO blank text on fast scroll */
@@ -1075,40 +841,18 @@ onUnmounted(() => {
     line-height: 1.3 !important;
   }
 
-  .contact-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-xl);
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .contact-info {
-    padding-right: 0;
-    text-align: left;
-  }
-
-  .contact-card {
-    padding: 12px 14px;
-  }
-
-  .contact-card-action {
-    display: none;
-  }
-
-  .contact-form-wrapper {
-    padding: 20px 16px;
+  .contact-hub-wrapper {
+    padding: 20px 14px;
     border-radius: var(--radius-lg);
   }
 
-  .form-input,
-  .form-textarea {
-    font-size: 16px !important;
-    padding: 12px 14px;
+  .contact-quick-actions {
+    flex-direction: column;
   }
 
-  .btn-wa-quick {
-    font-size: 14px;
-    padding: 12px 14px;
+  .quick-action-btn {
+    width: 100%;
+    min-width: 0;
   }
 }
 
