@@ -9,16 +9,36 @@ dist
 dist-ssr
 *.local
 
-# Environment & Sensitive Credentials (Kredensial & Env)
+# Environment & Sensitive Credentials (Kredensial, API Keys & Env)
 .env
-.env.*
+.env*
 *.env
 *.env.*
 .env.local
+.env.*.local
 .env.development.local
 .env.test.local
 .env.production.local
 !.env.example
+
+# Private Keys, Certificates, Tokens & Secrets
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*secret*
+*Secret*
+*token*
+*Token*
+*credential*
+*Credential*
+*password*
+*Password*
+*apikey*
+*apiKey*
+*api_key*
 
 # Catatan Pribadi, Private Notes & Dokumen Rahasia
 *.txt
@@ -32,13 +52,16 @@ notes*
 PANDUAN*
 AI_HANDOVER*
 private/
-secret*
-secrets/
-credentials*
-*.pem
-*.key
-*.cert
-*.crt
+rahasia*
+privat*
+
+# Temporary Scripts & Scratch Files
+scratch*
+scratch/
+test_*.mjs
+check_*.mjs
+update_*.mjs
+*.mjs.bak
 
 # Dokumen Pribadi & Data Backup
 *.pdf
