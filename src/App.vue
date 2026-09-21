@@ -266,7 +266,7 @@ import { usePortfolioStore } from "./composables/usePortfolioStore";
 import { useScrollAnimation } from "./composables/useScrollAnimation";
 
 // Portfolio store & view state (Realtime Dynamic CMS Data)
-const { isAuthenticated, profile, works, skills, experiences } = usePortfolioStore();
+const { isAuthenticated, profile, works, skills, experiences, clients } = usePortfolioStore();
 const currentView = ref("public"); // 'public' | 'admin'
 
 // Dynamic About Paragraphs from Full CMS Profile
@@ -340,19 +340,8 @@ const dynamicStatsData = computed(() => {
   // 2. Exact real-time skills count (e.g. 8, if user adds 1 -> 9)
   const skillsCount = (skills.value && Array.isArray(skills.value)) ? skills.value.length : 0;
 
-  // 3. Exact real-time unique clients & partners from works + experience
-  const clientsSet = new Set();
-  (works.value || []).forEach((w) => {
-    if (w.client && String(w.client).trim()) {
-      clientsSet.add(String(w.client).trim().toLowerCase());
-    }
-  });
-  ((experiences.value && experiences.value.work) || []).forEach((e) => {
-    if (e.company && String(e.company).trim()) {
-      clientsSet.add(String(e.company).trim().toLowerCase());
-    }
-  });
-  const clientsCount = clientsSet.size;
+  // 3. Exact real-time clients & partners count from managed clients list (5 default, e.g. Pertamina, Perum BULOG, BPPKAD Gresik, PP Qomaruddin, Raff Studio)
+  const clientsCount = (clients.value && Array.isArray(clients.value)) ? clients.value.length : 5;
 
   // 4. Exact real-time years of experience from earliest start year in work experience
   const yearsExp = calculateExperienceYears(experiences.value?.work);

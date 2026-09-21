@@ -136,6 +136,16 @@
 
           <button
             class="cms-tab-btn"
+            :class="{ active: activeCmsTab === 'clients' }"
+            @click="activeCmsTab = 'clients'"
+          >
+            <span class="tab-icon">🤝</span>
+            <span>Mitra & Klien</span>
+            <span class="tab-badge">{{ (clients || []).length }}</span>
+          </button>
+
+          <button
+            class="cms-tab-btn"
             :class="{ active: activeCmsTab === 'experience' }"
             @click="activeCmsTab = 'experience'"
           >
@@ -328,7 +338,10 @@
         <!-- TAB 3: SKILLS -->
         <AdminSkillsTab v-else-if="activeCmsTab === 'skills'" @toast="showToast" />
 
-        <!-- TAB 4: EXPERIENCE & EDUCATION -->
+        <!-- TAB 4: CLIENTS & PARTNERS -->
+        <AdminClientsTab v-else-if="activeCmsTab === 'clients'" @toast="showToast" />
+
+        <!-- TAB 5: EXPERIENCE & EDUCATION -->
         <AdminExperienceTab v-else-if="activeCmsTab === 'experience'" @toast="showToast" />
 
         <!-- TAB 5: SECURITY & PASSWORD -->
@@ -1030,6 +1043,7 @@ import { computed, reactive, ref } from "vue";
 import { usePortfolioStore } from "@/composables/usePortfolioStore";
 import AdminProfileTab from "./AdminProfileTab.vue";
 import AdminSkillsTab from "./AdminSkillsTab.vue";
+import AdminClientsTab from "./AdminClientsTab.vue";
 import AdminExperienceTab from "./AdminExperienceTab.vue";
 import AdminSecurityTab from "./AdminSecurityTab.vue";
 import {
@@ -1051,6 +1065,7 @@ const {
   profile,
   skills,
   experiences,
+  clients,
   logout,
   addWork,
   updateWork,

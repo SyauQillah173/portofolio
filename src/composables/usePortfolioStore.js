@@ -14,12 +14,22 @@ const STORAGE_KEYS = {
   PROFILE: "syauqillah_portfolio_profile_v3",
   SKILLS: "syauqillah_portfolio_skills_v3",
   EXPERIENCE: "syauqillah_portfolio_experience_v3",
+  CLIENTS: "syauqillah_portfolio_clients_v3",
   AUTH: "syauqillah_admin_auth",
   PASSWORD: "syauqillah_admin_password",
 };
 
 // Default admin password
 const DEFAULT_PASSWORD = "admin123";
+
+// Default Clients & Partners Data
+const DEFAULT_CLIENTS = [
+  { id: 1, name: "Pertamina", category: "BUMN", icon: "🏢", description: "Proyek Video Company Profile Nasional" },
+  { id: 2, name: "Perum BULOG", category: "BUMN", icon: "🌾", description: "Dokumentasi & Aerial Cinematography" },
+  { id: 3, name: "BPPKAD Gresik", category: "Instansi Pemerintah", icon: "🏛️", description: "Publikasi Digital & IT Support" },
+  { id: 4, name: "PP Qomaruddin", category: "Pendidikan & Pesantren", icon: "🕌", description: "Sistem Informasi & Infrastruktur IT" },
+  { id: 5, name: "Raff Studio", category: "Creative Agency", icon: "🎬", description: "Kolaborasi Produksi Visual & Drone Pilot" },
+];
 
 // Default Profile Data
 const DEFAULT_PROFILE = {
@@ -120,6 +130,7 @@ const categories = ref(defaultWorksData.categories || []);
 const profile = ref(DEFAULT_PROFILE);
 const skills = ref(defaultSkillsData.skills || []);
 const experiences = ref(DEFAULT_EXPERIENCE);
+const clients = ref(DEFAULT_CLIENTS);
 
 const isAuthenticated = ref(false);
 const isInitialized = ref(false);
@@ -185,6 +196,10 @@ async function fetchFromNeonDatabase(force = false) {
           experiences.value = { ...DEFAULT_EXPERIENCE, ...cmsData.settings.experiences };
           saveToStorage(STORAGE_KEYS.EXPERIENCE, experiences.value);
         }
+        if (cmsData.settings.clients && Array.isArray(cmsData.settings.clients) && cmsData.settings.clients.length > 0) {
+          clients.value = cmsData.settings.clients.map(c => ({ ...c, id: Number(c.id) || c.id }));
+          saveToStorage(STORAGE_KEYS.CLIENTS, clients.value);
+        }
       }
     }
   } catch (err) {
@@ -210,6 +225,7 @@ async function syncAllToNeon() {
     await syncCmsSectionToNeon('profile', profile.value);
     await syncCmsSectionToNeon('skills', skills.value);
     await syncCmsSectionToNeon('experiences', experiences.value);
+    await syncCmsSectionToNeon('clients', clients.value);
     isNeonConnected.value = true;
     console.log('✓ All portfolio works & CMS synchronized with Neon Postgres!');
     return { success: true, count: works.value.length };
@@ -303,6 +319,19 @@ function initStore() {
     experiences.value = JSON.parse(JSON.stringify(DEFAULT_EXPERIENCE));
   }
 
+  // 6. Load clients
+  try {
+    const storedClients = localStorage.getItem(STORAGE_KEYS.CLIENTS);
+    if (storedClients) {
+      clients.value = JSON.parse(storedClients);
+    } else {
+      clients.value = JSON.parse(JSON.stringify(DEFAULT_CLIENTS));
+      saveToStorage(STORAGE_KEYS.CLIENTS, clients.value);
+    }
+  } catch (e) {
+    clients.value = JSON.parse(JSON.stringify(DEFAULT_CLIENTS));
+  }
+
   isInitialized.value = true;
 
   // Background fetch from Neon
@@ -354,6 +383,7 @@ export function usePortfolioStore() {
   watch(profile, (val) => saveToStorage(STORAGE_KEYS.PROFILE, val), { deep: true });
   watch(skills, (val) => saveToStorage(STORAGE_KEYS.SKILLS, val), { deep: true });
   watch(experiences, (val) => saveToStorage(STORAGE_KEYS.EXPERIENCE, val), { deep: true });
+  watch(clients, (val) => saveToStorage(STORAGE_KEYS.CLIENTS, val), { deep: true });
 
   /**
    * Login method: checks Neon cloud first, falls back to local
@@ -542,6 +572,51 @@ export function usePortfolioStore() {
   };
 
   /**
+   * CLIENTS & PARTNERS CMS Methods
+   */
+  const addClient = (clientData) => {
+    const nextId = clients.value.length > 0
+      ? Math.max(...clients.value.map(c => Number(c.id) || 0)) + 1
+      : 1;
+
+    const newClient = {
+      id: nextId,
+      name: clientData.name || "Mitra Baru",
+      category: clientData.category || "Swasta",
+      icon: clientData.icon || "🏢",
+      description: clientData.description || "",
+    };
+
+    clients.value.push(newClient);
+    saveToStorage(STORAGE_KEYS.CLIENTS, clients.value);
+    syncCmsSectionToNeon('clients', clients.value);
+    return newClient;
+  };
+
+  const updateClient = (id, clientData) => {
+    const index = clients.value.findIndex(c => String(c.id) === String(id));
+    if (index === -1) return false;
+
+    clients.value[index] = {
+      ...clients.value[index],
+      ...clientData,
+      id: Number(id) || id,
+    };
+    saveToStorage(STORAGE_KEYS.CLIENTS, clients.value);
+    syncCmsSectionToNeon('clients', clients.value);
+    return clients.value[index];
+  };
+
+  const deleteClient = (id) => {
+    const index = clients.value.findIndex(c => String(c.id) === String(id));
+    if (index === -1) return false;
+    clients.value.splice(index, 1);
+    saveToStorage(STORAGE_KEYS.CLIENTS, clients.value);
+    syncCmsSectionToNeon('clients', clients.value);
+    return true;
+  };
+
+  /**
    * WORKS CMS Methods
    */
   const addWork = async (workData) => {
@@ -670,6 +745,7 @@ export function usePortfolioStore() {
       profile: profile.value,
       skills: skills.value,
       experiences: experiences.value,
+      clients: clients.value,
       exportedAt: new Date().toISOString(),
     };
     const jsonStr = JSON.stringify(dataToExport, null, 2);
@@ -708,6 +784,10 @@ export function usePortfolioStore() {
         experiences.value = parsed.experiences;
         syncCmsSectionToNeon('experiences', experiences.value);
       }
+      if (parsed.clients && Array.isArray(parsed.clients)) {
+        clients.value = parsed.clients;
+        syncCmsSectionToNeon('clients', clients.value);
+      }
       return { success: true, count };
     } catch (e) {
       return { success: false, message: e.message };
@@ -720,6 +800,7 @@ export function usePortfolioStore() {
     profile,
     skills,
     experiences,
+    clients,
     isAuthenticated,
     isNeonConnected,
     isSyncing,
@@ -730,6 +811,9 @@ export function usePortfolioStore() {
     addSkill,
     updateSkill,
     deleteSkill,
+    addClient,
+    updateClient,
+    deleteClient,
     addExperience,
     updateExperience,
     deleteExperience,

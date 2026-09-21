@@ -145,11 +145,13 @@
           <div class="hero-trust animate-fade-in delay-800">
             <span class="trust-label">Pernah Berkolaborasi & Menangani Klien:</span>
             <div class="trust-chips">
-              <span class="trust-chip"><span class="chip-dot"></span> Pertamina</span>
-              <span class="trust-chip"><span class="chip-dot"></span> Perum BULOG</span>
-              <span class="trust-chip"><span class="chip-dot"></span> BPPKAD Gresik</span>
-              <span class="trust-chip"><span class="chip-dot"></span> PP Qomaruddin</span>
-              <span class="trust-chip"><span class="chip-dot"></span> Raff Studio</span>
+              <span
+                v-for="client in displayClients"
+                :key="client.id || client.name"
+                class="trust-chip"
+              >
+                <span class="chip-dot"></span> {{ client.name }}
+              </span>
             </div>
           </div>
         </div>
@@ -187,7 +189,23 @@ import FallingStars from "./FallingStars.vue";
 import TypingText from "./TypingText.vue";
 
 // Reactive Store
-const { profile } = usePortfolioStore();
+const { profile, clients } = usePortfolioStore();
+
+// Fallback clients
+const fallbackClients = [
+  { name: "Pertamina" },
+  { name: "Perum BULOG" },
+  { name: "BPPKAD Gresik" },
+  { name: "PP Qomaruddin" },
+  { name: "Raff Studio" },
+];
+
+const displayClients = computed(() => {
+  if (clients.value && Array.isArray(clients.value) && clients.value.length > 0) {
+    return clients.value;
+  }
+  return fallbackClients;
+});
 
 // Dynamic roles for typing animation
 const roles = computed(() => {
