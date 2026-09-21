@@ -128,8 +128,9 @@ const isSyncing = ref(false);
 
 /**
  * Fetch latest works and CMS settings from Neon Postgres
+ * @param {boolean} force - If true, always overwrites local state with fresh data from Neon
  */
-async function fetchFromNeonDatabase() {
+async function fetchFromNeonDatabase(force = false) {
   try {
     const timestamp = Date.now();
 
@@ -142,17 +143,21 @@ async function fetchFromNeonDatabase() {
         if (Array.isArray(data.works) && data.works.length > 0) {
           const remoteWorks = data.works.map(w => ({ ...w, id: Number(w.id) }));
           
-          // Smart Sync: If local has custom uploaded images (base64) that Neon doesn't have yet,
-          // automatically push local works to Neon so all other devices (HP, tablet) get them!
-          const localCustomImagesCount = works.value.filter(w => typeof w.image === 'string' && w.image.startsWith('data:image/')).length;
-          const remoteCustomImagesCount = remoteWorks.filter(w => typeof w.image === 'string' && w.image.startsWith('data:image/')).length;
-
-          if (localCustomImagesCount > remoteCustomImagesCount) {
-            console.log(`Detected ${localCustomImagesCount} local custom images vs ${remoteCustomImagesCount} in Neon. Auto-syncing to Neon database...`);
-            await syncAllToNeon();
-          } else {
+          if (force) {
             works.value = remoteWorks;
             saveToStorage(STORAGE_KEYS.WORKS, works.value);
+          } else {
+            const localCustomImagesCount = works.value.filter(w => typeof w.image === 'string' && w.image.startsWith('data:image/')).length;
+            const remoteCustomImagesCount = remoteWorks.filter(w => typeof w.image === 'string' && w.image.startsWith('data:image/')).length;
+
+            // Only auto-push if local has custom images and cloud is completely uninitialized (0 custom images)
+            if (localCustomImagesCount > 0 && remoteCustomImagesCount === 0) {
+              console.log(`Detected ${localCustomImagesCount} local custom images vs ${remoteCustomImagesCount} in Neon. Initial cloud seeding...`);
+              await syncAllToNeon();
+            } else {
+              works.value = remoteWorks;
+              saveToStorage(STORAGE_KEYS.WORKS, works.value);
+            }
           }
         } else if (Array.isArray(data.works) && data.works.length === 0) {
           await syncAllToNeon();
@@ -300,6 +305,18 @@ function initStore() {
 
   // Background fetch from Neon
   fetchFromNeonDatabase();
+
+  // Auto-sync when switching back to this browser tab (from HP to PC or vice versa)
+  if (typeof window !== "undefined") {
+    window.addEventListener("focus", () => {
+      fetchFromNeonDatabase(true);
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        fetchFromNeonDatabase(true);
+      }
+    });
+  }
 }
 
 /**
@@ -707,5 +724,6 @@ export function usePortfolioStore() {
     downloadBackup,
     importBackup,
     syncAllToNeon,
+    fetchFromNeonDatabase,
   };
 }

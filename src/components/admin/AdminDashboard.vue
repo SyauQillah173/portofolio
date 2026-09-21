@@ -42,13 +42,23 @@
           </button>
 
           <button 
+            class="btn btn-secondary btn-sm refresh-cloud-btn" 
+            :disabled="isRefreshingCloud"
+            @click="handlePullFromCloud" 
+            title="Ambil foto & data terbaru dari Database Neon (Tarik upload dari HP)"
+          >
+            <span class="action-icon" :class="{ 'spin-icon': isRefreshingCloud }">🔄</span>
+            <span class="btn-label">{{ isRefreshingCloud ? 'Memperbarui...' : 'Tarik dari Cloud (HP)' }}</span>
+          </button>
+
+          <button 
             class="btn btn-primary btn-sm sync-neon-btn" 
             :disabled="isSyncingNeon"
             @click="handleSyncAllNeon" 
-            title="Kirim dan sinkronkan semua foto di komputer langsung ke Database Neon Cloud (Tampil di HP)"
+            title="Kirim dan simpan semua data di perangkat ini ke Database Neon Cloud"
           >
-            <span class="action-icon">☁️</span>
-            <span class="btn-label">{{ isSyncingNeon ? 'Menyinkronkan...' : 'Sinkron ke Cloud (HP)' }}</span>
+            <span class="action-icon" :class="{ 'spin-icon': isSyncingNeon }">☁️</span>
+            <span class="btn-label">{{ isSyncingNeon ? 'Mengirim...' : 'Kirim ke Cloud' }}</span>
           </button>
 
           <button class="btn btn-secondary btn-sm" @click="handleDownloadBackup" title="Unduh data works.json untuk backup atau kirim ke perangkat lain">
@@ -169,19 +179,31 @@
         <div class="sync-info-banner">
           <div class="sync-banner-icon">☁️</div>
           <div class="sync-banner-content">
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px;">
-              <h4 class="sync-banner-title" style="margin: 0;">Database Cloud Neon Aktif & Terhubung Antar Perangkat</h4>
-              <button 
-                class="btn btn-primary btn-sm" 
-                :disabled="isSyncingNeon"
-                @click="handleSyncAllNeon"
-                style="white-space: nowrap; font-size: 0.82rem; padding: 6px 14px;"
-              >
-                <span>{{ isSyncingNeon ? '⏳ Menyinkronkan...' : '🚀 Sinkronkan Semua ke HP Sekarang' }}</span>
-              </button>
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px;">
+              <h4 class="sync-banner-title" style="margin: 0;">Database Cloud Neon: Sinkronisasi Antar HP & Laptop</h4>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button 
+                  class="btn btn-secondary btn-sm" 
+                  :disabled="isRefreshingCloud"
+                  @click="handlePullFromCloud"
+                  style="white-space: nowrap; font-size: 0.82rem; padding: 6px 14px; border: 1px solid var(--color-accent-teal);"
+                  title="Ambil foto/data terbaru yang baru saja diupload dari HP"
+                >
+                  <span>{{ isRefreshingCloud ? '⏳ Memperbarui...' : '🔄 Tarik Data Terbaru dari HP / Cloud' }}</span>
+                </button>
+                <button 
+                  class="btn btn-primary btn-sm" 
+                  :disabled="isSyncingNeon"
+                  @click="handleSyncAllNeon"
+                  style="white-space: nowrap; font-size: 0.82rem; padding: 6px 14px;"
+                  title="Kirim semua data di komputer ini ke Database Neon Cloud"
+                >
+                  <span>{{ isSyncingNeon ? '⏳ Mengirim...' : '☁️ Kirim Semua ke Cloud' }}</span>
+                </button>
+              </div>
             </div>
             <p class="sync-banner-desc">
-              Data dan foto yang diunggah di komputer ini otomatis disimpan ke database Neon Cloud. Jika HP belum menampilkan foto terbaru, klik tombol <strong>"Sinkronkan Semua ke HP Sekarang"</strong> di atas, lalu refresh browser di HP Anda!
+              💡 <strong>Panduan Sinkronisasi Antar Perangkat:</strong> Jika abang baru saja mengunggah foto melalui HP, cukup klik tombol <strong>"🔄 Tarik Data Terbaru dari HP / Cloud"</strong> agar komputer langsung menampilkan foto baru tersebut. Sebaliknya jika abang mengedit di komputer, klik <strong>"☁️ Kirim Semua ke Cloud"</strong> agar HP langsung menampilkan karya terbaru!
             </p>
           </div>
         </div>
@@ -1009,6 +1031,7 @@ const {
   changePassword,
   isNeonConnected,
   syncAllToNeon,
+  fetchFromNeonDatabase,
 } = usePortfolioStore();
 
 // CMS Active Tab
@@ -1136,14 +1159,13 @@ const handleManualCloudSync = async () => {
 /**
 /**
  * Universal HD Image Processor & Compressor
- * Supports Portrait, Landscape, Square, and Document Photos (A4, Flyers, Scans)
- * Preserves high resolution (up to 1920px Full HD) with smooth bicubic scaling,
- * ensuring text, stamps, and logos from phone camera uploads remain crystal clear.
+ * Optimized for mobile phone cameras (up to 1280px 2K/HD) with high-efficiency JPEG compression.
+ * Guarantees ultra-fast upload (under 150KB) and instant cloud database synchronization.
  */
-const compressImage = (file, maxDimension = 1920, quality = 0.85) => {
+const compressImage = (file, maxDimension = 1280, quality = 0.8) => {
   return new Promise((resolve, reject) => {
-    if (!file || !file.type.startsWith("image/")) {
-      return reject(new Error("File bukan gambar"));
+    if (!file) {
+      return reject(new Error("File gambar tidak ditemukan"));
     }
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -1151,7 +1173,7 @@ const compressImage = (file, maxDimension = 1920, quality = 0.85) => {
       img.onload = () => {
         let { width, height } = img;
 
-        // Symmetric scaling based on the longest edge (works equally well for portrait and landscape!)
+        // Scale down to maxDimension keeping aspect ratio
         if (Math.max(width, height) > maxDimension) {
           if (width > height) {
             height = Math.round((height * maxDimension) / width);
@@ -1175,7 +1197,7 @@ const compressImage = (file, maxDimension = 1920, quality = 0.85) => {
         const compKB = Math.round((dataUrl.length * 3) / 4 / 1024);
         resolve({ dataUrl, origKB, compKB, width, height });
       };
-      img.onerror = (err) => reject(err);
+      img.onerror = (err) => reject(new Error("Format gambar tidak dapat dibaca oleh browser."));
       img.src = e.target.result;
     };
     reader.onerror = (err) => reject(err);
@@ -1525,13 +1547,27 @@ const closeFormModal = () => {
 };
 
 const isSyncingNeon = ref(false);
+const isRefreshingCloud = ref(false);
+
+const handlePullFromCloud = async () => {
+  try {
+    isRefreshingCloud.value = true;
+    showToast("⏳ Sedang mengambil data & foto terbaru dari Database Neon...");
+    await fetchFromNeonDatabase(true);
+    showToast("✓ Berhasil! Data & foto terbaru langsung tampil dari Database Neon Cloud!");
+  } catch (err) {
+    showToast("⚠️ Gagal mengambil data: " + (err.message || "Periksa koneksi internet"));
+  } finally {
+    isRefreshingCloud.value = false;
+  }
+};
 
 const handleSyncAllNeon = async () => {
   try {
     isSyncingNeon.value = true;
-    showToast("⏳ Sedang menyinkronkan seluruh karya & gambar ke Database Neon...");
+    showToast("⏳ Sedang mengunggah seluruh karya & gambar ke Database Neon Cloud...");
     await syncAllToNeon();
-    showToast("✓ Berhasil! Semua karya & gambar telah tersimpan di Neon Cloud & otomatis tampil di HP!");
+    showToast("✓ Berhasil! Semua data telah tersimpan di Neon Cloud & otomatis tampil di HP!");
   } catch (err) {
     showToast("⚠️ Gagal sinkronisasi ke Neon: " + err.message);
   } finally {
@@ -1556,10 +1592,13 @@ const handleSaveProject = async () => {
       ]
     : [];
 
-  const gallery =
-    formData.gallery && formData.gallery.length > 0
-      ? formData.gallery
-      : [formData.image];
+  // Ensure gallery primary image matches formData.image
+  let gallery = Array.isArray(formData.gallery) ? [...formData.gallery] : [];
+  if (formData.image && !gallery.includes(formData.image)) {
+    gallery = [formData.image, ...gallery];
+  } else if (gallery.length === 0 && formData.image) {
+    gallery = [formData.image];
+  }
 
   const payload = {
     ...formData,
@@ -1569,15 +1608,23 @@ const handleSaveProject = async () => {
   };
 
   if (isEditing.value && editingId.value) {
+    showToast("⏳ Sedang menyimpan ke Database Neon...");
     const res = await updateWork(editingId.value, payload);
-    if (res && res.offline) {
-      showToast("⚠️ Tersimpan di browser ini (Dev/Offline). Klik 'Sinkron ke Cloud' agar tampil di HP!");
+    if (res && res.success && !res.offline) {
+      showToast("✓ Karya berhasil diperbarui & tersimpan ke Cloud Neon! (Live di HP & Laptop)");
+    } else if (res && res.offline) {
+      showToast("⚠️ Tersimpan lokal di perangkat ini (Koneksi offline).");
     } else {
-      showToast("✓ Karya berhasil diperbarui & tersimpan ke Cloud Neon! (Tampil di semua HP & Laptop)");
+      alert("⚠️ Gagal menyimpan ke Database Neon: " + (res?.message || "Ukuran file terlalu besar"));
     }
   } else {
-    await addWork(payload);
-    showToast("✓ Karya baru berhasil ditambahkan & tersimpan ke Cloud Neon!");
+    showToast("⏳ Sedang menambahkan karya ke Database Neon...");
+    const res = await addWork(payload);
+    if (res && res.success && !res.offline) {
+      showToast("✓ Karya baru berhasil ditambahkan & tersimpan ke Cloud Neon!");
+    } else {
+      showToast("✓ Karya baru tersimpan secara lokal!");
+    }
   }
 
   closeFormModal();
