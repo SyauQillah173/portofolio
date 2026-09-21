@@ -16,6 +16,11 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // Anti-cache headers to prevent mobile browsers from serving stale data
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -77,17 +82,79 @@ export default async function handler(req, res) {
         ORDER BY work_id ASC, id ASC
       `;
 
+      // Convert id to Number so frontend always receives consistent Numbers
+      const formattedWorks = rows.map(r => ({
+        ...r,
+        id: Number(r.id),
+      }));
+
       return res.status(200).json({
         connected: true,
-        count: rows.length,
-        works: rows,
+        count: formattedWorks.length,
+        works: formattedWorks,
       });
     }
 
-    // 3. POST: Add or Upsert a project
+    // 3. POST: Add, Upsert, or Batch Sync projects
     if (req.method === 'POST') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-      const workId = body.id || Date.now();
+
+      // Batch sync all works at once
+      if (body.action === 'sync_all' || Array.isArray(body.works)) {
+        const worksList = Array.isArray(body.works) ? body.works : [];
+        for (const item of worksList) {
+          const wId = Number(item.id) || Date.now();
+          const t = item.title || 'Untitled';
+          const c = item.category || 'web';
+          const img = item.image || '';
+          const d = item.description || '';
+          const fd = item.fullDescription || d;
+          const y = item.year || '';
+          const r = item.role || '';
+          const cl = item.client || '';
+          const ph = item.productionHouse || '';
+          const feat = Boolean(item.featured);
+          const techs = JSON.stringify(item.technologies || []);
+          const gal = JSON.stringify(item.gallery || (img ? [img] : []));
+          const ext = JSON.stringify(item.externalLinks || []);
+
+          await sql`
+            INSERT INTO portfolio_works (
+              work_id, title, category, image, description, full_description,
+              year, role, client_name, production_house, featured,
+              technologies, gallery, external_links, updated_at
+            ) VALUES (
+              ${wId}, ${t}, ${c}, ${img}, ${d}, ${fd},
+              ${y}, ${r}, ${cl}, ${ph}, ${feat},
+              ${techs}::jsonb, ${gal}::jsonb, ${ext}::jsonb, CURRENT_TIMESTAMP
+            )
+            ON CONFLICT (work_id) DO UPDATE SET
+              title = EXCLUDED.title,
+              category = EXCLUDED.category,
+              image = EXCLUDED.image,
+              description = EXCLUDED.description,
+              full_description = EXCLUDED.full_description,
+              year = EXCLUDED.year,
+              role = EXCLUDED.role,
+              client_name = EXCLUDED.client_name,
+              production_house = EXCLUDED.production_house,
+              featured = EXCLUDED.featured,
+              technologies = EXCLUDED.technologies,
+              gallery = EXCLUDED.gallery,
+              external_links = EXCLUDED.external_links,
+              updated_at = CURRENT_TIMESTAMP;
+          `;
+        }
+
+        return res.status(200).json({
+          success: true,
+          count: worksList.length,
+          message: `Berhasil menyinkronkan ${worksList.length} karya ke database Neon!`,
+        });
+      }
+
+      // Single item upsert
+      const workId = Number(body.id) || Date.now();
       const title = body.title || 'Untitled';
       const category = body.category || 'web';
       const image = body.image || '';
@@ -137,11 +204,11 @@ export default async function handler(req, res) {
       });
     }
 
-    // 4. PUT: Update an existing project
+    // 4. PUT: Update or Upsert an existing project
     if (req.method === 'PUT') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-      const workId = body.id;
-      if (!workId) {
+      const workId = body.id !== undefined && body.id !== null ? Number(body.id) : null;
+      if (workId === null || isNaN(workId)) {
         return res.status(400).json({ error: 'ID karya diperlukan untuk update' });
       }
 
@@ -159,28 +226,38 @@ export default async function handler(req, res) {
       const gallery = JSON.stringify(body.gallery || (image ? [image] : []));
       const externalLinks = JSON.stringify(body.externalLinks || []);
 
-      await sql`
-        UPDATE portfolio_works SET
-          title = ${title},
-          category = ${category},
-          image = ${image},
-          description = ${description},
-          full_description = ${fullDescription},
-          year = ${year},
-          role = ${role},
-          client_name = ${clientName},
-          production_house = ${productionHouse},
-          featured = ${featured},
-          technologies = ${technologies}::jsonb,
-          gallery = ${gallery}::jsonb,
-          external_links = ${externalLinks}::jsonb,
+      const result = await sql`
+        INSERT INTO portfolio_works (
+          work_id, title, category, image, description, full_description,
+          year, role, client_name, production_house, featured,
+          technologies, gallery, external_links, updated_at
+        ) VALUES (
+          ${workId}, ${title}, ${category}, ${image}, ${description}, ${fullDescription},
+          ${year}, ${role}, ${clientName}, ${productionHouse}, ${featured},
+          ${technologies}::jsonb, ${gallery}::jsonb, ${externalLinks}::jsonb, CURRENT_TIMESTAMP
+        )
+        ON CONFLICT (work_id) DO UPDATE SET
+          title = EXCLUDED.title,
+          category = EXCLUDED.category,
+          image = EXCLUDED.image,
+          description = EXCLUDED.description,
+          full_description = EXCLUDED.full_description,
+          year = EXCLUDED.year,
+          role = EXCLUDED.role,
+          client_name = EXCLUDED.client_name,
+          production_house = EXCLUDED.production_house,
+          featured = EXCLUDED.featured,
+          technologies = EXCLUDED.technologies,
+          gallery = EXCLUDED.gallery,
+          external_links = EXCLUDED.external_links,
           updated_at = CURRENT_TIMESTAMP
-        WHERE work_id = ${workId}
+        RETURNING work_id as id, title;
       `;
 
       return res.status(200).json({
         success: true,
         message: 'Karya berhasil diperbarui di Neon Postgres!',
+        work: result[0],
       });
     }
 

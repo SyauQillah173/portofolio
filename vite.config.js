@@ -13,6 +13,13 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
+    proxy: {
+      '/api': {
+        target: 'https://portofolio-ecru-alpha.vercel.app',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
   build: {
     // Don't inline large images - keep them as separate files for quality

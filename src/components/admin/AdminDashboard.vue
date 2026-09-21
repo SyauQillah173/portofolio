@@ -41,6 +41,16 @@
             <span class="btn-label">Lihat Web Publik</span>
           </button>
 
+          <button 
+            class="btn btn-primary btn-sm sync-neon-btn" 
+            :disabled="isSyncingNeon"
+            @click="handleSyncAllNeon" 
+            title="Kirim dan sinkronkan semua foto di komputer langsung ke Database Neon Cloud (Tampil di HP)"
+          >
+            <span class="action-icon">☁️</span>
+            <span class="btn-label">{{ isSyncingNeon ? 'Menyinkronkan...' : 'Sinkron ke Cloud (HP)' }}</span>
+          </button>
+
           <button class="btn btn-secondary btn-sm" @click="handleDownloadBackup" title="Unduh data works.json untuk backup atau kirim ke perangkat lain">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="action-icon">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
@@ -157,11 +167,21 @@
 
         <!-- Sync & Multi-Device Persistence Info Banner -->
         <div class="sync-info-banner">
-          <div class="sync-banner-icon">💡</div>
+          <div class="sync-banner-icon">☁️</div>
           <div class="sync-banner-content">
-            <h4 class="sync-banner-title">Cara Agar Upload Tampil Permanen di HP & Semua Perangkat:</h4>
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px;">
+              <h4 class="sync-banner-title" style="margin: 0;">Database Cloud Neon Aktif & Terhubung Antar Perangkat</h4>
+              <button 
+                class="btn btn-primary btn-sm" 
+                :disabled="isSyncingNeon"
+                @click="handleSyncAllNeon"
+                style="white-space: nowrap; font-size: 0.82rem; padding: 6px 14px;"
+              >
+                <span>{{ isSyncingNeon ? '⏳ Menyinkronkan...' : '🚀 Sinkronkan Semua ke HP Sekarang' }}</span>
+              </button>
+            </div>
             <p class="sync-banner-desc">
-              Karya baru otomatis aktif di perangkat ini. Untuk menyinkronkan antar Laptop & HP: klik <strong>"Backup Data"</strong> (file JSON terunduh), lalu klik <strong>"Impor Data"</strong> di HP Anda. File JSON tersebut juga bisa langsung di-commit ke GitHub agar tersimpan permanen di Vercel selamanya!
+              Data dan foto yang diunggah di komputer ini otomatis disimpan ke database Neon Cloud. Jika HP belum menampilkan foto terbaru, klik tombol <strong>"Sinkronkan Semua ke HP Sekarang"</strong> di atas, lalu refresh browser di HP Anda!
             </p>
           </div>
         </div>
@@ -1504,7 +1524,22 @@ const closeFormModal = () => {
   showFormModal.value = false;
 };
 
-const handleSaveProject = () => {
+const isSyncingNeon = ref(false);
+
+const handleSyncAllNeon = async () => {
+  try {
+    isSyncingNeon.value = true;
+    showToast("⏳ Sedang menyinkronkan seluruh karya & gambar ke Database Neon...");
+    await syncAllToNeon();
+    showToast("✓ Berhasil! Semua karya & gambar telah tersimpan di Neon Cloud & otomatis tampil di HP!");
+  } catch (err) {
+    showToast("⚠️ Gagal sinkronisasi ke Neon: " + err.message);
+  } finally {
+    isSyncingNeon.value = false;
+  }
+};
+
+const handleSaveProject = async () => {
   if (!formData.image) {
     alert("Mohon pilih atau masukkan foto thumbnail utama terlebih dahulu.");
     return;
@@ -1534,11 +1569,15 @@ const handleSaveProject = () => {
   };
 
   if (isEditing.value && editingId.value) {
-    updateWork(editingId.value, payload);
-    showToast("✓ Karya berhasil diperbarui! Langsung live di publik.");
+    const res = await updateWork(editingId.value, payload);
+    if (res && res.offline) {
+      showToast("⚠️ Tersimpan di browser ini (Dev/Offline). Klik 'Sinkron ke Cloud' agar tampil di HP!");
+    } else {
+      showToast("✓ Karya berhasil diperbarui & tersimpan ke Cloud Neon! (Tampil di semua HP & Laptop)");
+    }
   } else {
-    addWork(payload);
-    showToast("✓ Karya baru berhasil ditambahkan! Langsung live di publik.");
+    await addWork(payload);
+    showToast("✓ Karya baru berhasil ditambahkan & tersimpan ke Cloud Neon!");
   }
 
   closeFormModal();

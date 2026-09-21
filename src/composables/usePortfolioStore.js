@@ -131,23 +131,37 @@ const isSyncing = ref(false);
  */
 async function fetchFromNeonDatabase() {
   try {
-    // 1. Fetch works
-    const worksRes = await fetch('/api/works');
+    const timestamp = Date.now();
+
+    // 1. Fetch works with cache-busting
+    const worksRes = await fetch(`/api/works?t=${timestamp}`, { cache: 'no-store' });
     if (worksRes.ok) {
       const data = await worksRes.json();
       if (data && data.connected) {
         isNeonConnected.value = true;
         if (Array.isArray(data.works) && data.works.length > 0) {
-          works.value = data.works;
-          saveToStorage(STORAGE_KEYS.WORKS, works.value);
+          const remoteWorks = data.works.map(w => ({ ...w, id: Number(w.id) }));
+          
+          // Smart Sync: If local has custom uploaded images (base64) that Neon doesn't have yet,
+          // automatically push local works to Neon so all other devices (HP, tablet) get them!
+          const localCustomImagesCount = works.value.filter(w => typeof w.image === 'string' && w.image.startsWith('data:image/')).length;
+          const remoteCustomImagesCount = remoteWorks.filter(w => typeof w.image === 'string' && w.image.startsWith('data:image/')).length;
+
+          if (localCustomImagesCount > remoteCustomImagesCount) {
+            console.log(`Detected ${localCustomImagesCount} local custom images vs ${remoteCustomImagesCount} in Neon. Auto-syncing to Neon database...`);
+            await syncAllToNeon();
+          } else {
+            works.value = remoteWorks;
+            saveToStorage(STORAGE_KEYS.WORKS, works.value);
+          }
         } else if (Array.isArray(data.works) && data.works.length === 0) {
-          syncAllToNeon();
+          await syncAllToNeon();
         }
       }
     }
 
-    // 2. Fetch CMS settings (Profile, Skills, Experiences)
-    const cmsRes = await fetch('/api/cms');
+    // 2. Fetch CMS settings (Profile, Skills, Experiences) with cache-busting
+    const cmsRes = await fetch(`/api/cms?t=${timestamp}`, { cache: 'no-store' });
     if (cmsRes.ok) {
       const cmsData = await cmsRes.json();
       if (cmsData && cmsData.connected && cmsData.settings) {
@@ -157,7 +171,7 @@ async function fetchFromNeonDatabase() {
           saveToStorage(STORAGE_KEYS.PROFILE, profile.value);
         }
         if (cmsData.settings.skills && Array.isArray(cmsData.settings.skills) && cmsData.settings.skills.length > 0) {
-          skills.value = cmsData.settings.skills;
+          skills.value = cmsData.settings.skills.map(s => ({ ...s, id: Number(s.id) || s.id }));
           saveToStorage(STORAGE_KEYS.SKILLS, skills.value);
         }
         if (cmsData.settings.experiences) {
@@ -176,19 +190,22 @@ async function syncAllToNeon() {
   isSyncing.value = true;
   try {
     if (works.value.length > 0) {
-      for (const work of works.value) {
-        await fetch('/api/works', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(work),
-        });
-      }
+      // Use single-request batch sync endpoint
+      await fetch('/api/works', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'sync_all',
+          works: works.value,
+        }),
+      });
     }
     await syncCmsSectionToNeon('profile', profile.value);
     await syncCmsSectionToNeon('skills', skills.value);
     await syncCmsSectionToNeon('experiences', experiences.value);
     isNeonConnected.value = true;
     console.log('✓ All portfolio works & CMS synchronized with Neon Postgres!');
+    return { success: true, count: works.value.length };
   } catch (e) {
     console.warn('Error syncing works to Neon:', e);
     throw e;
@@ -431,13 +448,13 @@ export function usePortfolioStore() {
   };
 
   const updateSkill = (id, skillData) => {
-    const index = skills.value.findIndex(s => s.id === id);
+    const index = skills.value.findIndex(s => String(s.id) === String(id));
     if (index === -1) return false;
 
     skills.value[index] = {
       ...skills.value[index],
       ...skillData,
-      id,
+      id: Number(id) || id,
     };
     saveToStorage(STORAGE_KEYS.SKILLS, skills.value);
     syncCmsSectionToNeon('skills', skills.value);
@@ -445,7 +462,7 @@ export function usePortfolioStore() {
   };
 
   const deleteSkill = (id) => {
-    const index = skills.value.findIndex(s => s.id === id);
+    const index = skills.value.findIndex(s => String(s.id) === String(id));
     if (index === -1) return false;
     skills.value.splice(index, 1);
     saveToStorage(STORAGE_KEYS.SKILLS, skills.value);
@@ -475,13 +492,13 @@ export function usePortfolioStore() {
 
   const updateExperience = (type, id, itemData) => {
     if (!experiences.value[type]) return false;
-    const index = experiences.value[type].findIndex(i => i.id === id);
+    const index = experiences.value[type].findIndex(i => String(i.id) === String(id));
     if (index === -1) return false;
 
     experiences.value[type][index] = {
       ...experiences.value[type][index],
       ...itemData,
-      id,
+      id: Number(id) || id,
     };
     saveToStorage(STORAGE_KEYS.EXPERIENCE, experiences.value);
     syncCmsSectionToNeon('experiences', experiences.value);
@@ -490,7 +507,7 @@ export function usePortfolioStore() {
 
   const deleteExperience = (type, id) => {
     if (!experiences.value[type]) return false;
-    const index = experiences.value[type].findIndex(i => i.id === id);
+    const index = experiences.value[type].findIndex(i => String(i.id) === String(id));
     if (index === -1) return false;
 
     experiences.value[type].splice(index, 1);
@@ -502,7 +519,7 @@ export function usePortfolioStore() {
   /**
    * WORKS CMS Methods
    */
-  const addWork = (workData) => {
+  const addWork = async (workData) => {
     const nextId = works.value.length > 0 
       ? Math.max(...works.value.map(w => Number(w.id) || 0)) + 1 
       : 1;
@@ -531,18 +548,30 @@ export function usePortfolioStore() {
     works.value.unshift(newWork);
     saveToStorage(STORAGE_KEYS.WORKS, works.value);
 
-    fetch('/api/works', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newWork),
-    }).catch(e => console.warn('Neon sync pending:', e.message));
+    try {
+      const res = await fetch('/api/works', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newWork),
+      });
+      if (res.ok) {
+        isNeonConnected.value = true;
+        return { success: true, work: newWork };
+      }
+    } catch (e) {
+      console.warn('Neon sync pending:', e.message);
+    }
 
-    return newWork;
+    return { success: true, offline: true, work: newWork };
   };
 
-  const updateWork = (id, updatedData) => {
-    const index = works.value.findIndex(w => w.id === id);
-    if (index === -1) return false;
+  const updateWork = async (id, updatedData) => {
+    const numericId = Number(id);
+    const index = works.value.findIndex(w => Number(w.id) === numericId || String(w.id) === String(id));
+    if (index === -1) {
+      console.warn(`Work #${id} not found`);
+      return { success: false, message: 'Karya tidak ditemukan' };
+    }
 
     const current = works.value[index];
     const technologies = Array.isArray(updatedData.technologies)
@@ -551,33 +580,50 @@ export function usePortfolioStore() {
         ? updatedData.technologies.split(",").map(t => t.trim()).filter(Boolean)
         : current.technologies;
 
-    works.value[index] = {
+    const updatedItem = {
       ...current,
       ...updatedData,
-      id,
+      id: numericId,
       technologies,
     };
 
+    works.value[index] = updatedItem;
     saveToStorage(STORAGE_KEYS.WORKS, works.value);
 
-    fetch('/api/works', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(works.value[index]),
-    }).catch(e => console.warn('Neon update pending:', e.message));
-
-    return works.value[index];
+    try {
+      const res = await fetch('/api/works', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedItem),
+      });
+      if (res.ok) {
+        isNeonConnected.value = true;
+        return { success: true, message: 'Tersimpan ke Neon Postgres!' };
+      } else {
+        const err = await res.json().catch(() => ({}));
+        console.warn('Neon PUT error:', err);
+        return { success: false, message: err.error || 'Gagal menyimpan ke server' };
+      }
+    } catch (e) {
+      console.warn('Neon update pending:', e.message);
+      return { success: true, offline: true, message: 'Tersimpan lokal di browser' };
+    }
   };
 
-  const deleteWork = (id) => {
-    const index = works.value.findIndex(w => w.id === id);
+  const deleteWork = async (id) => {
+    const numericId = Number(id);
+    const index = works.value.findIndex(w => Number(w.id) === numericId || String(w.id) === String(id));
     if (index === -1) return false;
     works.value.splice(index, 1);
     saveToStorage(STORAGE_KEYS.WORKS, works.value);
 
-    fetch(`/api/works?id=${id}`, {
-      method: 'DELETE',
-    }).catch(e => console.warn('Neon delete pending:', e.message));
+    try {
+      await fetch(`/api/works?id=${numericId}`, {
+        method: 'DELETE',
+      });
+    } catch (e) {
+      console.warn('Neon delete pending:', e.message);
+    }
 
     return true;
   };
