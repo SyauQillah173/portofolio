@@ -141,7 +141,9 @@ async function fetchFromNeonDatabase(force = false) {
       if (data && data.connected) {
         isNeonConnected.value = true;
         if (Array.isArray(data.works) && data.works.length > 0) {
-          const remoteWorks = data.works.map(w => ({ ...w, id: Number(w.id) }));
+          const remoteWorks = data.works
+            .map(w => ({ ...w, id: Number(w.id) }))
+            .sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
           
           if (force) {
             works.value = remoteWorks;
@@ -306,14 +308,20 @@ function initStore() {
   // Background fetch from Neon
   fetchFromNeonDatabase();
 
-  // Auto-sync when switching back to this browser tab (from HP to PC or vice versa)
+  // Auto-sync when switching back to this browser tab (debounced to avoid race conditions with file pickers)
   if (typeof window !== "undefined") {
-    window.addEventListener("focus", () => {
-      fetchFromNeonDatabase(true);
-    });
+    let focusTimer = null;
+    const triggerDebouncedSync = () => {
+      clearTimeout(focusTimer);
+      focusTimer = setTimeout(() => {
+        fetchFromNeonDatabase(true);
+      }, 600);
+    };
+
+    window.addEventListener("focus", triggerDebouncedSync);
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
-        fetchFromNeonDatabase(true);
+        triggerDebouncedSync();
       }
     });
   }
@@ -574,6 +582,13 @@ export function usePortfolioStore() {
       if (res.ok) {
         isNeonConnected.value = true;
         return { success: true, work: newWork };
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        console.warn('Neon POST error:', errorData);
+        return { 
+          success: false, 
+          message: errorData.error || errorData.message || `Server menolak request (Status: ${res.status})` 
+        };
       }
     } catch (e) {
       console.warn('Neon sync pending:', e.message);

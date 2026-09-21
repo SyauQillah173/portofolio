@@ -352,20 +352,15 @@
 .delay-700 { animation-delay: 700ms; }
 .delay-800 { animation-delay: 800ms; }
 
-/* Scroll animation states - Fast, snappy, and lightweight */
+/* Scroll animation states - Always visible to guarantee NO blank text on fast scroll */
 .scroll-animate {
-  opacity: 0;
-  transform: translateY(14px);
-  transition: 
-    opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  opacity: 1;
+  transform: none;
 }
 
 .scroll-animate.is-visible {
   opacity: 1;
-  transform: translateY(0);
-  will-change: auto;
+  transform: none;
 }
 
 /* Micro stagger animations for multiple items */

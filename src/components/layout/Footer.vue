@@ -89,7 +89,7 @@
       <!-- Footer Bottom -->
       <div class="footer-bottom">
         <p class="footer-copyright">
-          &copy; {{ currentYear }} Portfolio By Abdullah Syauqillah
+          &copy; {{ currentYear }} Portofolio By Abdullah Syauqillah
         </p>
         <div class="footer-bottom-links">
           <a href="#admin" class="footer-admin-link">

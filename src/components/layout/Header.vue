@@ -13,7 +13,7 @@
         class="header-logo"
         @click.prevent="scrollToSection('home')"
       >
-        <span class="logo-text">Portfolio</span>
+        <span class="logo-text">Portofolio</span>
         <span class="logo-accent">.</span>
       </a>
 

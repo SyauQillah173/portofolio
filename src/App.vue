@@ -405,33 +405,27 @@ onMounted(() => {
     observeAll(elements);
   }, 100);
 
-  // Setup intersection observer for stats animation (re-animate each time visible)
+  // Setup intersection observer for stats animation (animate once and retain numbers smoothly)
   if (typeof IntersectionObserver !== "undefined") {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Reset values and re-animate each time it comes into view
-            hasAnimatedStats.value = false;
-            stats.forEach((stat) => {
-              stat.currentValue = 0;
-            });
-            setTimeout(() => {
-              animateStats();
-            }, 150);
+          if (entry.isIntersecting && !hasAnimatedStats.value) {
+            hasAnimatedStats.value = true;
+            animateStats();
+            observer.disconnect();
           }
         });
       },
-      { threshold: 0.4 }
+      { threshold: 0.1, rootMargin: "0px 0px 150px 0px" }
     );
 
-    // Observe the stats section (don't disconnect to allow re-animation)
     setTimeout(() => {
       const statsElement = document.querySelector(".about-stats");
       if (statsElement) {
         observer.observe(statsElement);
       }
-    }, 200);
+    }, 100);
   }
 });
 
@@ -863,19 +857,15 @@ onUnmounted(() => {
   font-size: var(--font-size-sm);
 }
 
-/* Scroll animation states - Fast & lightweight */
+/* Scroll animation states - Always visible to guarantee NO blank text on fast scroll */
 .scroll-animate {
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  opacity: 1;
+  transform: none;
 }
 
 .scroll-animate.is-visible {
   opacity: 1;
-  transform: translateY(0);
-  will-change: auto;
+  transform: none;
 }
 
 .delay-200 {

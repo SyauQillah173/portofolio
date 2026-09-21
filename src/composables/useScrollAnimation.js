@@ -17,12 +17,12 @@ import { onMounted, onUnmounted, ref } from "vue";
  * @returns {Object} Observer ref and control methods
  */
 export function useScrollAnimation(options = {}) {
-  // Configuration with fast, proactive defaults
+  // Configuration with instant, proactive defaults to prevent blank text on fast scroll
   const config = {
-    threshold: options.threshold ?? 0.01,
-    rootMargin: options.rootMargin ?? "0px 0px 250px 0px", // Trigger 250px before viewport to eliminate blank delays
+    threshold: options.threshold ?? 0,
+    rootMargin: options.rootMargin ?? "600px 0px 600px 0px", // Pre-trigger 600px ahead
     once: options.once ?? true,
-    staggerDelay: options.staggerDelay ?? 30, // Micro delay instead of slow 100ms
+    staggerDelay: options.staggerDelay ?? 0,
   };
 
   // Refs
@@ -40,30 +40,14 @@ export function useScrollAnimation(options = {}) {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const element = entry.target;
-        const delay = element.dataset.stagger
-          ? Math.min(parseInt(element.dataset.stagger, 10) * config.staggerDelay, 120)
-          : 0;
-
-        if (delay > 0) {
-          setTimeout(() => {
-            element.classList.add("is-visible");
-            element.classList.remove("is-hidden");
-          }, delay);
-        } else {
-          // Instant activation without waiting next tick
-          element.classList.add("is-visible");
-          element.classList.remove("is-hidden");
-        }
+        element.classList.add("is-visible");
+        element.classList.remove("is-hidden");
 
         // Unobserve if animating only once
         if (config.once && observer) {
           observer.unobserve(element);
           observedElements.value.delete(element);
         }
-      } else if (!config.once) {
-        // Reset animation if not once-only
-        entry.target.classList.remove("is-visible");
-        entry.target.classList.add("is-hidden");
       }
     });
   };

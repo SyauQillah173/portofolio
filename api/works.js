@@ -79,7 +79,7 @@ export default async function handler(req, res) {
           gallery,
           external_links as "externalLinks"
         FROM portfolio_works
-        ORDER BY work_id ASC, id ASC
+        ORDER BY work_id DESC, id DESC
       `;
 
       // Convert id to Number so frontend always receives consistent Numbers

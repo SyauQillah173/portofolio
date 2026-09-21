@@ -3,7 +3,7 @@
     <div class="container">
       <!-- Section Header -->
       <div class="section-header scroll-animate">
-        <span class="section-badge">Portfolio</span>
+        <span class="section-badge">Portofolio</span>
         <h2 class="section-title">
           Hasil Kerja <span class="section-accent">Saya</span>
         </h2>
@@ -586,19 +586,15 @@ onMounted(() => {
   transform: translate(3px, -3px);
 }
 
-/* Scroll animation - Fast & lightweight */
+/* Scroll animation - Always visible fallback to prevent blank text on fast scroll */
 .scroll-animate {
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  opacity: 1;
+  transform: none;
 }
 
 .scroll-animate.is-visible {
   opacity: 1;
-  transform: translateY(0);
-  will-change: auto;
+  transform: none;
 }
 
 /* Responsive - Mobile Small (320px-374px) */

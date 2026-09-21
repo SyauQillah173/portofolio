@@ -5,7 +5,7 @@
       <div class="admin-header-container">
         <div class="admin-brand">
           <a href="#home" class="brand-logo" @click.prevent="$emit('view-public')">
-            <span class="logo-text">Portfolio</span>
+            <span class="logo-text">Portofolio</span>
             <span class="logo-accent">.</span>
             <span class="admin-pill">Admin CMS</span>
           </a>
@@ -1659,8 +1659,10 @@ const handleSaveProject = async () => {
     const res = await addWork(payload);
     if (res && res.success && !res.offline) {
       showToast("✓ Karya baru berhasil ditambahkan & tersimpan ke Cloud Neon!");
+    } else if (res && res.offline) {
+      showToast("✓ Karya baru tersimpan secara lokal (offline)!");
     } else {
-      showToast("✓ Karya baru tersimpan secara lokal!");
+      alert("⚠️ Gagal menyimpan ke Database Neon: " + (res?.message || "Ukuran file terlalu besar"));
     }
   }
 

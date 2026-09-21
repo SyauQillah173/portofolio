@@ -329,19 +329,15 @@ onMounted(() => {
   color: var(--color-success);
 }
 
-/* Scroll animation - Fast & lightweight */
+/* Scroll animation - Always visible to guarantee NO blank text on fast scroll */
 .scroll-animate {
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  opacity: 1;
+  transform: none;
 }
 
 .scroll-animate.is-visible {
   opacity: 1;
-  transform: translateY(0);
-  will-change: auto;
+  transform: none;
 }
 
 /* Stagger delays */
