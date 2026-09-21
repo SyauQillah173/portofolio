@@ -24,29 +24,38 @@
         <!-- Avatar Uploader -->
         <div class="avatar-uploader-box">
           <div class="avatar-preview-wrap">
-            <img :src="form.avatar || defaultAvatar" alt="Foto Profil" class="avatar-preview-img" @error="handleAvatarError" />
+            <div class="avatar-circle-frame">
+              <img :src="form.avatar || defaultAvatar" alt="Foto Profil" class="avatar-preview-img" @error="handleAvatarError" />
+            </div>
+            <!-- Floating Tanda Silang - Bulat Sempurna & Tidak Terpotong Masking -->
             <button
               v-if="form.avatar"
               type="button"
               class="avatar-del-quick-btn"
-              @click="form.avatar = ''"
-              title="Hapus foto profil (✕)"
+              @click="clearAvatar"
+              title="Hapus foto profil saat ini (✕)"
+              aria-label="Hapus foto profil"
             >
               ✕
             </button>
           </div>
           <div class="avatar-controls">
-            <label class="form-label">Foto Profil (Avatar Hero)</label>
+            <div class="avatar-controls-top">
+              <label class="form-label avatar-label">Foto Profil (Avatar Hero)</label>
+              <span v-if="form.avatar" class="avatar-active-badge">✓ Foto Kustom Aktif</span>
+            </div>
             <div class="avatar-btn-group">
-              <button type="button" class="btn btn-secondary btn-sm" @click="triggerAvatarFile">
-                📁 Upload dari Perangkat / Galeri HP
+              <button type="button" class="btn btn-primary btn-sm avatar-upload-btn" @click="triggerAvatarFile">
+                📁 Upload dari Galeri HP / PC
               </button>
-              <button type="button" class="btn btn-ghost btn-sm" @click="resetToDefaultPhoto">
-                Kembalikan Foto Awal
-              </button>
-              <button v-if="form.avatar" type="button" class="btn btn-danger-ghost btn-sm" @click="form.avatar = ''">
-                ✕ Hapus Foto
-              </button>
+              <div class="avatar-secondary-row">
+                <button type="button" class="btn-secondary-sub" @click="resetToDefaultPhoto" title="Kembalikan ke foto bawaan">
+                  ↺ Kembalikan Foto Awal
+                </button>
+                <button v-if="form.avatar" type="button" class="btn-danger-sub" @click="clearAvatar" title="Hapus foto profil saat ini">
+                  🗑️ Hapus Foto
+                </button>
+              </div>
             </div>
             <input
               ref="avatarFileRef"
@@ -55,12 +64,15 @@
               style="display: none"
               @change="handleAvatarFileChange"
             />
-            <input
-              type="text"
-              v-model="form.avatar"
-              class="form-input form-input-sm mt-2"
-              placeholder="Atau tempel URL gambar langsung (https://...)"
-            />
+            <div class="avatar-url-wrapper">
+              <label class="avatar-url-helper">Atau gunakan URL link gambar:</label>
+              <input
+                type="text"
+                v-model="form.avatar"
+                class="form-input form-input-sm"
+                placeholder="https://... atau /images/profile.jpg"
+              />
+            </div>
           </div>
         </div>
 
@@ -242,25 +254,80 @@ const loadProfileIntoForm = () => {
 loadProfileIntoForm();
 watch(profile, () => loadProfileIntoForm(), { deep: true });
 
-// Avatar handling
+// Avatar handling & compression
 const triggerAvatarFile = () => {
   if (avatarFileRef.value) avatarFileRef.value.click();
 };
 
-const handleAvatarFileChange = (e) => {
+const compressAvatarImage = (file) => {
+  return new Promise((resolve, reject) => {
+    if (file.type === "image/svg+xml" || file.type === "image/gif") {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const maxDim = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+        resolve(dataUrl);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+const handleAvatarFileChange = async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    form.avatar = event.target.result;
-    emit("toast", "✓ Foto profil berhasil dimuat! Klik 'Simpan' untuk menerapkan ke Neon cloud.");
-  };
-  reader.readAsDataURL(file);
+  try {
+    const compressed = await compressAvatarImage(file);
+    form.avatar = compressed;
+    emit("toast", "✓ Foto profil berhasil dimuat & dioptimalkan! Klik 'Simpan Perubahan Profil' untuk simpan ke cloud.");
+  } catch (err) {
+    console.error("Gagal memproses foto profil:", err);
+    emit("toast", "⚠️ Gagal memproses file foto.");
+  }
+};
+
+const clearAvatar = () => {
+  form.avatar = "";
+  if (avatarFileRef.value) avatarFileRef.value.value = "";
+  emit("toast", "✓ Foto profil dikosongkan. Klik 'Simpan' untuk terapkan.");
 };
 
 const resetToDefaultPhoto = () => {
   form.avatar = defaultAvatar;
+  if (avatarFileRef.value) avatarFileRef.value.value = "";
   emit("toast", "✓ Foto profil dikembalikan ke foto awal!");
 };
 
@@ -368,47 +435,36 @@ const saveProfile = async () => {
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  padding: var(--space-md);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.avatar-uploader-box:hover {
+  border-color: rgba(31, 159, 216, 0.25);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .avatar-preview-wrap {
-  width: 90px;
-  height: 90px;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  border: 3px solid var(--color-primary);
-  flex-shrink: 0;
-  box-shadow: 0 0 20px rgba(31, 159, 216, 0.3);
   position: relative;
-}
-
-.avatar-del-quick-btn {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #ef4444;
-  color: #ffffff;
-  border: 1.5px solid #ffffff;
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-  z-index: 10;
-  transition: transform 0.15s ease;
 }
 
-.avatar-del-quick-btn:hover {
-  background: #dc2626;
-  transform: scale(1.15);
+.avatar-circle-frame {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--color-primary);
+  box-shadow: 0 0 20px rgba(31, 159, 216, 0.35);
+  background: #0f172a;
 }
 
 .avatar-preview-img {
@@ -416,18 +472,149 @@ const saveProfile = async () => {
   height: 100%;
   object-fit: cover;
   object-position: center 20%;
+  display: block;
+}
+
+/* Floating Clean Delete Badge (Tanda Silang - Bulat Sempurna & Tidak Terpotong) */
+.avatar-del-quick-btn {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #ffffff;
+  border: 2.5px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+  z-index: 20;
+  transition: transform 0.15s ease, background 0.15s ease;
+  padding: 0;
+}
+
+.avatar-del-quick-btn:hover {
+  background: #dc2626;
+  transform: scale(1.15);
+}
+
+.avatar-del-quick-btn:active {
+  transform: scale(0.92);
 }
 
 .avatar-controls {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.avatar-controls-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.avatar-label {
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+.avatar-active-badge {
+  font-size: 11px;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 600;
 }
 
 .avatar-btn-group {
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 4px;
+}
+
+.avatar-upload-btn {
+  width: 100%;
+  justify-content: center;
+  font-weight: 600;
+  padding: 8px 14px;
+}
+
+.avatar-secondary-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.btn-secondary-sub {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-text-light);
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-secondary-sub:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.btn-danger-sub {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-danger-sub:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.avatar-url-wrapper {
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.avatar-url-helper {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 500;
 }
 
 /* Form Styles */
@@ -518,14 +705,61 @@ const saveProfile = async () => {
     flex-direction: column;
     text-align: center;
     align-items: center;
-    gap: var(--space-md);
+    gap: 16px;
+    padding: 18px 14px;
   }
 
-  .avatar-btn-group {
+  .avatar-controls {
+    width: 100%;
+  }
+
+  .avatar-controls-top {
     justify-content: center;
   }
 
-  .avatar-btn-group .btn {
+  .avatar-url-wrapper {
+    text-align: left;
+  }
+
+  .avatar-preview-wrap {
+    width: 104px;
+    height: 104px;
+  }
+
+  .avatar-del-quick-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    top: -4px;
+    right: -4px;
+  }
+
+  .avatar-secondary-row {
+    flex-direction: row;
+  }
+
+  .avatar-secondary-row .btn-secondary-sub,
+  .avatar-secondary-row .btn-danger-sub {
+    flex: 1;
+    min-height: 38px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-secondary-row {
+    flex-direction: column;
+  }
+  .avatar-secondary-row .btn-secondary-sub,
+  .avatar-secondary-row .btn-danger-sub {
+    width: 100%;
+    justify-content: center;
+  }
+  .chip-input-row {
+    flex-direction: column;
+  }
+  .chip-input-row .btn {
     width: 100%;
     justify-content: center;
   }
