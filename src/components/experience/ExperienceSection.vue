@@ -250,6 +250,42 @@ onMounted(() => {
   pointer-events: none;
 }
 
+/* Section Header - Consistent Center Alignment */
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+}
+
+.section-badge {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-md);
+  background: rgba(31, 159, 216, 0.15);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-md);
+  letter-spacing: 0.05em;
+}
+
+.section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-light);
+  margin-bottom: var(--space-sm);
+}
+
+.section-accent {
+  color: var(--color-primary);
+}
+
+.section-subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  max-width: 650px;
+  margin: 0 auto;
+}
+
 /* Tabs */
 .exp-tabs {
   display: flex;
