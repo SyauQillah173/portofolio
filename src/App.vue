@@ -253,7 +253,7 @@
  * Main application component that composes all sections.
  */
 
-import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import AdminDashboard from "./components/admin/AdminDashboard.vue";
 import AdminLogin from "./components/admin/AdminLogin.vue";
 import ExperienceSection from "./components/experience/ExperienceSection.vue";
@@ -265,8 +265,8 @@ import SkillsSection from "./components/skills/SkillsSection.vue";
 import { usePortfolioStore } from "./composables/usePortfolioStore";
 import { useScrollAnimation } from "./composables/useScrollAnimation";
 
-// Portfolio store & view state
-const { isAuthenticated, profile } = usePortfolioStore();
+// Portfolio store & view state (Realtime Dynamic CMS Data)
+const { isAuthenticated, profile, works, skills, experiences } = usePortfolioStore();
 const currentView = ref("public"); // 'public' | 'admin'
 
 // Dynamic About Paragraphs from Full CMS Profile
@@ -308,48 +308,104 @@ const goToAdmin = () => {
   window.location.hash = "#admin";
 };
 
+// Dynamic Stats Target Values computed in real-time from works, skills, and experiences
+const dynamicStatsData = computed(() => {
+  // Real-time project count from works in store
+  const projectsCount = Math.max(works.value?.length || 0, 10);
+
+  // Real-time skills count from skills in store
+  const skillsCount = Math.max(skills.value?.length || 0, 12);
+
+  // Real-time unique clients & partners from works + experience
+  const clientsSet = new Set();
+  (works.value || []).forEach((w) => {
+    if (w.client && w.client.trim()) clientsSet.add(w.client.trim());
+  });
+  ((experiences.value && experiences.value.work) || []).forEach((e) => {
+    if (e.company && e.company.trim()) clientsSet.add(e.company.trim());
+  });
+  const clientsCount = Math.max(clientsSet.size, 6);
+
+  // Years of experience
+  const yearsExp = 3;
+
+  return [
+    { icon: "💻", targetValue: projectsCount, label: "Proyek IT & Visual" },
+    { icon: "⚡", targetValue: skillsCount, label: "Keahlian & Tools" },
+    { icon: "🏢", targetValue: clientsCount, label: "Mitra & Klien" },
+    { icon: "⏳", targetValue: yearsExp, label: "Tahun Pengalaman" },
+  ];
+});
+
 // Stats data with animated values
 const stats = reactive([
-  { icon: "💻", value: 15, currentValue: 0, label: "Proyek IT & Visual" },
-  { icon: "🏢", value: 5, currentValue: 0, label: "Mitra & Klien" },
+  { icon: "💻", value: 10, currentValue: 0, label: "Proyek IT & Visual" },
+  { icon: "⚡", value: 12, currentValue: 0, label: "Keahlian & Tools" },
+  { icon: "🏢", value: 6, currentValue: 0, label: "Mitra & Klien" },
   { icon: "⏳", value: 3, currentValue: 0, label: "Tahun Pengalaman" },
 ]);
 
 // Ref for stats element
 const statsRef = ref(null);
-const hasAnimatedStats = ref(false);
+let hasAnimatedStats = false;
+let isAnimatingStats = false;
 
 /**
- * Animate counting for stats
+ * Animate counting for stats smoothly from 0 to target values
  */
 const animateStats = () => {
-  if (hasAnimatedStats.value) return;
-  hasAnimatedStats.value = true;
+  if (isAnimatingStats) return;
+  isAnimatingStats = true;
+  hasAnimatedStats = true;
 
-  const duration = 2000;
-  const fps = 60;
-  const frames = duration / (1000 / fps);
+  // Sync targets with latest real-time data
+  dynamicStatsData.value.forEach((d, idx) => {
+    if (stats[idx]) {
+      stats[idx].value = d.targetValue;
+      stats[idx].icon = d.icon;
+      stats[idx].label = d.label;
+    }
+  });
 
-  // Easing function - easeOutQuart
-  const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+  const duration = 1800; // 1.8s smooth count up
+  const startTime = performance.now();
 
-  let frame = 0;
-  const animate = () => {
-    frame++;
-    const progress = Math.min(frame / frames, 1);
-    const easedProgress = easeOutQuart(progress);
+  const step = (now) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Smooth easeOutCubic
+    const easeProgress = 1 - Math.pow(1 - progress, 3);
 
     stats.forEach((stat) => {
-      stat.currentValue = Math.round(easedProgress * stat.value);
+      stat.currentValue = Math.round(easeProgress * stat.value);
     });
 
     if (progress < 1) {
-      requestAnimationFrame(animate);
+      requestAnimationFrame(step);
+    } else {
+      stats.forEach((stat) => {
+        stat.currentValue = stat.value;
+      });
+      isAnimatingStats = false;
     }
   };
 
-  requestAnimationFrame(animate);
+  requestAnimationFrame(step);
 };
+
+// Re-sync stats whenever dynamic store data updates
+watch(dynamicStatsData, (newStats) => {
+  newStats.forEach((d, idx) => {
+    if (stats[idx]) {
+      stats[idx].value = d.targetValue;
+      stats[idx].icon = d.icon;
+      stats[idx].label = d.label;
+      if (hasAnimatedStats && !isAnimatingStats) {
+        stats[idx].currentValue = d.targetValue;
+      }
+    }
+  });
+}, { deep: true });
 
 // Form data
 const formData = ref({
@@ -405,19 +461,18 @@ onMounted(() => {
     observeAll(elements);
   }, 100);
 
-  // Setup intersection observer for stats animation (animate once and retain numbers smoothly)
+  // Setup intersection observer for stats animation
   if (typeof IntersectionObserver !== "undefined") {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAnimatedStats.value) {
-            hasAnimatedStats.value = true;
+          if (entry.isIntersecting && !hasAnimatedStats) {
             animateStats();
             observer.disconnect();
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px 150px 0px" }
+      { threshold: 0.05, rootMargin: "0px 0px 200px 0px" }
     );
 
     setTimeout(() => {
@@ -425,8 +480,15 @@ onMounted(() => {
       if (statsElement) {
         observer.observe(statsElement);
       }
-    }, 100);
+    }, 80);
   }
+
+  // Safety fallback: if not triggered yet after 800ms, start count-up automatically
+  setTimeout(() => {
+    if (!hasAnimatedStats) {
+      animateStats();
+    }
+  }, 800);
 });
 
 onUnmounted(() => {
@@ -543,18 +605,21 @@ onUnmounted(() => {
 .about-stats {
   display: flex;
   justify-content: center;
-  gap: var(--space-xl);
+  flex-wrap: wrap;
+  gap: var(--space-md);
   margin-top: var(--space-2xl);
   padding-top: var(--space-xl);
 }
 
 .stat-item {
   text-align: center;
-  padding: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
   background: rgba(31, 159, 216, 0.05);
-  border: 1px solid rgba(31, 159, 216, 0.1);
+  border: 1px solid rgba(31, 159, 216, 0.12);
   border-radius: var(--radius-lg);
   min-width: 140px;
+  flex: 1 1 140px;
+  max-width: 200px;
   transition: all 400ms var(--ease-smooth);
 }
 
@@ -960,8 +1025,29 @@ onUnmounted(() => {
 /* Responsive - Mobile (375px-639px) */
 @media (min-width: 375px) and (max-width: 639px) {
   .about-stats {
-    flex-direction: column;
-    gap: var(--space-lg);
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  .stat-item {
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 14px 10px !important;
+  }
+
+  .stat-icon {
+    font-size: 1.6rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .stat-number {
+    font-size: 1.7rem !important;
+  }
+
+  .stat-label {
+    font-size: 11px !important;
+    line-height: 1.3 !important;
   }
 
   .contact-grid {
