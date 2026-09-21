@@ -23,10 +23,11 @@ export const NAV_LINKS = [
  * Typing text roles for hero section
  */
 export const TYPING_ROLES = [
-  "Full-Stack Web Developer",
-  "Commercial Drone Pilot (DJI)",
-  "Network & IT Infrastructure Support",
-  "Commercial Videographer",
+  "IT Support & Infrastructure Specialist",
+  "Web Builder & System Analyst",
+  "Commercial Drone Pilot (DJI 4K)",
+  "Network Support (Fiber Optic & LAN)",
+  "Creative Multimedia Specialist",
 ];
 
 /**
@@ -65,9 +66,9 @@ export const BREAKPOINTS = {
  */
 export const PROFILE = {
   name: "Abdullah Syauqillah",
-  title: "Web Developer | Network Support | Commercial Videographer",
+  title: "IT Support, Web Builder & Commercial Drone Specialist",
   greeting: "Halo, saya",
-  bio: "Lulusan S1 Teknik Informatika dengan keahlian hybrid di bidang Software Development, IT Infrastructure, dan Multimedia. Berpengalaman merancang Sistem Informasi Pesantren terintegrasi skala besar, mengelola jaringan Fiber Optic/LAN, serta memproduksi video komersial dan aerial drone untuk perusahaan nasional (Pertamina, Bulog) dan instansi pemerintah.",
+  bio: "Lulusan S1 Teknik Informatika (S.Kom) berdomisili di Gresik, Jawa Timur. Berpengalaman di bidang IT Infrastructure (Fiber Optic/LAN), perancangan sistem web terintegrasi, serta pilot drone komersial untuk BUMN (Pertamina & Bulog). Siap berkontribusi penuh (Full-Time / On-Site) di kawasan industri JIIPE, BUMN, maupun korporasi nasional.",
   avatar: "/images/profile.jpg",
   resume: "/resume.pdf",
   whatsapp: "628155936131",

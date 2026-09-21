@@ -34,31 +34,32 @@ const DEFAULT_CLIENTS = [
 // Default Profile Data
 const DEFAULT_PROFILE = {
   name: "Abdullah Syauqillah",
-  title: "Product-Minded Web Builder | UI/UX Designer & System Analyst",
+  title: "IT Support, Web Builder & Commercial Drone Specialist",
   greeting: "Halo, saya",
-  bio: "Praktisi teknologi dengan pendekatan hybrid: memadukan perancangan proses bisnis (System Analysis), desain antarmuka modern (Figma UI/UX), serta akselerasi modern AI-Augmented Development untuk mewujudkan sistem web terintegrasi yang solutif, tepat guna, dan siap pakai bagi institusi maupun bisnis.",
+  bio: "Lulusan S1 Teknik Informatika (S.Kom) berdomisili di Gresik, Jawa Timur. Berpengalaman di bidang IT Infrastructure (Fiber Optic/LAN), perancangan sistem web terintegrasi, serta pilot drone komersial untuk BUMN (Pertamina & Bulog). Siap berkontribusi penuh (Full-Time / On-Site) di kawasan industri JIIPE, BUMN, maupun korporasi nasional.",
   avatar: "/images/profile.jpg",
   resume: "/resume.pdf",
   whatsapp: "628155936131",
   email: "abdullahsyauqillah01@gmail.com",
-  location: "Jl. Masjid Jami' Kyai Gede, Bungah, Gresik, Jawa Timur",
+  location: "Bungah, Gresik, Jawa Timur (Siap On-Site JIIPE & Surabaya)",
   phone: "+62 815 5936 131",
   aboutParagraphs: [
-    "Saya berfokus pada pembangunan produk digital yang berorientasi pada solusi nyata. Kekuatan utama saya terletak pada kemampuan menerjemahkan kebutuhan operasional yang kompleks menjadi arsitektur proses bisnis yang rapi, merancangnya menjadi desain antarmuka intuitif di Figma, dan mengeksekusinya menjadi aplikasi web fungsional menggunakan metode modern AI-Assisted Engineering.",
-    "Salah satu implementasi nyata adalah Sistem Informasi Pesantren terintegrasi yang mencakup modul Absensi QR Code, tata kelola keuangan kas multi-lembaga, dan pendataan santri secara mandiri. Di samping pengembangan web, saya juga berpengalaman dalam pemeliharaan infrastruktur jaringan (Fiber Optic/LAN) serta produksi multimedia sinematik komersial."
+    "Saya adalah Sarjana Komputer (S.Kom) lulusan S1 Teknik Informatika Universitas Qomaruddin Gresik dengan rekam jejak praktis di bidang teknologi informasi dan multimedia industri. Berdomisili di Bungah, Gresik — area strategis lingkar industri JIIPE Manyar.",
+    "Kompetensi utama saya mencakup pemeliharaan infrastruktur IT & jaringan (instalasi & uji redaman kabel Fiber Optic, LAN switching, access control fingerprint), rancang bangun sistem aplikasi web terintegrasi skala ribuan pengguna, serta pengoperasian drone komersial untuk pemetaan visual dan company profile BUMN nasional (PT Pertamina & Perum BULOG).",
+    "Dengan integritas kerja tinggi, dedikasi penuh, dan kesiapan bekerja secara On-Site maupun sistem shift industri, saya siap memberikan kontribusi nyata bagi stabilitas teknologi dan kemajuan operasional perusahaan."
   ],
   stats: [
-    { label: "Tahun Pengalaman", targetValue: 3, icon: "⚡" },
-    { label: "Proyek Selesai", targetValue: 25, icon: "🎯" },
-    { label: "Klien & Mitra", targetValue: 12, icon: "🤝" },
-    { label: "Kepuasan Klien", targetValue: 99, icon: "⭐" }
+    { label: "Tahun Pengalaman", targetValue: 4, icon: "⏳" },
+    { label: "Proyek Selesai", targetValue: 6, icon: "💻" },
+    { label: "Klien & Mitra", targetValue: 5, icon: "🏢" },
+    { label: "Keahlian & Tools", targetValue: 8, icon: "⚡" }
   ],
   typingRoles: [
-    "Product-Minded Web Builder",
-    "UI/UX & Figma Designer",
-    "AI-Augmented Developer",
-    "Commercial Drone Pilot (DJI)",
-    "Network & IT Infrastructure Support"
+    "IT Support & Infrastructure Specialist",
+    "Web Builder & System Analyst",
+    "Commercial Drone Pilot (DJI 4K)",
+    "Network Support (Fiber Optic & LAN)",
+    "Creative Multimedia Specialist"
   ],
   social: [
     { id: "linkedin", name: "LinkedIn", url: "https://www.linkedin.com/in/abdullah-syauqillah-8a7199248/", icon: "linkedin" },
