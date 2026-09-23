@@ -91,6 +91,20 @@
         <p class="footer-copyright">
           &copy; {{ currentYear }} Portofolio By Abdullah Syauqillah
         </p>
+
+        <!-- Live Visitor Counter Badge (Anti-Spam) -->
+        <div class="visitor-counter-wrapper">
+          <div class="visitor-pill" title="Total Pengunjung Unik Portofolio (Anti-Spam per IP)">
+            <span class="visitor-pulse-dot"></span>
+            <svg class="visitor-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span class="visitor-label">Pengunjung:</span>
+            <span class="visitor-num">{{ (visitorCount || 1).toLocaleString('id-ID') }}</span>
+          </div>
+        </div>
+
         <div class="footer-bottom-links">
           <a href="#admin" class="footer-admin-link">
             <span class="admin-lock-icon">🔒</span>
@@ -129,7 +143,7 @@ import { usePortfolioStore } from "@/composables/usePortfolioStore";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
 // Reactive CMS Store
-const { profile } = usePortfolioStore();
+const { profile, visitorCount } = usePortfolioStore();
 
 const contactInfo = computed(() => ({
   email: (profile.value && profile.value.email) || CONTACT_INFO.email,
@@ -382,6 +396,74 @@ onUnmounted(() => {
   font-size: var(--font-size-sm);
   margin: 0;
   letter-spacing: 0.2px;
+}
+
+/* Visitor Counter Pill */
+.visitor-counter-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visitor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  transition: all var(--transition-fast);
+  cursor: default;
+}
+
+.visitor-pill:hover {
+  border-color: rgba(31, 159, 216, 0.4);
+  background: rgba(31, 159, 216, 0.08);
+  transform: translateY(-1px);
+}
+
+.visitor-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: visitor-pulse 2s infinite ease-in-out;
+}
+
+@keyframes visitor-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+    box-shadow: 0 0 12px #34D399;
+  }
+}
+
+.visitor-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-primary-light);
+}
+
+.visitor-label {
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.visitor-num {
+  font-weight: 700;
+  color: #38BDF8;
+  letter-spacing: 0.5px;
 }
 
 .footer-bottom-links {

@@ -162,6 +162,16 @@
             <span class="tab-icon">🔐</span>
             <span>Keamanan Sandi</span>
           </button>
+
+          <button
+            class="cms-tab-btn"
+            :class="{ active: activeCmsTab === 'analytics' }"
+            @click="activeCmsTab = 'analytics'"
+          >
+            <span class="tab-icon">📊</span>
+            <span>Pengunjung & Analitik</span>
+            <span v-if="visitorCount > 0" class="tab-badge analytics-badge">{{ visitorCount }}</span>
+          </button>
         </nav>
 
         <!-- TAB 1: WORKS -->
@@ -346,6 +356,9 @@
 
         <!-- TAB 5: SECURITY & PASSWORD -->
         <AdminSecurityTab v-else-if="activeCmsTab === 'security'" @toast="showToast" />
+
+        <!-- TAB 6: ANALYTICS & VISITORS -->
+        <AdminAnalyticsTab v-else-if="activeCmsTab === 'analytics'" @toast="showToast" />
       </div>
     </main>
 
@@ -1046,6 +1059,7 @@ import AdminSkillsTab from "./AdminSkillsTab.vue";
 import AdminClientsTab from "./AdminClientsTab.vue";
 import AdminExperienceTab from "./AdminExperienceTab.vue";
 import AdminSecurityTab from "./AdminSecurityTab.vue";
+import AdminAnalyticsTab from "./AdminAnalyticsTab.vue";
 import {
   captureVideoSnapshot,
   fileToBase64,
@@ -1066,6 +1080,7 @@ const {
   skills,
   experiences,
   clients,
+  visitorCount,
   logout,
   addWork,
   updateWork,
@@ -1939,6 +1954,12 @@ const showToast = (msg) => {
 .cms-tab-btn.active .tab-badge {
   background: var(--color-primary, #1f9fd8);
   color: #ffffff;
+}
+
+.tab-badge.analytics-badge {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.35);
 }
 
 .tab-pane-works {

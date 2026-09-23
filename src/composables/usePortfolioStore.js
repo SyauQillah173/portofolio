@@ -17,6 +17,7 @@ const STORAGE_KEYS = {
   CLIENTS: "syauqillah_portfolio_clients_v3",
   AUTH: "syauqillah_admin_auth",
   PASSWORD: "syauqillah_admin_password",
+  VISITOR_COUNT: "syauqillah_portfolio_visitor_count_v1",
 };
 
 // Default admin password
@@ -147,6 +148,16 @@ const isAuthenticated = ref(false);
 const isInitialized = ref(false);
 const isNeonConnected = ref(false);
 const isSyncing = ref(false);
+
+const visitorCount = ref(1);
+const visitorStats = ref({
+  totalUnique: 0,
+  totalViews: 0,
+  todayUnique: 0,
+  topLocations: [],
+  visitors: [],
+});
+const isLoadingAnalytics = ref(false);
 
 /**
  * Fetch latest works and CMS settings from Neon Postgres
@@ -280,6 +291,69 @@ async function syncCmsSectionToNeon(key, value) {
 }
 
 /**
+ * Record a page visit (Anti-Spam per session & Unique by IP in database)
+ */
+async function recordVisit() {
+  try {
+    const sessionKey = "syauqillah_visit_recorded";
+    const alreadyRecordedInSession = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(sessionKey) : null;
+
+    let res;
+    if (!alreadyRecordedInSession) {
+      res = await fetch("/api/visitors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem(sessionKey, "true");
+      }
+    } else {
+      res = await fetch("/api/visitors", { cache: "no-store" });
+    }
+
+    if (res && res.ok) {
+      const data = await res.json();
+      if (data && typeof data.totalUnique === "number") {
+        visitorCount.value = data.totalUnique;
+        saveToStorage(STORAGE_KEYS.VISITOR_COUNT, data.totalUnique);
+      }
+    }
+  } catch (err) {
+    console.warn("Visitors analytics fallback:", err.message);
+  }
+}
+
+/**
+ * Fetch detailed analytics for admin dashboard
+ */
+async function fetchAnalyticsDetails() {
+  isLoadingAnalytics.value = true;
+  try {
+    const res = await fetch(`/api/visitors?detail=true&t=${Date.now()}`, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success) {
+        visitorStats.value = {
+          totalUnique: data.summary?.totalUnique || 0,
+          totalViews: data.summary?.totalViews || 0,
+          todayUnique: data.summary?.todayUnique || 0,
+          topLocations: data.summary?.topLocations || [],
+          visitors: Array.isArray(data.visitors) ? data.visitors : [],
+        };
+        if (data.summary?.totalUnique) {
+          visitorCount.value = data.summary.totalUnique;
+          saveToStorage(STORAGE_KEYS.VISITOR_COUNT, data.summary.totalUnique);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Error fetching analytics details:", err.message);
+  } finally {
+    isLoadingAnalytics.value = false;
+  }
+}
+
+/**
  * Initialize store from localStorage or default JSON
  */
 function initStore() {
@@ -375,6 +449,17 @@ function initStore() {
   } catch (e) {
     clients.value = JSON.parse(JSON.stringify(DEFAULT_CLIENTS));
   }
+
+  // 7. Load & record visitor count
+  try {
+    const storedCount = localStorage.getItem(STORAGE_KEYS.VISITOR_COUNT);
+    if (storedCount) {
+      visitorCount.value = Number(storedCount) || 1;
+    }
+  } catch (e) {}
+
+  // Record visit in background
+  recordVisit();
 
   isInitialized.value = true;
 
@@ -848,6 +933,11 @@ export function usePortfolioStore() {
     isAuthenticated,
     isNeonConnected,
     isSyncing,
+    visitorCount,
+    visitorStats,
+    isLoadingAnalytics,
+    recordVisit,
+    fetchAnalyticsDetails,
     login,
     logout,
     changePassword,
