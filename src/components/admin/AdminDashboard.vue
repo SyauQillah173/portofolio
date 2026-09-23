@@ -19,9 +19,29 @@
             <span class="status-pulse" :class="{ 'pulse-cloud': isNeonConnected }"></span>
             {{ isNeonConnected ? '☁️ Neon Cloud Terhubung' : '💾 Mode Lokal (Klik Sinkron)' }}
           </button>
+
+          <!-- Topbar Live Visitors Pill -->
+          <button
+            type="button"
+            class="live-status clickable status-visitor-live"
+            @click="openAnalyticsModal"
+            title="Klik untuk cek asal wilayah, kota, IP & perangkat pengunjung (Anti-Spam)"
+          >
+            <span class="status-pulse pulse-green"></span>
+            <span>👥 {{ (visitorCount || 1).toLocaleString('id-ID') }} Pengunjung</span>
+          </button>
         </div>
 
         <div class="admin-actions">
+          <button 
+            class="btn btn-secondary btn-sm visitor-quick-btn" 
+            @click="openAnalyticsModal" 
+            title="Lihat rincian asal kota, IP & analitik pengunjung"
+          >
+            <span class="action-icon">📊</span>
+            <span class="btn-label">Pengunjung & IP</span>
+          </button>
+
           <a
             href="https://drive.google.com/drive/folders/1c70iPsGZhf0u3xTs_qfv_41IINvlPYSW?usp=sharing"
             target="_blank"
@@ -162,16 +182,6 @@
             <span class="tab-icon">🔐</span>
             <span>Keamanan Sandi</span>
           </button>
-
-          <button
-            class="cms-tab-btn"
-            :class="{ active: activeCmsTab === 'analytics' }"
-            @click="activeCmsTab = 'analytics'"
-          >
-            <span class="tab-icon">📊</span>
-            <span>Pengunjung & Analitik</span>
-            <span v-if="visitorCount > 0" class="tab-badge analytics-badge">{{ visitorCount }}</span>
-          </button>
         </nav>
 
         <!-- TAB 1: WORKS -->
@@ -252,6 +262,29 @@
               <span class="stat-value">{{ categories.length }}</span>
             </div>
             <span class="stat-icon-bg">🎯</span>
+          </div>
+
+          <!-- 4th Stat Card: Pengunjung Unik (Anti-Spam) -->
+          <div
+            class="stat-card stat-card-visitor clickable"
+            @click="openAnalyticsModal"
+            title="Klik untuk membuka rincian asal wilayah, kota, dan alamat IP pengunjung"
+          >
+            <div class="stat-meta">
+              <div class="visitor-card-head">
+                <span class="stat-label">Pengunjung Unik</span>
+                <span class="pill-anti-spam">Anti-Spam</span>
+              </div>
+              <div class="visitor-card-num">
+                <span class="stat-value text-cyan">{{ (visitorCount || 1).toLocaleString('id-ID') }}</span>
+                <span class="live-dot-green"></span>
+              </div>
+              <div class="visitor-card-link">
+                <span>Cek Asal Kota & IP</span>
+                <span class="arrow-icon">➔</span>
+              </div>
+            </div>
+            <span class="stat-icon-bg">👥</span>
           </div>
         </div>
 
@@ -356,9 +389,6 @@
 
         <!-- TAB 5: SECURITY & PASSWORD -->
         <AdminSecurityTab v-else-if="activeCmsTab === 'security'" @toast="showToast" />
-
-        <!-- TAB 6: ANALYTICS & VISITORS -->
-        <AdminAnalyticsTab v-else-if="activeCmsTab === 'analytics'" @toast="showToast" />
       </div>
     </main>
 
@@ -1041,6 +1071,30 @@
       </Transition>
     </Teleport>
 
+    <!-- Visitor Analytics Modal -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="showAnalyticsModal" class="modal-backdrop" @click.self="showAnalyticsModal = false">
+          <div class="form-modal-card analytics-modal-card">
+            <div class="form-modal-header">
+              <div class="analytics-modal-title">
+                <h2>📊 Analitik & Riwayat Pengunjung Portofolio</h2>
+                <span class="analytics-modal-subtitle">
+                  Data real-time pengunjung unik berbasis alamat IP (Anti-Spam) & deteksi asal wilayah
+                </span>
+              </div>
+              <button class="close-btn" @click="showAnalyticsModal = false" aria-label="Tutup">
+                ✕
+              </button>
+            </div>
+            <div class="form-scrollable analytics-modal-scroll">
+              <AdminAnalyticsTab :isModal="true" @toast="showToast" @close="showAnalyticsModal = false" />
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Notification Toast -->
     <Transition name="slide-up">
       <div v-if="toast.show" class="toast-notification">
@@ -1147,6 +1201,12 @@ const handleImgError = (e) => {
 const showFormModal = ref(false);
 const isEditing = ref(false);
 const editingId = ref(null);
+
+// Analytics Modal State
+const showAnalyticsModal = ref(false);
+const openAnalyticsModal = () => {
+  showAnalyticsModal.value = true;
+};
 
 const uploadMode = ref("image_file"); // 'image_file' | 'video_file' | 'youtube' | 'url'
 const fileInputRef = ref(null);
@@ -1852,6 +1912,21 @@ const showToast = (msg) => {
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
+.status-visitor-live {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: rgba(0, 240, 255, 0.3);
+  color: #38BDF8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.status-visitor-live:hover {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: rgba(0, 240, 255, 0.5);
+  transform: translateY(-1px);
+}
+
 .status-pulse {
   width: 7px;
   height: 7px;
@@ -1859,6 +1934,22 @@ const showToast = (msg) => {
   background: #10B981;
   box-shadow: 0 0 8px #10B981;
   animation: pulse 2s infinite;
+}
+
+.pulse-green {
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.visitor-quick-btn {
+  border-color: rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.08);
+  color: #38BDF8;
+}
+
+.visitor-quick-btn:hover {
+  background: rgba(0, 240, 255, 0.18);
+  border-color: rgba(0, 240, 255, 0.5);
 }
 
 @keyframes pulse {
@@ -2058,6 +2149,94 @@ const showToast = (msg) => {
   align-items: center;
   justify-content: space-between;
   box-shadow: var(--shadow-sm);
+}
+
+.stat-card.clickable {
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.stat-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.stat-card-visitor {
+  border-color: rgba(0, 240, 255, 0.25);
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.06), rgba(15, 23, 42, 0.85));
+}
+
+.stat-card-visitor:hover {
+  border-color: rgba(0, 240, 255, 0.55);
+  box-shadow: 0 10px 25px rgba(0, 240, 255, 0.12);
+}
+
+.visitor-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.pill-anti-spam {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+}
+
+.visitor-card-num {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text-cyan {
+  color: #38BDF8 !important;
+}
+
+.live-dot-green {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  display: inline-block;
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #34D399; }
+}
+
+.visitor-card-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-primary-light);
+  transition: color 0.2s ease;
+}
+
+.stat-card-visitor:hover .visitor-card-link {
+  color: #38BDF8;
+}
+
+.stat-card-visitor:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+.arrow-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 0.8rem;
 }
 
 .stat-label {
@@ -2335,6 +2514,33 @@ const showToast = (msg) => {
   flex-direction: column;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
   overflow: hidden;
+}
+
+.analytics-modal-card {
+  max-width: 1040px;
+}
+
+.analytics-modal-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.analytics-modal-title h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.analytics-modal-subtitle {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.analytics-modal-scroll {
+  padding: var(--space-xl);
+  overflow-y: auto;
 }
 
 .form-modal-header {

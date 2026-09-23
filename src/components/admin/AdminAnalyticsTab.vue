@@ -1,7 +1,7 @@
 <template>
-  <div class="admin-tab-pane analytics-pane">
-    <!-- Header -->
-    <div class="pane-header">
+  <div class="admin-tab-pane analytics-pane" :class="{ 'modal-mode': isModal }">
+    <!-- Header (Stand-alone mode) -->
+    <div v-if="!isModal" class="pane-header">
       <div>
         <h2 class="pane-title">📊 Statistik & Analitik Pengunjung</h2>
         <p class="pane-desc">
@@ -19,6 +19,22 @@
           <span>{{ isLoadingAnalytics ? 'Memuat Data...' : 'Segarkan Data' }}</span>
         </button>
       </div>
+    </div>
+
+    <!-- Modal Top Actions Bar -->
+    <div v-else class="modal-top-bar">
+      <div class="modal-top-left">
+        <span class="modal-badge-info">🛡️ Sistem Anti-Spam Aktif: 1 Pengunjung Unik = 1 Alamat IP</span>
+      </div>
+      <button
+        class="btn btn-secondary btn-sm refresh-btn"
+        :disabled="isLoadingAnalytics"
+        @click="refreshData"
+        title="Segarkan data analitik dari database Neon Cloud"
+      >
+        <span class="refresh-icon" :class="{ 'spin-icon': isLoadingAnalytics }">🔄</span>
+        <span>{{ isLoadingAnalytics ? 'Memuat Data...' : 'Segarkan Data' }}</span>
+      </button>
     </div>
 
     <!-- Anti-Spam Information Alert -->
@@ -230,6 +246,13 @@
         </table>
       </div>
     </div>
+
+    <!-- Modal Footer Actions (only if isModal) -->
+    <div v-if="isModal" class="modal-footer-actions">
+      <button type="button" class="btn btn-secondary" @click="$emit('close')">
+        Tutup Jendela Analitik
+      </button>
+    </div>
   </div>
 </template>
 
@@ -237,7 +260,14 @@
 import { computed, onMounted, ref } from "vue";
 import { usePortfolioStore } from "@/composables/usePortfolioStore";
 
-const emit = defineEmits(["toast"]);
+const props = defineProps({
+  isModal: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(["toast", "close"]);
 
 const {
   visitorCount,
@@ -364,6 +394,39 @@ const getRelativeTime = (isoString) => {
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
+}
+
+.admin-tab-pane.modal-mode {
+  gap: var(--space-lg);
+}
+
+.modal-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-badge-info {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--font-size-xs);
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.modal-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .pane-header {
